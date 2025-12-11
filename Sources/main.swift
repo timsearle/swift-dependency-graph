@@ -329,14 +329,17 @@ struct DependencyGraph: ParsableCommand {
     func parsePBXProj(at url: URL) -> DependencyInfo? {
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         
-        let projectPath = url.deletingLastPathComponent().deletingLastPathComponent().path
-        let projectName = URL(fileURLWithPath: projectPath).lastPathComponent.replacingOccurrences(of: ".xcodeproj", with: "")
+        // URL is .../SomeProject.xcodeproj/project.pbxproj
+        // Go up one level to get the xcodeproj, then extract its name
+        let xcodeprojURL = url.deletingLastPathComponent()
+        let projectName = xcodeprojURL.deletingPathExtension().lastPathComponent
+        let projectPath = xcodeprojURL.deletingLastPathComponent().path
         
         var explicitPackages = Set<String>()
         var targets: [TargetInfo] = []
         
         // Parse XCRemoteSwiftPackageReference entries - look for repositoryURL lines
-        let repoURLPattern = #"repositoryURL\s*=\s*"([^"]+)"#
+        let repoURLPattern = #"repositoryURL\s*=\s*"([^"]+)""#
         if let regex = try? NSRegularExpression(pattern: repoURLPattern, options: []) {
             let range = NSRange(content.startIndex..., in: content)
             let matches = regex.matches(in: content, options: [], range: range)
