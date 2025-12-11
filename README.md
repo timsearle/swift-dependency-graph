@@ -59,44 +59,49 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 
 The tool scans for and merges dependencies from:
 - **Package.resolved** - Swift Package Manager resolved dependencies (v1 & v2 formats)
-- **project.pbxproj** - Xcode project files with Swift Package references
+- **project.pbxproj** - Xcode project files with Swift Package references and target definitions
+- **Package.swift** - Local Swift packages with their dependency declarations
 
 ### Explicit vs Transient Dependencies
 
-- **Explicit dependencies**: Packages directly added to your Xcode project (found in `project.pbxproj`)
-- **Transient dependencies**: Packages pulled in as dependencies of your explicit dependencies (only in `Package.resolved`)
+- **Explicit dependencies**: Packages directly added to your project (found in `project.pbxproj` or local `Package.swift`)
+- **Transient dependencies**: Packages pulled in as dependencies of your explicit dependencies
 
 Use `--hide-transient` to focus on your directly-added dependencies.
 
 ### Xcode Targets
 
-With `--show-targets`, the graph includes Xcode build targets (apps, frameworks, tests) as nodes, showing the relationship between targets and their package dependencies.
+With `--show-targets`, the graph includes Xcode build targets (apps, frameworks, tests) as nodes, showing:
+- Project → Target relationships
+- Target → Package dependency edges
+- Which packages each target uses
 
 ### Pinch Point Analysis
 
-Use `--format analyze` to identify modularization pinch points - modules where changes cause large-scale recompilations:
+Use `--format analyze --show-targets` to identify modularization pinch points:
 
 ```
 📊 SUMMARY
-Total modules: 169
-Max dependency depth: 1
-Average transitive dependents: 9.7
+Total modules: 341
+Max dependency depth: 2
+Average transitive dependents: 3.8
 
 🔴 HIGH-IMPACT PINCH POINTS (changes cause most recompilation)
 Module                                    Direct  Transitive  Depth  Impact
-📚 xcodeproj                              72      61          0      61.0
-📚 pathkit                                72      61          0      61.0
+📚 mobile-swift-telemetry                 61      57          0      57.0
+📚 mobile-swift-json                      56      52          0      52.0
+...
+
+🎯 MOST VULNERABLE (affected by most dependency changes)
+Module                                    Direct  Transitive  Vuln Score
+📦 MobileRetailAppNextGen-IOS             7       160         160.0
+🎯 MobileRetailAppNextGen-IOS/MS3         125     125         125.0
 ...
 
 ⚠️  RISK BREAKDOWN
-🔴 Critical (≥20 transitive dependents): 31 modules
-🟠 High (10-19 transitive dependents):   5 modules
-🟡 Medium (5-9 transitive dependents):   3 modules
-
-💡 RECOMMENDATIONS
-1. STABILIZE CRITICAL MODULES
-2. CONSIDER BREAKING UP high-depth, high-impact modules
-3. PROTOCOL/INTERFACE CANDIDATES for abstraction
+🔴 Critical (≥20 transitive dependents): 13 modules
+🟠 High (10-19 transitive dependents):   1 modules
+🟡 Medium (5-9 transitive dependents):   6 modules
 ```
 
 **Metrics explained:**
@@ -104,6 +109,7 @@ Module                                    Direct  Transitive  Depth  Impact
 - **Transitive dependents**: Total modules affected by a change (includes indirect)
 - **Depth**: How deep in the dependency graph (0 = leaf)
 - **Impact score**: Weighted score combining dependents and depth
+- **Vulnerability score**: How many dependencies a module has (more = more likely to recompile)
 
 ## HTML Visualization Features
 
