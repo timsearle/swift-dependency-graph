@@ -20,9 +20,10 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 
 | Option | Description |
 |--------|-------------|
-| `--format <format>` | Output format: tree, graph, dot, or html (default: graph) |
+| `--format <format>` | Output format: tree, graph, dot, html, or analyze (default: graph) |
 | `--hide-transient` | Hide transient (non-explicit) dependencies |
 | `--show-targets` | Show Xcode build targets in the graph |
+| `--internal-only` | In analyze mode, only show internal modules (not external packages) |
 
 ### Output Formats
 
@@ -31,7 +32,7 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 | `tree` | ASCII tree view (original) |
 | `graph` | ASCII box diagram |
 | `dot` | Graphviz DOT format |
-| `html` | **Interactive web visualization** (default) |
+| `html` | **Interactive web visualization** |
 | `analyze` | **Pinch point analysis** for modularization |
 
 ### Examples
@@ -46,8 +47,11 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 # Include Xcode targets in the graph
 .build/release/DependencyGraph /path/to/ios-project --format html --show-targets > graph.html
 
-# Analyze pinch points for modularization
-.build/release/DependencyGraph /path/to/ios-project --format analyze
+# Analyze pinch points (all explicit dependencies)
+.build/release/DependencyGraph /path/to/ios-project --format analyze --show-targets
+
+# Analyze only internal modules you control
+.build/release/DependencyGraph /path/to/ios-project --format analyze --show-targets --internal-only
 
 # Graphviz
 .build/release/DependencyGraph . --format dot > graph.dot && dot -Tpng graph.dot -o graph.png
@@ -127,10 +131,20 @@ Module                                    Direct  Transitive  Vuln Score
 
 | Color | Node Type |
 |-------|-----------|
-| Blue | Project/Package |
-| Green | Xcode Target |
-| Dark Gray | Explicit Dependency |
-| Light Gray (dashed) | Transient Dependency |
+| Blue | Xcode Project |
+| Green | Build Target |
+| Yellow | Internal Package (local, you control) |
+| Dark Gray | External Package (remote) |
+| Light Gray (dashed) | Transient (indirect dependency) |
+
+### Icons in Analysis
+
+| Icon | Node Type |
+|------|-----------|
+| 📦 | Xcode Project |
+| 🎯 | Build Target |
+| 🏠 | Internal Package (local) |
+| 📚 | External Package (remote) |
 
 ## Architecture
 
