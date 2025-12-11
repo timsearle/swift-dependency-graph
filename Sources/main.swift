@@ -69,9 +69,10 @@ enum OutputFormat: String, ExpressibleByArgument, CaseIterable {
 // MARK: - Graph Data Structures
 
 enum NodeType: String {
-    case project
-    case target
-    case dependency
+    case project      // Xcode project
+    case target       // Xcode build target
+    case localPackage // Package.swift within the repo (internal)
+    case externalPackage // Remote dependency (external)
 }
 
 struct GraphNode {
@@ -82,6 +83,8 @@ struct GraphNode {
     
     var isProject: Bool { nodeType == .project }
     var isTarget: Bool { nodeType == .target }
+    var isInternal: Bool { nodeType == .project || nodeType == .target || nodeType == .localPackage }
+    var isExternal: Bool { nodeType == .externalPackage }
 }
 
 struct Graph {
@@ -203,7 +206,7 @@ struct DependencyGraph: ParsableCommand {
     @Argument(help: "The directory to scan for Package.resolved files")
     var directory: String
     
-    @Option(name: .shortAndLong, help: "Output format: tree, graph, dot, or html")
+    @Option(name: .shortAndLong, help: "Output format: tree, graph, dot, html, or analyze")
     var format: OutputFormat = .graph
     
     @Flag(name: .long, help: "Hide transient (non-explicit) dependencies")
@@ -211,6 +214,9 @@ struct DependencyGraph: ParsableCommand {
     
     @Flag(name: .long, help: "Show Xcode build targets in the graph")
     var showTargets: Bool = false
+    
+    @Flag(name: .long, help: "In analyze mode, only show internal modules (not external packages)")
+    var internalOnly: Bool = false
     
     mutating func run() throws {
         let fileManager = FileManager.default
@@ -231,9 +237,14 @@ struct DependencyGraph: ParsableCommand {
         )
         
         while let fileURL = enumerator?.nextObject() as? URL {
-            // Skip build directories and checkouts
+            // Skip build directories, checkouts, and Xcode internal paths
             let pathString = fileURL.path
-            if pathString.contains("/.build/") || pathString.contains("/checkouts/") || pathString.contains("/DerivedData/") {
+            if pathString.contains("/.build/") || 
+               pathString.contains("/checkouts/") || 
+               pathString.contains("/DerivedData/") ||
+               pathString.contains("/xcshareddata/swiftpm/") ||
+               pathString.contains("/xcuserdata/") ||
+               pathString.contains("/SourcePackages/") {
                 continue
             }
             
@@ -280,7 +291,7 @@ struct DependencyGraph: ParsableCommand {
         case .html:
             printHTMLGraph(graph: graph)
         case .analyze:
-            printPinchPointAnalysis(graph: graph)
+            printPinchPointAnalysis(graph: graph, internalOnly: internalOnly)
         }
     }
     
@@ -293,7 +304,17 @@ struct DependencyGraph: ParsableCommand {
         }
         
         let projectPath = url.deletingLastPathComponent().path
-        let projectName = URL(fileURLWithPath: projectPath).lastPathComponent
+        
+        // Determine project name - look for xcodeproj in path
+        var projectName = URL(fileURLWithPath: projectPath).lastPathComponent
+        let pathComponents = url.pathComponents
+        for component in pathComponents {
+            if component.hasSuffix(".xcodeproj") {
+                projectName = component.replacingOccurrences(of: ".xcodeproj", with: "")
+                break
+            }
+        }
+        
         let deps = resolved.allPins.map { $0.name }
         
         return DependencyInfo(
@@ -584,7 +605,7 @@ struct DependencyGraph: ParsableCommand {
         for info in dependencies {
             // Determine if this is a local package or Xcode project
             let isLocalPackage = !info.dependencies.isEmpty && info.targets.isEmpty
-            let nodeType: NodeType = isLocalPackage ? .dependency : .project
+            let nodeType: NodeType = isLocalPackage ? .localPackage : .project
             
             graph.addNode(info.projectName, nodeType: nodeType, isTransient: false)
             
@@ -600,8 +621,9 @@ struct DependencyGraph: ParsableCommand {
                         let depLower = dep.lowercased()
                         let isTransient = !allExplicitPackages.contains(depLower)
                         let isLocalDep = localPackageNames.contains(depLower)
+                        let depNodeType: NodeType = isLocalDep ? .localPackage : .externalPackage
                         
-                        graph.addNode(dep, nodeType: .dependency, isTransient: isTransient && !isLocalDep)
+                        graph.addNode(dep, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
                         graph.addEdge(from: targetNodeName, to: dep)
                     }
                 }
@@ -612,9 +634,9 @@ struct DependencyGraph: ParsableCommand {
                 let depLower = dep.lowercased()
                 let isTransient = !allExplicitPackages.contains(depLower)
                 let isLocalDep = localPackageNames.contains(depLower)
+                let depNodeType: NodeType = isLocalDep ? .localPackage : .externalPackage
                 
-                // Local packages are dependencies but not transient
-                graph.addNode(dep, nodeType: .dependency, isTransient: isTransient && !isLocalDep)
+                graph.addNode(dep, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
                 graph.addEdge(from: info.projectName, to: dep)
             }
         }
@@ -625,9 +647,9 @@ struct DependencyGraph: ParsableCommand {
     func filterTransientDependencies(graph: Graph) -> Graph {
         var filtered = Graph()
         
-        // Add non-transient nodes
+        // Add non-transient nodes (keep all internal, filter transient external)
         for (name, node) in graph.nodes {
-            if !node.isTransient || node.nodeType != .dependency {
+            if !node.isTransient || node.isInternal {
                 filtered.addNode(name, nodeType: node.nodeType, isTransient: node.isTransient)
             }
         }
@@ -752,7 +774,9 @@ struct DependencyGraph: ParsableCommand {
                 print("  \(escapedName) [style=\"rounded,filled\", fillcolor=\"lightblue\"];")
             case .target:
                 print("  \(escapedName) [style=\"rounded,filled\", fillcolor=\"lightgreen\"];")
-            case .dependency:
+            case .localPackage:
+                print("  \(escapedName) [style=\"rounded,filled\", fillcolor=\"lightyellow\"];")
+            case .externalPackage:
                 if node.isTransient {
                     print("  \(escapedName) [style=\"rounded,dashed\", color=\"gray\"];")
                 } else {
@@ -796,13 +820,17 @@ struct DependencyGraph: ParsableCommand {
             case .target:
                 color = "#28a745"
                 size = 17
-            case .dependency:
+            case .localPackage:
+                color = "#ffc107"  // Yellow for internal packages
+                size = 17
+            case .externalPackage:
                 color = node.isTransient ? "#adb5bd" : "#6c757d"
                 size = 15
             }
             let nodeType = node.nodeType.rawValue
+            let isInternal = node.isInternal
             nodesJSON.append("""
-                { "id": "\(escapeJSON(name))", "label": "\(escapeJSON(name))", "color": "\(color)", "size": \(size), "nodeType": "\(nodeType)", "isTransient": \(node.isTransient) }
+                { "id": "\(escapeJSON(name))", "label": "\(escapeJSON(name))", "color": "\(color)", "size": \(size), "nodeType": "\(nodeType)", "isTransient": \(node.isTransient), "isInternal": \(isInternal) }
             """)
         }
         
@@ -818,6 +846,8 @@ struct DependencyGraph: ParsableCommand {
         }
         
         let targetCount = graph.nodes.values.filter { $0.isTarget }.count
+        let localPackageCount = graph.nodes.values.filter { $0.nodeType == .localPackage }.count
+        let externalPackageCount = graph.nodes.values.filter { $0.nodeType == .externalPackage }.count
         let transientCount = graph.nodes.values.filter { $0.isTransient }.count
         
         let html = """
@@ -917,8 +947,12 @@ struct DependencyGraph: ParsableCommand {
                 <div class="stat-value" id="stat-targets">\(targetCount)</div>
             </div>
             <div class="stat">
-                <div class="stat-label">Dependencies</div>
-                <div class="stat-value" id="stat-deps">\(graph.nodes.values.filter { $0.nodeType == .dependency }.count)</div>
+                <div class="stat-label">Internal Packages</div>
+                <div class="stat-value" id="stat-local">\(localPackageCount)</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">External Packages</div>
+                <div class="stat-value" id="stat-external">\(externalPackageCount)</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Transient Deps</div>
@@ -939,19 +973,23 @@ struct DependencyGraph: ParsableCommand {
                 <h2>Legend</h2>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #4a90d9;"></div>
-                    <div class="legend-label">Project</div>
+                    <div class="legend-label">Xcode Project</div>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #28a745;"></div>
-                    <div class="legend-label">Target</div>
+                    <div class="legend-label">Build Target</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffc107;"></div>
+                    <div class="legend-label">Internal Package (you control)</div>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #6c757d;"></div>
-                    <div class="legend-label">Explicit Dependency</div>
+                    <div class="legend-label">External Package</div>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #adb5bd; border: 2px dashed #6c757d;"></div>
-                    <div class="legend-label">Transient Dependency</div>
+                    <div class="legend-label">Transient (indirect)</div>
                 </div>
             </div>
             <div class="instructions">
@@ -1542,6 +1580,15 @@ struct DependencyGraph: ParsableCommand {
         return result
     }
     
+    func iconForNodeType(_ nodeType: NodeType) -> String {
+        switch nodeType {
+        case .project: return "📦"
+        case .target: return "🎯"
+        case .localPackage: return "🏠"
+        case .externalPackage: return "📚"
+        }
+    }
+    
     func calculateDependencyDepth(of node: String, graph: Graph, memo: inout [String: Int]) -> Int {
         if let cached = memo[node] { return cached }
         
@@ -1557,18 +1604,27 @@ struct DependencyGraph: ParsableCommand {
         return depth
     }
     
-    func printPinchPointAnalysis(graph: Graph) {
+    func printPinchPointAnalysis(graph: Graph, internalOnly: Bool) {
         print("\n" + String(repeating: "═", count: 80))
         print("  MODULARIZATION PINCH POINT ANALYSIS")
         print(String(repeating: "═", count: 80))
-        print("  (Analyzing only explicit dependencies - excluding transient)")
+        if internalOnly {
+            print("  (Analyzing internal modules only - local packages, targets, projects)")
+        } else {
+            print("  (Analyzing explicit dependencies - excluding transient)")
+        }
         
         var pinchPoints: [PinchPointInfo] = []
         var depthMemo: [String: Int] = [:]
         
         for (name, node) in graph.nodes {
-            // Skip transient dependencies - we don't control those
+            // Skip transient dependencies
             if node.isTransient {
+                continue
+            }
+            
+            // If internal-only, skip external packages
+            if internalOnly && node.nodeType == .externalPackage {
                 continue
             }
             
@@ -1630,12 +1686,7 @@ struct DependencyGraph: ParsableCommand {
         
         let topPinchPoints = Array(byImpact.prefix(20))
         for info in topPinchPoints {
-            let typeIcon: String
-            switch info.nodeType {
-            case .project: typeIcon = "📦"
-            case .target: typeIcon = "🎯"
-            case .dependency: typeIcon = "📚"
-            }
+            let typeIcon = iconForNodeType(info.nodeType)
             let truncatedName = info.name.count > 38 ? String(info.name.prefix(35)) + "..." : info.name
             let nameCol = "\(typeIcon) \(truncatedName)".padding(toLength: 42, withPad: " ", startingAt: 0)
             let directCol = String(info.directDependents).padding(toLength: 8, withPad: " ", startingAt: 0)
@@ -1656,12 +1707,7 @@ struct DependencyGraph: ParsableCommand {
         
         let topVulnerable = Array(byVulnerability.prefix(15))
         for info in topVulnerable {
-            let typeIcon: String
-            switch info.nodeType {
-            case .project: typeIcon = "📦"
-            case .target: typeIcon = "🎯"
-            case .dependency: typeIcon = "📚"
-            }
+            let typeIcon = iconForNodeType(info.nodeType)
             let truncatedName = info.name.count > 38 ? String(info.name.prefix(35)) + "..." : info.name
             let nameCol = "\(typeIcon) \(truncatedName)".padding(toLength: 42, withPad: " ", startingAt: 0)
             let directCol = String(info.directDependencies).padding(toLength: 8, withPad: " ", startingAt: 0)
