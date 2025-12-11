@@ -1,0 +1,96 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		ABC123 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = DEF456 /* Alamofire */; };
+		GHI789 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = JKL012 /* ArgumentParser */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXNativeTarget section */
+		TARGET001 /* MyApp */ = {
+			isa = PBXNativeTarget;
+			buildPhases = (
+			);
+			dependencies = (
+			);
+			name = MyApp;
+			packageProductDependencies = (
+				DEF456 /* Alamofire */,
+				JKL012 /* ArgumentParser */,
+			);
+			productName = MyApp;
+			productType = "com.apple.product-type.application";
+		};
+		TARGET002 /* MyAppTests */ = {
+			isa = PBXNativeTarget;
+			buildPhases = (
+			);
+			dependencies = (
+			);
+			name = MyAppTests;
+			packageProductDependencies = (
+			);
+			productName = MyAppTests;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		ROOT123 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = CONFIG001;
+			compatibilityVersion = "Xcode 14.0";
+			mainGroup = GROUP001;
+			packageReferences = (
+				PKG001 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				PKG002 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+			);
+			productRefGroup = GROUP002;
+			projectRoot = "";
+			targets = (
+				TARGET001 /* MyApp */,
+				TARGET002 /* MyAppTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		PKG001 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.8.0;
+			};
+		};
+		PKG002 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DEF456 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = PKG001 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		JKL012 /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = PKG002 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+/* End XCSwiftPackageProductDependency section */
+
+	};
+	rootObject = ROOT123 /* Project object */;
+}

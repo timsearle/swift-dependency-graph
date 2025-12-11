@@ -41,6 +41,21 @@ struct DependencyInfo: Sendable {
     let projectPath: String
     let projectName: String
     let dependencies: [String]
+    let explicitPackages: Set<String>  // Packages explicitly added (from pbxproj)
+    let targets: [TargetInfo]
+    
+    init(projectPath: String, projectName: String, dependencies: [String], explicitPackages: Set<String> = [], targets: [TargetInfo] = []) {
+        self.projectPath = projectPath
+        self.projectName = projectName
+        self.dependencies = dependencies
+        self.explicitPackages = explicitPackages
+        self.targets = targets
+    }
+}
+
+struct TargetInfo: Sendable {
+    let name: String
+    let packageDependencies: [String]  // Package product names this target depends on
 }
 
 enum OutputFormat: String, ExpressibleByArgument, CaseIterable {
@@ -48,23 +63,34 @@ enum OutputFormat: String, ExpressibleByArgument, CaseIterable {
     case graph
     case dot
     case html
+    case analyze
 }
 
 // MARK: - Graph Data Structures
 
+enum NodeType: String {
+    case project
+    case target
+    case dependency
+}
+
 struct GraphNode {
     let name: String
-    let isProject: Bool
+    let nodeType: NodeType
+    let isTransient: Bool  // True if dependency was not explicitly added
     var layer: Int = 0
+    
+    var isProject: Bool { nodeType == .project }
+    var isTarget: Bool { nodeType == .target }
 }
 
 struct Graph {
     var nodes: [String: GraphNode] = [:]
     var edges: [(from: String, to: String)] = []
     
-    mutating func addNode(_ name: String, isProject: Bool) {
+    mutating func addNode(_ name: String, nodeType: NodeType, isTransient: Bool = false) {
         if nodes[name] == nil {
-            nodes[name] = GraphNode(name: name, isProject: isProject)
+            nodes[name] = GraphNode(name: name, nodeType: nodeType, isTransient: isTransient)
         }
     }
     
@@ -180,6 +206,12 @@ struct DependencyGraph: ParsableCommand {
     @Option(name: .shortAndLong, help: "Output format: tree, graph, dot, or html")
     var format: OutputFormat = .graph
     
+    @Flag(name: .long, help: "Hide transient (non-explicit) dependencies")
+    var hideTransient: Bool = false
+    
+    @Flag(name: .long, help: "Show Xcode build targets in the graph")
+    var showTargets: Bool = false
+    
     mutating func run() throws {
         let fileManager = FileManager.default
         let directoryURL = URL(fileURLWithPath: directory)
@@ -189,6 +221,8 @@ struct DependencyGraph: ParsableCommand {
         }
         
         var allDependencies: [DependencyInfo] = []
+        var pbxprojInfos: [DependencyInfo] = []
+        var localPackages: [DependencyInfo] = []
         
         let enumerator = fileManager.enumerator(
             at: directoryURL,
@@ -197,20 +231,43 @@ struct DependencyGraph: ParsableCommand {
         )
         
         while let fileURL = enumerator?.nextObject() as? URL {
+            // Skip build directories and checkouts
+            let pathString = fileURL.path
+            if pathString.contains("/.build/") || pathString.contains("/checkouts/") || pathString.contains("/DerivedData/") {
+                continue
+            }
+            
             if fileURL.lastPathComponent == "Package.resolved" {
                 if let info = parsePackageResolved(at: fileURL) {
                     allDependencies.append(info)
                 }
+            } else if fileURL.lastPathComponent == "project.pbxproj" {
+                if let info = parsePBXProj(at: fileURL) {
+                    pbxprojInfos.append(info)
+                }
+            } else if fileURL.lastPathComponent == "Package.swift" {
+                if let info = parsePackageSwift(at: fileURL) {
+                    localPackages.append(info)
+                }
             }
         }
         
-        if allDependencies.isEmpty {
-            print("No Package.resolved files found in \(directory)")
+        // Merge all sources
+        allDependencies = mergeDependencyInfo(resolved: allDependencies, pbxproj: pbxprojInfos, localPackages: localPackages)
+        
+        if allDependencies.isEmpty && pbxprojInfos.isEmpty && localPackages.isEmpty {
+            print("No Package.resolved, project.pbxproj, or Package.swift files found in \(directory)")
             return
         }
         
         // Build graph structure
-        var graph = buildGraph(from: allDependencies)
+        var graph = buildGraph(from: allDependencies, showTargets: showTargets)
+        
+        // Filter transient dependencies if requested
+        if hideTransient {
+            graph = filterTransientDependencies(graph: graph)
+        }
+        
         graph.computeLayers()
         
         switch format {
@@ -222,6 +279,8 @@ struct DependencyGraph: ParsableCommand {
             printDotGraph(graph: graph)
         case .html:
             printHTMLGraph(graph: graph)
+        case .analyze:
+            printPinchPointAnalysis(graph: graph)
         }
     }
     
@@ -244,18 +303,190 @@ struct DependencyGraph: ParsableCommand {
         )
     }
     
-    func buildGraph(from dependencies: [DependencyInfo]) -> Graph {
+    // MARK: - PBXProj Parsing
+    
+    func parsePBXProj(at url: URL) -> DependencyInfo? {
+        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        
+        let projectPath = url.deletingLastPathComponent().deletingLastPathComponent().path
+        let projectName = URL(fileURLWithPath: projectPath).lastPathComponent.replacingOccurrences(of: ".xcodeproj", with: "")
+        
+        var explicitPackages = Set<String>()
+        var targets: [TargetInfo] = []
+        
+        // Parse XCRemoteSwiftPackageReference entries - look for repositoryURL lines
+        let repoURLPattern = #"repositoryURL\s*=\s*"([^"]+)"#
+        if let regex = try? NSRegularExpression(pattern: repoURLPattern, options: []) {
+            let range = NSRange(content.startIndex..., in: content)
+            let matches = regex.matches(in: content, options: [], range: range)
+            for match in matches {
+                if let urlRange = Range(match.range(at: 1), in: content) {
+                    let repoURL = String(content[urlRange])
+                    let packageName = extractPackageName(from: repoURL)
+                    explicitPackages.insert(packageName)
+                }
+            }
+        }
+        
+        // Parse XCLocalSwiftPackageReference entries - look for relativePath lines in that section
+        let localPackagePattern = #"XCLocalSwiftPackageReference[^}]+relativePath\s*=\s*"([^"]+)""#
+        if let regex = try? NSRegularExpression(pattern: localPackagePattern, options: [.dotMatchesLineSeparators]) {
+            let range = NSRange(content.startIndex..., in: content)
+            let matches = regex.matches(in: content, options: [], range: range)
+            for match in matches {
+                if let pathRange = Range(match.range(at: 1), in: content) {
+                    let relativePath = String(content[pathRange])
+                    let packageName = URL(fileURLWithPath: relativePath).lastPathComponent.lowercased()
+                    explicitPackages.insert(packageName)
+                }
+            }
+        }
+        
+        // Parse PBXNativeTarget entries and their package dependencies
+        targets = parseTargets(from: content)
+        
+        guard !explicitPackages.isEmpty || !targets.isEmpty else { return nil }
+        
+        return DependencyInfo(
+            projectPath: projectPath,
+            projectName: projectName,
+            dependencies: [],  // Dependencies come from Package.resolved
+            explicitPackages: explicitPackages,
+            targets: targets
+        )
+    }
+    
+    func extractPackageName(from url: String) -> String {
+        // Extract package name from git URL like https://github.com/owner/PackageName.git
+        var name = URL(string: url)?.lastPathComponent ?? url
+        if name.hasSuffix(".git") {
+            name = String(name.dropLast(4))
+        }
+        return name.lowercased()  // Package identities are lowercased
+    }
+    
+    func parseTargets(from content: String) -> [TargetInfo] {
+        var targets: [TargetInfo] = []
+        var targetNames: Set<String> = []
+        
+        // Extract target names from PBXNativeTarget section
+        // Format: HASH /* TargetName */ = { isa = PBXNativeTarget;
+        let targetNamePattern = #"/\*\s*([^*]+)\s*\*/\s*=\s*\{\s*isa\s*=\s*PBXNativeTarget"#
+        if let regex = try? NSRegularExpression(pattern: targetNamePattern, options: []) {
+            let range = NSRange(content.startIndex..., in: content)
+            let matches = regex.matches(in: content, options: [], range: range)
+            for match in matches {
+                if let nameRange = Range(match.range(at: 1), in: content) {
+                    let targetName = String(content[nameRange]).trimmingCharacters(in: .whitespaces)
+                    targetNames.insert(targetName)
+                }
+            }
+        }
+        
+        // For now, create targets without package dependencies
+        // A more sophisticated parser would match packageProductDependencies to targets
+        for name in targetNames {
+            targets.append(TargetInfo(name: name, packageDependencies: []))
+        }
+        
+        return targets
+    }
+    
+    // MARK: - Merge Dependencies
+    
+    func mergeDependencyInfo(resolved: [DependencyInfo], pbxproj: [DependencyInfo]) -> [DependencyInfo] {
+        var merged: [DependencyInfo] = []
+        
+        // Create a map of project name to pbxproj info
+        var pbxprojMap: [String: DependencyInfo] = [:]
+        for info in pbxproj {
+            pbxprojMap[info.projectName] = info
+        }
+        
+        for resolvedInfo in resolved {
+            // Try to find matching pbxproj info
+            let pbxInfo = pbxprojMap[resolvedInfo.projectName]
+            
+            let mergedInfo = DependencyInfo(
+                projectPath: resolvedInfo.projectPath,
+                projectName: resolvedInfo.projectName,
+                dependencies: resolvedInfo.dependencies,
+                explicitPackages: pbxInfo?.explicitPackages ?? [],
+                targets: pbxInfo?.targets ?? []
+            )
+            merged.append(mergedInfo)
+        }
+        
+        // Add any pbxproj-only projects (no Package.resolved found)
+        for (name, info) in pbxprojMap {
+            if !resolved.contains(where: { $0.projectName == name }) {
+                merged.append(info)
+            }
+        }
+        
+        return merged
+    }
+    
+    // MARK: - Graph Building
+    
+    func buildGraph(from dependencies: [DependencyInfo], showTargets: Bool) -> Graph {
         var graph = Graph()
         
+        // Collect all explicit packages across all projects
+        var allExplicitPackages = Set<String>()
         for info in dependencies {
-            graph.addNode(info.projectName, isProject: true)
+            allExplicitPackages.formUnion(info.explicitPackages)
+        }
+        
+        for info in dependencies {
+            graph.addNode(info.projectName, nodeType: .project)
+            
+            // Add targets if requested
+            if showTargets {
+                for target in info.targets {
+                    let targetNodeName = "\(info.projectName)/\(target.name)"
+                    graph.addNode(targetNodeName, nodeType: .target)
+                    graph.addEdge(from: info.projectName, to: targetNodeName)
+                    
+                    // Connect target to its package dependencies
+                    for dep in target.packageDependencies {
+                        if info.dependencies.contains(where: { $0.lowercased() == dep.lowercased() }) {
+                            graph.addNode(dep, nodeType: .dependency, isTransient: !allExplicitPackages.contains(dep.lowercased()))
+                            graph.addEdge(from: targetNodeName, to: dep)
+                        }
+                    }
+                }
+            }
+            
+            // Add dependencies (project level)
             for dep in info.dependencies {
-                graph.addNode(dep, isProject: false)
+                let isTransient = !allExplicitPackages.contains(dep.lowercased()) && !info.explicitPackages.contains(dep.lowercased())
+                graph.addNode(dep, nodeType: .dependency, isTransient: isTransient)
                 graph.addEdge(from: info.projectName, to: dep)
             }
         }
         
         return graph
+    }
+    
+    func filterTransientDependencies(graph: Graph) -> Graph {
+        var filtered = Graph()
+        
+        // Add non-transient nodes
+        for (name, node) in graph.nodes {
+            if !node.isTransient || node.nodeType != .dependency {
+                filtered.addNode(name, nodeType: node.nodeType, isTransient: node.isTransient)
+            }
+        }
+        
+        // Add edges where both endpoints exist
+        for edge in graph.edges {
+            if filtered.nodes[edge.from] != nil && filtered.nodes[edge.to] != nil {
+                filtered.addEdge(from: edge.from, to: edge.to)
+            }
+        }
+        
+        return filtered
     }
     
     // MARK: - Visual Graph Output
@@ -360,13 +591,20 @@ struct DependencyGraph: ParsableCommand {
         print("  node [shape=box, style=rounded];")
         print("")
         
-        // Style project nodes differently
+        // Style nodes based on type
         for (name, node) in graph.nodes {
             let escapedName = escapeDotIdentifier(name)
-            if node.isProject {
+            switch node.nodeType {
+            case .project:
                 print("  \(escapedName) [style=\"rounded,filled\", fillcolor=\"lightblue\"];")
-            } else {
-                print("  \(escapedName);")
+            case .target:
+                print("  \(escapedName) [style=\"rounded,filled\", fillcolor=\"lightgreen\"];")
+            case .dependency:
+                if node.isTransient {
+                    print("  \(escapedName) [style=\"rounded,dashed\", color=\"gray\"];")
+                } else {
+                    print("  \(escapedName);")
+                }
             }
         }
         
@@ -376,7 +614,12 @@ struct DependencyGraph: ParsableCommand {
         for edge in graph.edges {
             let from = escapeDotIdentifier(edge.from)
             let to = escapeDotIdentifier(edge.to)
-            print("  \(from) -> \(to);")
+            let toNode = graph.nodes[edge.to]
+            if toNode?.isTransient == true {
+                print("  \(from) -> \(to) [style=dashed, color=gray];")
+            } else {
+                print("  \(from) -> \(to);")
+            }
         }
         
         print("}")
@@ -388,23 +631,41 @@ struct DependencyGraph: ParsableCommand {
     // MARK: - Interactive HTML Output
     
     func printHTMLGraph(graph: Graph) {
-        // Build nodes JSON
+        // Build nodes JSON with type information
         var nodesJSON: [String] = []
         for (name, node) in graph.nodes {
-            let color = node.isProject ? "#4a90d9" : "#6c757d"
-            let size = node.isProject ? 20 : 15
+            let color: String
+            let size: Int
+            switch node.nodeType {
+            case .project:
+                color = "#4a90d9"
+                size = 20
+            case .target:
+                color = "#28a745"
+                size = 17
+            case .dependency:
+                color = node.isTransient ? "#adb5bd" : "#6c757d"
+                size = 15
+            }
+            let nodeType = node.nodeType.rawValue
             nodesJSON.append("""
-                { "id": "\(escapeJSON(name))", "label": "\(escapeJSON(name))", "color": "\(color)", "size": \(size) }
+                { "id": "\(escapeJSON(name))", "label": "\(escapeJSON(name))", "color": "\(color)", "size": \(size), "nodeType": "\(nodeType)", "isTransient": \(node.isTransient) }
             """)
         }
         
-        // Build edges JSON
+        // Build edges JSON with transient info
         var edgesJSON: [String] = []
         for (index, edge) in graph.edges.enumerated() {
+            let toNode = graph.nodes[edge.to]
+            let isTransient = toNode?.isTransient ?? false
+            let dashes = isTransient ? "true" : "false"
             edgesJSON.append("""
-                { "id": "e\(index)", "from": "\(escapeJSON(edge.from))", "to": "\(escapeJSON(edge.to))" }
+                { "id": "e\(index)", "from": "\(escapeJSON(edge.from))", "to": "\(escapeJSON(edge.to))", "dashes": \(dashes), "isTransient": \(isTransient) }
             """)
         }
+        
+        let targetCount = graph.nodes.values.filter { $0.isTarget }.count
+        let transientCount = graph.nodes.values.filter { $0.isTransient }.count
         
         let html = """
 <!DOCTYPE html>
@@ -429,6 +690,10 @@ struct DependencyGraph: ParsableCommand {
         .legend-item { display: flex; align-items: center; margin: 8px 0; }
         .legend-color { width: 16px; height: 16px; border-radius: 50%; margin-right: 10px; }
         .legend-label { font-size: 13px; color: #555; }
+        .toggle-section { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 8px; }
+        .toggle-item { display: flex; align-items: center; margin: 8px 0; }
+        .toggle-item input { margin-right: 10px; }
+        .toggle-item label { font-size: 13px; color: #555; cursor: pointer; }
         .instructions { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 8px; }
         .instructions h3 { font-size: 13px; margin-bottom: 8px; }
         .instructions p { font-size: 12px; color: #666; margin: 4px 0; }
@@ -492,15 +757,30 @@ struct DependencyGraph: ParsableCommand {
             <h1>📦 Dependency Graph</h1>
             <div class="stat">
                 <div class="stat-label">Projects</div>
-                <div class="stat-value">\(graph.nodes.values.filter { $0.isProject }.count)</div>
+                <div class="stat-value" id="stat-projects">\(graph.nodes.values.filter { $0.isProject }.count)</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Targets</div>
+                <div class="stat-value" id="stat-targets">\(targetCount)</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Dependencies</div>
-                <div class="stat-value">\(graph.nodes.values.filter { !$0.isProject }.count)</div>
+                <div class="stat-value" id="stat-deps">\(graph.nodes.values.filter { $0.nodeType == .dependency }.count)</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Transient Deps</div>
+                <div class="stat-value" id="stat-transient">\(transientCount)</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Connections</div>
-                <div class="stat-value">\(graph.edges.count)</div>
+                <div class="stat-value" id="stat-edges">\(graph.edges.count)</div>
+            </div>
+            <div class="toggle-section">
+                <h2>Display Options</h2>
+                <div class="toggle-item">
+                    <input type="checkbox" id="toggle-transient" checked>
+                    <label for="toggle-transient">Show transient dependencies</label>
+                </div>
             </div>
             <div class="legend">
                 <h2>Legend</h2>
@@ -509,8 +789,16 @@ struct DependencyGraph: ParsableCommand {
                     <div class="legend-label">Project</div>
                 </div>
                 <div class="legend-item">
+                    <div class="legend-color" style="background: #28a745;"></div>
+                    <div class="legend-label">Target</div>
+                </div>
+                <div class="legend-item">
                     <div class="legend-color" style="background: #6c757d;"></div>
-                    <div class="legend-label">Dependency</div>
+                    <div class="legend-label">Explicit Dependency</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #adb5bd; border: 2px dashed #6c757d;"></div>
+                    <div class="legend-label">Transient Dependency</div>
                 </div>
             </div>
             <div class="instructions">
@@ -541,11 +829,25 @@ struct DependencyGraph: ParsableCommand {
             \(edgesJSON.joined(separator: ",\n            "))
         ];
         
+        // Transient visibility state
+        let showTransient = true;
+        
         // Navigation state
         let navigationStack = [];
         let currentView = null;
         let currentViewType = null; // 'dependencies' or 'dependents'
         let selectedNode = null;
+        
+        // Filter functions
+        function getVisibleNodes() {
+            if (showTransient) return allNodes;
+            return allNodes.filter(n => !n.isTransient);
+        }
+        
+        function getVisibleEdges() {
+            const visibleNodeIds = new Set(getVisibleNodes().map(n => n.id));
+            return allEdges.filter(e => visibleNodeIds.has(e.from) && visibleNodeIds.has(e.to));
+        }
         
         // Create DataSets
         const nodes = new vis.DataSet(allNodes);
@@ -906,11 +1208,45 @@ struct DependencyGraph: ParsableCommand {
         }
         
         function updateStats(nodeCount, edgeCount) {
-            const projectCount = nodes.get().filter(n => n.color === '#4a90d9').length;
-            const depCount = nodeCount - projectCount;
-            document.querySelector('.stat-value').textContent = projectCount;
-            document.querySelectorAll('.stat-value')[1].textContent = depCount;
-            document.querySelectorAll('.stat-value')[2].textContent = edgeCount;
+            const currentNodes = nodes.get();
+            const projectCount = currentNodes.filter(n => n.nodeType === 'project').length;
+            const targetCount = currentNodes.filter(n => n.nodeType === 'target').length;
+            const depCount = currentNodes.filter(n => n.nodeType === 'dependency').length;
+            const transientCount = currentNodes.filter(n => n.isTransient).length;
+            document.getElementById('stat-projects').textContent = projectCount;
+            document.getElementById('stat-targets').textContent = targetCount;
+            document.getElementById('stat-deps').textContent = depCount;
+            document.getElementById('stat-transient').textContent = transientCount;
+            document.getElementById('stat-edges').textContent = edgeCount;
+        }
+        
+        // Toggle transient dependencies
+        document.getElementById('toggle-transient').addEventListener('change', function(e) {
+            showTransient = e.target.checked;
+            refreshGraph();
+        });
+        
+        function refreshGraph() {
+            const visibleNodes = getVisibleNodes();
+            const visibleEdges = getVisibleEdges();
+            
+            nodes.clear();
+            edges.clear();
+            nodes.add(visibleNodes);
+            edges.add(visibleEdges);
+            
+            network.setOptions({ physics: { enabled: true } });
+            
+            network.once('stabilizationIterationsDone', function() {
+                network.setOptions({ physics: { enabled: false } });
+                enforceMinimumEdgeAngles(network, nodes, edges, 15);
+                setTimeout(() => {
+                    network.fit({ animation: { duration: 300 } });
+                }, 50);
+            });
+            
+            network.stabilize(isLargeGraph ? 300 : 1000);
+            updateStats(visibleNodes.length, visibleEdges.length);
         }
     </script>
 </body>
@@ -1007,5 +1343,217 @@ struct DependencyGraph: ParsableCommand {
         print("Shared dependencies: \(sharedDeps)")
         print("Total edges: \(graph.edges.count)")
         print(String(repeating: "═", count: 70) + "\n")
+    }
+    
+    // MARK: - Pinch Point Analysis
+    
+    struct PinchPointInfo {
+        let name: String
+        let nodeType: NodeType
+        let directDependents: Int
+        let transitiveDependents: Int
+        let directDependencies: Int
+        let transitiveDependencies: Int
+        let dependencyDepth: Int
+        let impactScore: Double
+        let vulnerabilityScore: Double  // How vulnerable to changes in deps
+    }
+    
+    func getAllTransitiveDependents(of node: String, graph: Graph, visited: inout Set<String>) -> Set<String> {
+        if visited.contains(node) { return [] }
+        visited.insert(node)
+        
+        var result = Set<String>()
+        let directDependents = graph.dependents(of: node)
+        
+        for dependent in directDependents {
+            result.insert(dependent)
+            result.formUnion(getAllTransitiveDependents(of: dependent, graph: graph, visited: &visited))
+        }
+        
+        return result
+    }
+    
+    func getAllTransitiveDependencies(of node: String, graph: Graph, visited: inout Set<String>) -> Set<String> {
+        if visited.contains(node) { return [] }
+        visited.insert(node)
+        
+        var result = Set<String>()
+        let directDeps = graph.dependencies(of: node)
+        
+        for dep in directDeps {
+            result.insert(dep)
+            result.formUnion(getAllTransitiveDependencies(of: dep, graph: graph, visited: &visited))
+        }
+        
+        return result
+    }
+    
+    func calculateDependencyDepth(of node: String, graph: Graph, memo: inout [String: Int]) -> Int {
+        if let cached = memo[node] { return cached }
+        
+        let deps = graph.dependencies(of: node)
+        if deps.isEmpty {
+            memo[node] = 0
+            return 0
+        }
+        
+        let maxChildDepth = deps.map { calculateDependencyDepth(of: $0, graph: graph, memo: &memo) }.max() ?? 0
+        let depth = maxChildDepth + 1
+        memo[node] = depth
+        return depth
+    }
+    
+    func printPinchPointAnalysis(graph: Graph) {
+        print("\n" + String(repeating: "═", count: 80))
+        print("  MODULARIZATION PINCH POINT ANALYSIS")
+        print(String(repeating: "═", count: 80))
+        print("  (Analyzing only explicit dependencies - excluding transient)")
+        
+        var pinchPoints: [PinchPointInfo] = []
+        var depthMemo: [String: Int] = [:]
+        
+        for (name, node) in graph.nodes {
+            // Skip transient dependencies - we don't control those
+            if node.isTransient {
+                continue
+            }
+            
+            let directDependents = graph.dependents(of: name).count
+            let directDependencies = graph.dependencies(of: name).count
+            
+            var visitedUp = Set<String>()
+            let transitiveDependents = getAllTransitiveDependents(of: name, graph: graph, visited: &visitedUp).count
+            
+            var visitedDown = Set<String>()
+            let transitiveDependencies = getAllTransitiveDependencies(of: name, graph: graph, visited: &visitedDown).count
+            
+            let depth = calculateDependencyDepth(of: name, graph: graph, memo: &depthMemo)
+            
+            // Impact score: how much damage changes TO this module cause
+            let impactScore = Double(transitiveDependents) * (1.0 + Double(depth) * 0.2)
+            
+            // Vulnerability score: how often this module needs to recompile due to dep changes
+            let vulnerabilityScore = Double(transitiveDependencies)
+            
+            // Include all non-transient nodes (projects, targets, explicit deps)
+            pinchPoints.append(PinchPointInfo(
+                name: name,
+                nodeType: node.nodeType,
+                directDependents: directDependents,
+                transitiveDependents: transitiveDependents,
+                directDependencies: directDependencies,
+                transitiveDependencies: transitiveDependencies,
+                dependencyDepth: depth,
+                impactScore: impactScore,
+                vulnerabilityScore: vulnerabilityScore
+            ))
+        }
+        
+        // Sort by impact score descending
+        let byImpact = pinchPoints.sorted { $0.impactScore > $1.impactScore }
+        let byVulnerability = pinchPoints.sorted { $0.vulnerabilityScore > $1.vulnerabilityScore }
+        
+        // Summary statistics
+        let totalNodes = graph.nodes.count
+        let avgDependents = pinchPoints.isEmpty ? 0.0 : Double(pinchPoints.map { $0.transitiveDependents }.reduce(0, +)) / Double(pinchPoints.count)
+        let maxDepth = depthMemo.values.max() ?? 0
+        
+        print("\n📊 SUMMARY")
+        print(String(repeating: "─", count: 80))
+        print("Total modules: \(totalNodes)")
+        print("Max dependency depth: \(maxDepth)")
+        print("Average transitive dependents: \(String(format: "%.1f", avgDependents))")
+        
+        // High-impact pinch points (top 20)
+        print("\n🔴 HIGH-IMPACT PINCH POINTS (changes cause most recompilation)")
+        print(String(repeating: "─", count: 80))
+        print("Module".padding(toLength: 42, withPad: " ", startingAt: 0) + 
+              "Direct".padding(toLength: 8, withPad: " ", startingAt: 0) +
+              "Transitive".padding(toLength: 12, withPad: " ", startingAt: 0) +
+              "Depth".padding(toLength: 7, withPad: " ", startingAt: 0) +
+              "Impact")
+        print(String(repeating: "─", count: 80))
+        
+        let topPinchPoints = Array(pinchPoints.prefix(20))
+        for info in topPinchPoints {
+            let typeIcon: String
+            switch info.nodeType {
+            case .project: typeIcon = "📦"
+            case .target: typeIcon = "🎯"
+            case .dependency: typeIcon = "📚"
+            }
+            let truncatedName = info.name.count > 38 ? String(info.name.prefix(35)) + "..." : info.name
+            let nameCol = "\(typeIcon) \(truncatedName)".padding(toLength: 42, withPad: " ", startingAt: 0)
+            let directCol = String(info.directDependents).padding(toLength: 8, withPad: " ", startingAt: 0)
+            let transitiveCol = String(info.transitiveDependents).padding(toLength: 12, withPad: " ", startingAt: 0)
+            let depthCol = String(info.dependencyDepth).padding(toLength: 7, withPad: " ", startingAt: 0)
+            let impactCol = String(format: "%.1f", info.impactScore)
+            print(nameCol + directCol + transitiveCol + depthCol + impactCol)
+        }
+        
+        // Categorize by risk level
+        let criticalNodes = pinchPoints.filter { $0.transitiveDependents >= 20 }
+        let highRiskNodes = pinchPoints.filter { $0.transitiveDependents >= 10 && $0.transitiveDependents < 20 }
+        let mediumRiskNodes = pinchPoints.filter { $0.transitiveDependents >= 5 && $0.transitiveDependents < 10 }
+        
+        print("\n⚠️  RISK BREAKDOWN")
+        print(String(repeating: "─", count: 80))
+        print("🔴 Critical (≥20 transitive dependents): \(criticalNodes.count) modules")
+        print("🟠 High (10-19 transitive dependents):   \(highRiskNodes.count) modules")
+        print("🟡 Medium (5-9 transitive dependents):   \(mediumRiskNodes.count) modules")
+        
+        // Detailed critical nodes
+        if !criticalNodes.isEmpty {
+            print("\n🔴 CRITICAL MODULES (require extreme care when modifying)")
+            print(String(repeating: "─", count: 80))
+            for info in criticalNodes.prefix(10) {
+                print("  • \(info.name)")
+                print("    └─ \(info.transitiveDependents) modules will recompile on change")
+            }
+        }
+        
+        // Deep dependency chains (potential for slow builds)
+        let deepNodes = pinchPoints.filter { $0.dependencyDepth >= 5 }.sorted { $0.dependencyDepth > $1.dependencyDepth }
+        if !deepNodes.isEmpty {
+            print("\n🔗 DEEP DEPENDENCY CHAINS (may slow incremental builds)")
+            print(String(repeating: "─", count: 80))
+            for info in deepNodes.prefix(10) {
+                print("  • \(info.name) - depth \(info.dependencyDepth)")
+            }
+        }
+        
+        // Recommendations
+        print("\n💡 RECOMMENDATIONS")
+        print(String(repeating: "─", count: 80))
+        
+        if !criticalNodes.isEmpty {
+            print("1. STABILIZE CRITICAL MODULES:")
+            print("   Consider making these modules more stable with fewer API changes:")
+            for info in criticalNodes.prefix(5) {
+                print("   • \(info.name)")
+            }
+        }
+        
+        let highDepthHighImpact = pinchPoints.filter { $0.dependencyDepth >= 3 && $0.transitiveDependents >= 10 }
+        if !highDepthHighImpact.isEmpty {
+            print("\n2. CONSIDER BREAKING UP:")
+            print("   These modules are deep in the graph AND have many dependents:")
+            for info in highDepthHighImpact.prefix(5) {
+                print("   • \(info.name) (depth: \(info.dependencyDepth), dependents: \(info.transitiveDependents))")
+            }
+        }
+        
+        // Find potential interface/protocol candidates
+        let coreModules = pinchPoints.filter { $0.transitiveDependents >= 15 && $0.dependencyDepth <= 2 }
+        if !coreModules.isEmpty {
+            print("\n3. PROTOCOL/INTERFACE CANDIDATES:")
+            print("   High-impact, low-depth modules that could benefit from protocol abstractions:")
+            for info in coreModules.prefix(5) {
+                print("   • \(info.name)")
+            }
+        }
+        
+        print("\n" + String(repeating: "═", count: 80) + "\n")
     }
 }
