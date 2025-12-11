@@ -6,3 +6,17 @@ DerivedData/
 .swiftpm/configuration/registries.json
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .netrc
+
+# Node modules (used for testing only)
+node_modules/
+package-lock.json
+
+# Test files
+test_*.js
+
+# Build artifacts
+.build/
+
+# Generated files
+*.html
+graph.dot
