@@ -356,6 +356,75 @@ struct DependencyGraph: ParsableCommand {
         )
     }
     
+    // MARK: - Package.swift Parsing
+    
+    func parsePackageSwift(at url: URL) -> DependencyInfo? {
+        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        
+        let projectPath = url.deletingLastPathComponent().path
+        let projectName = URL(fileURLWithPath: projectPath).lastPathComponent
+        
+        var dependencies: [String] = []
+        var explicitPackages = Set<String>()
+        
+        // Parse .package(...) declarations to find dependencies
+        // Matches: .package(url: "...", ...) and .package(name: "...", path: "...")
+        
+        // Remote packages: .package(url: "https://...", ...)
+        let remotePattern = #"\.package\s*\(\s*url:\s*"([^"]+)""#
+        if let regex = try? NSRegularExpression(pattern: remotePattern, options: []) {
+            let range = NSRange(content.startIndex..., in: content)
+            let matches = regex.matches(in: content, options: [], range: range)
+            for match in matches {
+                if let urlRange = Range(match.range(at: 1), in: content) {
+                    let repoURL = String(content[urlRange])
+                    let packageName = extractPackageName(from: repoURL)
+                    dependencies.append(packageName)
+                    explicitPackages.insert(packageName)
+                }
+            }
+        }
+        
+        // Local packages: .package(name: "...", path: "...") or .package(path: "...")
+        let localNamePattern = #"\.package\s*\(\s*name:\s*"([^"]+)"\s*,\s*path:"#
+        if let regex = try? NSRegularExpression(pattern: localNamePattern, options: []) {
+            let range = NSRange(content.startIndex..., in: content)
+            let matches = regex.matches(in: content, options: [], range: range)
+            for match in matches {
+                if let nameRange = Range(match.range(at: 1), in: content) {
+                    let packageName = String(content[nameRange]).lowercased()
+                    dependencies.append(packageName)
+                    explicitPackages.insert(packageName)
+                }
+            }
+        }
+        
+        // Local packages without name: .package(path: "...")
+        let localPathPattern = #"\.package\s*\(\s*path:\s*"([^"]+)"\s*\)"#
+        if let regex = try? NSRegularExpression(pattern: localPathPattern, options: []) {
+            let range = NSRange(content.startIndex..., in: content)
+            let matches = regex.matches(in: content, options: [], range: range)
+            for match in matches {
+                if let pathRange = Range(match.range(at: 1), in: content) {
+                    let path = String(content[pathRange])
+                    let packageName = URL(fileURLWithPath: path).lastPathComponent.lowercased()
+                    dependencies.append(packageName)
+                    explicitPackages.insert(packageName)
+                }
+            }
+        }
+        
+        guard !dependencies.isEmpty else { return nil }
+        
+        return DependencyInfo(
+            projectPath: projectPath,
+            projectName: projectName,
+            dependencies: dependencies,
+            explicitPackages: explicitPackages,
+            targets: []
+        )
+    }
+    
     func extractPackageName(from url: String) -> String {
         // Extract package name from git URL like https://github.com/owner/PackageName.git
         var name = URL(string: url)?.lastPathComponent ?? url
@@ -367,26 +436,70 @@ struct DependencyGraph: ParsableCommand {
     
     func parseTargets(from content: String) -> [TargetInfo] {
         var targets: [TargetInfo] = []
-        var targetNames: Set<String> = []
         
-        // Extract target names from PBXNativeTarget section
-        // Format: HASH /* TargetName */ = { isa = PBXNativeTarget;
-        let targetNamePattern = #"/\*\s*([^*]+)\s*\*/\s*=\s*\{\s*isa\s*=\s*PBXNativeTarget"#
-        if let regex = try? NSRegularExpression(pattern: targetNamePattern, options: []) {
-            let range = NSRange(content.startIndex..., in: content)
-            let matches = regex.matches(in: content, options: [], range: range)
-            for match in matches {
-                if let nameRange = Range(match.range(at: 1), in: content) {
-                    let targetName = String(content[nameRange]).trimmingCharacters(in: .whitespaces)
-                    targetNames.insert(targetName)
-                }
-            }
+        // Find PBXNativeTarget section
+        guard let sectionStart = content.range(of: "/* Begin PBXNativeTarget section */"),
+              let sectionEnd = content.range(of: "/* End PBXNativeTarget section */") else {
+            return targets
         }
         
-        // For now, create targets without package dependencies
-        // A more sophisticated parser would match packageProductDependencies to targets
-        for name in targetNames {
-            targets.append(TargetInfo(name: name, packageDependencies: []))
+        let targetSection = String(content[sectionStart.upperBound..<sectionEnd.lowerBound])
+        
+        // Split by target entries - each starts with a hash and comment
+        // Pattern: HASH /* TargetName */ = { ... };
+        let targetBlockPattern = #"[A-F0-9]{24}\s*/\*\s*([^*]+)\s*\*/\s*=\s*\{[^{]*?isa\s*=\s*PBXNativeTarget[^}]*?(?:packageProductDependencies\s*=\s*\(\s*([^)]*)\s*\))?[^}]*?\};"#
+        
+        // Simpler approach: find each target name and its packageProductDependencies separately
+        let lines = targetSection.components(separatedBy: "\n")
+        var currentTarget: String? = nil
+        var inPackageDeps = false
+        var currentDeps: [String] = []
+        
+        for line in lines {
+            // Check for target name: "name = TargetName;"
+            if let nameMatch = line.range(of: #"^\s*name\s*=\s*([^;]+);"#, options: .regularExpression) {
+                let nameValue = line[nameMatch].replacingOccurrences(of: "name", with: "")
+                    .replacingOccurrences(of: "=", with: "")
+                    .replacingOccurrences(of: ";", with: "")
+                    .trimmingCharacters(in: .whitespaces)
+                currentTarget = nameValue
+            }
+            
+            // Check for packageProductDependencies start
+            if line.contains("packageProductDependencies = (") {
+                inPackageDeps = true
+                currentDeps = []
+                continue
+            }
+            
+            // Check for end of packageProductDependencies
+            if inPackageDeps && line.contains(");") {
+                inPackageDeps = false
+                if let target = currentTarget {
+                    targets.append(TargetInfo(name: target, packageDependencies: currentDeps))
+                    currentTarget = nil
+                }
+                continue
+            }
+            
+            // Parse package dependency: HASH /* PackageName */,
+            if inPackageDeps {
+                if let depMatch = line.range(of: #"/\*\s*([^*]+)\s*\*/"#, options: .regularExpression) {
+                    let depName = String(line[depMatch])
+                        .replacingOccurrences(of: "/*", with: "")
+                        .replacingOccurrences(of: "*/", with: "")
+                        .trimmingCharacters(in: .whitespaces)
+                        .lowercased()
+                    currentDeps.append(depName)
+                }
+            }
+            
+            // End of target block
+            if line.contains("};") && currentTarget != nil && !inPackageDeps {
+                // Target without packageProductDependencies
+                targets.append(TargetInfo(name: currentTarget!, packageDependencies: []))
+                currentTarget = nil
+            }
         }
         
         return targets
@@ -394,17 +507,32 @@ struct DependencyGraph: ParsableCommand {
     
     // MARK: - Merge Dependencies
     
-    func mergeDependencyInfo(resolved: [DependencyInfo], pbxproj: [DependencyInfo]) -> [DependencyInfo] {
+    func mergeDependencyInfo(resolved: [DependencyInfo], pbxproj: [DependencyInfo], localPackages: [DependencyInfo]) -> [DependencyInfo] {
         var merged: [DependencyInfo] = []
         
-        // Create a map of project name to pbxproj info
+        // Create maps for quick lookup
         var pbxprojMap: [String: DependencyInfo] = [:]
         for info in pbxproj {
             pbxprojMap[info.projectName] = info
         }
         
+        var localPackageMap: [String: DependencyInfo] = [:]
+        for info in localPackages {
+            localPackageMap[info.projectName.lowercased()] = info
+        }
+        
+        // Collect all explicit packages from all sources
+        var allExplicitPackages = Set<String>()
+        for info in pbxproj {
+            allExplicitPackages.formUnion(info.explicitPackages)
+        }
+        for info in localPackages {
+            allExplicitPackages.formUnion(info.explicitPackages)
+            allExplicitPackages.insert(info.projectName.lowercased())  // Local packages are explicit
+        }
+        
+        // Process Package.resolved entries
         for resolvedInfo in resolved {
-            // Try to find matching pbxproj info
             let pbxInfo = pbxprojMap[resolvedInfo.projectName]
             
             let mergedInfo = DependencyInfo(
@@ -417,9 +545,17 @@ struct DependencyGraph: ParsableCommand {
             merged.append(mergedInfo)
         }
         
-        // Add any pbxproj-only projects (no Package.resolved found)
+        // Add pbxproj-only projects
         for (name, info) in pbxprojMap {
             if !resolved.contains(where: { $0.projectName == name }) {
+                merged.append(info)
+            }
+        }
+        
+        // Add local packages (Package.swift) as separate entries
+        for (_, info) in localPackageMap {
+            // Check if not already added via resolved
+            if !merged.contains(where: { $0.projectName.lowercased() == info.projectName.lowercased() }) {
                 merged.append(info)
             }
         }
@@ -436,10 +572,21 @@ struct DependencyGraph: ParsableCommand {
         var allExplicitPackages = Set<String>()
         for info in dependencies {
             allExplicitPackages.formUnion(info.explicitPackages)
+            // Local packages (those with Package.swift) are explicit
+            if !info.dependencies.isEmpty {
+                allExplicitPackages.insert(info.projectName.lowercased())
+            }
         }
         
+        // Build set of local package names for reference
+        let localPackageNames = Set(dependencies.filter { !$0.dependencies.isEmpty }.map { $0.projectName.lowercased() })
+        
         for info in dependencies {
-            graph.addNode(info.projectName, nodeType: .project)
+            // Determine if this is a local package or Xcode project
+            let isLocalPackage = !info.dependencies.isEmpty && info.targets.isEmpty
+            let nodeType: NodeType = isLocalPackage ? .dependency : .project
+            
+            graph.addNode(info.projectName, nodeType: nodeType, isTransient: false)
             
             // Add targets if requested
             if showTargets {
@@ -448,20 +595,26 @@ struct DependencyGraph: ParsableCommand {
                     graph.addNode(targetNodeName, nodeType: .target)
                     graph.addEdge(from: info.projectName, to: targetNodeName)
                     
-                    // Connect target to its package dependencies
+                    // Connect target to its package dependencies directly
                     for dep in target.packageDependencies {
-                        if info.dependencies.contains(where: { $0.lowercased() == dep.lowercased() }) {
-                            graph.addNode(dep, nodeType: .dependency, isTransient: !allExplicitPackages.contains(dep.lowercased()))
-                            graph.addEdge(from: targetNodeName, to: dep)
-                        }
+                        let depLower = dep.lowercased()
+                        let isTransient = !allExplicitPackages.contains(depLower)
+                        let isLocalDep = localPackageNames.contains(depLower)
+                        
+                        graph.addNode(dep, nodeType: .dependency, isTransient: isTransient && !isLocalDep)
+                        graph.addEdge(from: targetNodeName, to: dep)
                     }
                 }
             }
             
-            // Add dependencies (project level)
+            // Add dependencies (project/package level)
             for dep in info.dependencies {
-                let isTransient = !allExplicitPackages.contains(dep.lowercased()) && !info.explicitPackages.contains(dep.lowercased())
-                graph.addNode(dep, nodeType: .dependency, isTransient: isTransient)
+                let depLower = dep.lowercased()
+                let isTransient = !allExplicitPackages.contains(depLower)
+                let isLocalDep = localPackageNames.contains(depLower)
+                
+                // Local packages are dependencies but not transient
+                graph.addNode(dep, nodeType: .dependency, isTransient: isTransient && !isLocalDep)
                 graph.addEdge(from: info.projectName, to: dep)
             }
         }
@@ -1475,7 +1628,7 @@ struct DependencyGraph: ParsableCommand {
               "Impact")
         print(String(repeating: "─", count: 80))
         
-        let topPinchPoints = Array(pinchPoints.prefix(20))
+        let topPinchPoints = Array(byImpact.prefix(20))
         for info in topPinchPoints {
             let typeIcon: String
             switch info.nodeType {
@@ -1492,9 +1645,34 @@ struct DependencyGraph: ParsableCommand {
             print(nameCol + directCol + transitiveCol + depthCol + impactCol)
         }
         
+        // Most vulnerable modules (most deps, most likely to need recompilation)
+        print("\n🎯 MOST VULNERABLE (affected by most dependency changes)")
+        print(String(repeating: "─", count: 80))
+        print("Module".padding(toLength: 42, withPad: " ", startingAt: 0) + 
+              "Direct".padding(toLength: 8, withPad: " ", startingAt: 0) +
+              "Transitive".padding(toLength: 12, withPad: " ", startingAt: 0) +
+              "Vuln Score")
+        print(String(repeating: "─", count: 80))
+        
+        let topVulnerable = Array(byVulnerability.prefix(15))
+        for info in topVulnerable {
+            let typeIcon: String
+            switch info.nodeType {
+            case .project: typeIcon = "📦"
+            case .target: typeIcon = "🎯"
+            case .dependency: typeIcon = "📚"
+            }
+            let truncatedName = info.name.count > 38 ? String(info.name.prefix(35)) + "..." : info.name
+            let nameCol = "\(typeIcon) \(truncatedName)".padding(toLength: 42, withPad: " ", startingAt: 0)
+            let directCol = String(info.directDependencies).padding(toLength: 8, withPad: " ", startingAt: 0)
+            let transitiveCol = String(info.transitiveDependencies).padding(toLength: 12, withPad: " ", startingAt: 0)
+            let vulnCol = String(format: "%.1f", info.vulnerabilityScore)
+            print(nameCol + directCol + transitiveCol + vulnCol)
+        }
+        
         // Categorize by risk level
-        let criticalNodes = pinchPoints.filter { $0.transitiveDependents >= 20 }
-        let highRiskNodes = pinchPoints.filter { $0.transitiveDependents >= 10 && $0.transitiveDependents < 20 }
+        let criticalNodes = byImpact.filter { $0.transitiveDependents >= 20 }
+        let highRiskNodes = byImpact.filter { $0.transitiveDependents >= 10 && $0.transitiveDependents < 20 }
         let mediumRiskNodes = pinchPoints.filter { $0.transitiveDependents >= 5 && $0.transitiveDependents < 10 }
         
         print("\n⚠️  RISK BREAKDOWN")
