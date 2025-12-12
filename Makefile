@@ -28,7 +28,7 @@ help:
 	@echo "Examples:"
 	@echo "  make html-fast PROJECT=/path/to/MyApp"
 	@echo "  make html-full PROJECT=/path/to/MyApp"
-	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"
+	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"
 	@echo "  make html PROJECT=/path/to/MyApp SWIFTPM_JSON=1"
 	@echo "  make json PROJECT=/path/to/MyApp HIDE_TRANSIENT=1"
 
