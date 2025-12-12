@@ -33,13 +33,22 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 | `graph` | ASCII box diagram |
 | `dot` | Graphviz DOT format |
 | `html` | **Interactive web visualization** |
+| `json` | JSON graph format (D3.js, Cytoscape.js, vis.js) |
+| `graphml` | GraphML format (yEd, Gephi, Cytoscape) |
 | `analyze` | **Pinch point analysis** for modularization |
 
 ### Examples
 
 ```bash
 # Interactive HTML (recommended)
+make html PROJECT=/path/to/ios-project
+
+# Or directly:
 .build/release/DependencyGraph /path/to/ios-project --format html > graph.html && open graph.html
+
+# Export for external tools
+make json PROJECT=/path/to/ios-project      # For D3.js, web tools
+make graphml PROJECT=/path/to/ios-project   # For yEd, Gephi
 
 # Show only explicit dependencies (hide transient)
 .build/release/DependencyGraph /path/to/ios-project --format html --hide-transient > graph.html
