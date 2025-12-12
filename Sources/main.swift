@@ -1,6 +1,7 @@
 import ArgumentParser
 import Foundation
 import XcodeProj
+import Darwin
 
 struct PackageResolved: Codable {
     let version: Int?
@@ -220,6 +221,11 @@ struct ASCIICanvas {
 
 @main
 struct DependencyGraph: ParsableCommand {
+    func eprint(_ message: String) {
+        // Only emit progress to an interactive terminal; keep stdout/stderr clean for piping and tests.
+        guard isatty(STDERR_FILENO) != 0 else { return }
+        FileHandle.standardError.write((message + "\n").data(using: .utf8)!)
+    }
     static let configuration = CommandConfiguration(
         abstract: "Scans directories for Package.resolved files and creates a dependency graph visualization"
     )
@@ -258,6 +264,14 @@ struct DependencyGraph: ParsableCommand {
         var localPackages: [DependencyInfo] = []
         var referencedXcodeprojURLs = Set<URL>()
         var parsedPBXProjPaths = Set<String>()
+
+        let scanStart = Date()
+        var scannedFiles = 0
+        var scannedLastReport = Date()
+        var foundResolved = 0
+        var foundPBXProj = 0
+        var foundPackageSwift = 0
+        var foundWorkspaces = 0
         
         let enumerator = fileManager.enumerator(
             at: directoryURL,
@@ -266,6 +280,16 @@ struct DependencyGraph: ParsableCommand {
         )
         
         while let fileURL = enumerator?.nextObject() as? URL {
+            scannedFiles += 1
+            if scannedFiles % 5000 == 0 {
+                let now = Date()
+                if now.timeIntervalSince(scannedLastReport) > 0.5 {
+                    let elapsed = String(format: "%.1fs", now.timeIntervalSince(scanStart))
+                    eprint("Scanning… files=\(scannedFiles) pbxproj=\(foundPBXProj) resolved=\(foundResolved) packages=\(foundPackageSwift) workspaces=\(foundWorkspaces) elapsed=\(elapsed)")
+                    scannedLastReport = now
+                }
+            }
+
             // Skip build directories, checkouts, and Xcode internal paths
             let pathString = fileURL.path
             if pathString.contains("/.build/") || 
@@ -278,25 +302,32 @@ struct DependencyGraph: ParsableCommand {
             }
             
             if fileURL.lastPathComponent == "contents.xcworkspacedata" {
+                foundWorkspaces += 1
                 referencedXcodeprojURLs.formUnion(parseWorkspaceXcodeprojURLs(at: fileURL))
                 continue
             }
 
             if fileURL.lastPathComponent == "Package.resolved" {
+                foundResolved += 1
                 if let info = parsePackageResolved(at: fileURL) {
                     allDependencies.append(info)
                 }
             } else if fileURL.lastPathComponent == "project.pbxproj" {
+                foundPBXProj += 1
                 parsedPBXProjPaths.insert(fileURL.path)
                 if let info = parsePBXProj(at: fileURL) {
                     pbxprojInfos.append(info)
                 }
             } else if fileURL.lastPathComponent == "Package.swift" {
+                foundPackageSwift += 1
                 if let info = parsePackageSwift(at: fileURL, useSwiftPMJSON: swiftpmJSON) {
                     localPackages.append(info)
                 }
             }
         }
+
+        let scanElapsed = String(format: "%.1fs", Date().timeIntervalSince(scanStart))
+        eprint("Scan complete: files=\(scannedFiles) pbxproj=\(foundPBXProj) resolved=\(foundResolved) packages=\(foundPackageSwift) workspaces=\(foundWorkspaces) elapsed=\(scanElapsed)")
 
         // Include workspace-referenced projects (may be outside scanned directory)
         for xcodeprojURL in referencedXcodeprojURLs {

@@ -12,6 +12,8 @@ Binary: `.build/release/DependencyGraph`
 
 ## Usage
 
+Note: when run in an interactive terminal, the tool prints scan progress to stderr (so `--format html > graph.html` still works).
+
 ```bash
 DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targets]
 ```
