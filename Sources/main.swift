@@ -2334,39 +2334,10 @@ struct DependencyGraph: ParsableCommand {
         let dependencyDepth: Int
         let impactScore: Double
         let vulnerabilityScore: Double  // How vulnerable to changes in deps
+        let cycleSize: Int
     }
-    
-    func getAllTransitiveDependents(of node: String, graph: Graph, visited: inout Set<String>) -> Set<String> {
-        if visited.contains(node) { return [] }
-        visited.insert(node)
-        
-        var result = Set<String>()
-        let directDependents = graph.dependents(of: node)
-        
-        for dependent in directDependents {
-            result.insert(dependent)
-            result.formUnion(getAllTransitiveDependents(of: dependent, graph: graph, visited: &visited))
-        }
-        
-        return result
-    }
-    
-    func getAllTransitiveDependencies(of node: String, graph: Graph, visited: inout Set<String>) -> Set<String> {
-        if visited.contains(node) { return [] }
-        visited.insert(node)
-        
-        var result = Set<String>()
-        let directDeps = graph.dependencies(of: node)
-        
-        for dep in directDeps {
-            result.insert(dep)
-            result.formUnion(getAllTransitiveDependencies(of: dep, graph: graph, visited: &visited))
-        }
-        
-        return result
-    }
-    
-    func iconForNodeType(_ nodeType: NodeType) -> String {
+
+    static func iconForNodeType(_ nodeType: NodeType) -> String {
         switch nodeType {
         case .project: return "📦"
         case .target: return "🎯"
@@ -2374,20 +2345,168 @@ struct DependencyGraph: ParsableCommand {
         case .externalPackage: return "📚"
         }
     }
-    
-    func calculateDependencyDepth(of node: String, graph: Graph, memo: inout [String: Int]) -> Int {
-        if let cached = memo[node] { return cached }
-        
-        let deps = graph.dependencies(of: node)
-        if deps.isEmpty {
-            memo[node] = 0
-            return 0
+
+    static func computeStronglyConnectedComponents(graph: Graph) -> (sccs: [[String]], sccByNode: [String: Int]) {
+        var adjacency: [String: [String]] = [:]
+        for name in graph.nodes.keys {
+            adjacency[name, default: []] = []
         }
-        
-        let maxChildDepth = deps.map { calculateDependencyDepth(of: $0, graph: graph, memo: &memo) }.max() ?? 0
-        let depth = maxChildDepth + 1
-        memo[node] = depth
-        return depth
+        for e in graph.edges {
+            adjacency[e.from, default: []].append(e.to)
+        }
+
+        var index = 0
+        var stack: [String] = []
+        var onStack = Set<String>()
+        var indices: [String: Int] = [:]
+        var lowlink: [String: Int] = [:]
+        var sccs: [[String]] = []
+        var sccByNode: [String: Int] = [:]
+
+        func strongconnect(_ v: String) {
+            indices[v] = index
+            lowlink[v] = index
+            index += 1
+            stack.append(v)
+            onStack.insert(v)
+
+            for w in adjacency[v] ?? [] {
+                if indices[w] == nil {
+                    strongconnect(w)
+                    lowlink[v] = min(lowlink[v]!, lowlink[w]!)
+                } else if onStack.contains(w) {
+                    lowlink[v] = min(lowlink[v]!, indices[w]!)
+                }
+            }
+
+            if lowlink[v] == indices[v] {
+                var component: [String] = []
+                while let w = stack.popLast() {
+                    onStack.remove(w)
+                    component.append(w)
+                    if w == v { break }
+                }
+                let sccId = sccs.count
+                sccs.append(component)
+                for n in component {
+                    sccByNode[n] = sccId
+                }
+            }
+        }
+
+        for v in graph.nodes.keys {
+            if indices[v] == nil {
+                strongconnect(v)
+            }
+        }
+
+        return (sccs, sccByNode)
+    }
+
+    static func computePinchPoints(graph: Graph, internalOnly: Bool) -> (pinchPoints: [PinchPointInfo], maxDepth: Int) {
+        // Filter out nodes we don't analyze (transient, and optionally external packages).
+        let includedNodes = Set(graph.nodes.compactMap { (name, node) -> String? in
+            if node.isTransient { return nil }
+            if internalOnly && node.nodeType == .externalPackage { return nil }
+            return name
+        })
+
+        var filtered = Graph()
+        for name in includedNodes {
+            if let node = graph.nodes[name] {
+                filtered.nodes[name] = node
+            }
+        }
+        filtered.edges = graph.edges.filter { includedNodes.contains($0.from) && includedNodes.contains($0.to) }
+
+        let (sccs, sccByNode) = computeStronglyConnectedComponents(graph: filtered)
+        let sccSizes = sccs.map { $0.count }
+
+        var out: [Set<Int>] = Array(repeating: [], count: sccs.count)
+        var incoming: [Set<Int>] = Array(repeating: [], count: sccs.count)
+        for e in filtered.edges {
+            guard let a = sccByNode[e.from], let b = sccByNode[e.to], a != b else { continue }
+            if out[a].insert(b).inserted {
+                incoming[b].insert(a)
+            }
+        }
+
+        var depthMemo: [Int: Int] = [:]
+        func sccDepth(_ s: Int) -> Int {
+            if let d = depthMemo[s] { return d }
+            let d = (out[s].isEmpty ? 0 : (out[s].map(sccDepth).max() ?? 0) + 1)
+            depthMemo[s] = d
+            return d
+        }
+        let maxDepth = (0..<sccs.count).map(sccDepth).max() ?? 0
+
+        var downMemo: [Int: Set<Int>] = [:]
+        func downClosure(_ s: Int) -> Set<Int> {
+            if let c = downMemo[s] { return c }
+            var result: Set<Int> = []
+            for child in out[s] {
+                result.insert(child)
+                result.formUnion(downClosure(child))
+            }
+            downMemo[s] = result
+            return result
+        }
+
+        var upMemo: [Int: Set<Int>] = [:]
+        func upClosure(_ s: Int) -> Set<Int> {
+            if let c = upMemo[s] { return c }
+            var result: Set<Int> = []
+            for parent in incoming[s] {
+                result.insert(parent)
+                result.formUnion(upClosure(parent))
+            }
+            upMemo[s] = result
+            return result
+        }
+
+        func sumSizes(_ ids: Set<Int>) -> Int {
+            ids.reduce(0) { $0 + sccSizes[$1] }
+        }
+
+        // Precompute SCC-level metrics (counts of original nodes in SCCs).
+        var sccDirectDeps: [Int: Int] = [:]
+        var sccDirectDependents: [Int: Int] = [:]
+        var sccTransDeps: [Int: Int] = [:]
+        var sccTransDependents: [Int: Int] = [:]
+        for s in 0..<sccs.count {
+            sccDirectDeps[s] = sumSizes(out[s])
+            sccDirectDependents[s] = sumSizes(incoming[s])
+            sccTransDeps[s] = sumSizes(downClosure(s))
+            sccTransDependents[s] = sumSizes(upClosure(s))
+        }
+
+        var pinchPoints: [PinchPointInfo] = []
+        for (name, node) in filtered.nodes {
+            guard let s = sccByNode[name] else { continue }
+            let directDependents = sccDirectDependents[s] ?? 0
+            let directDependencies = sccDirectDeps[s] ?? 0
+            let transitiveDependents = sccTransDependents[s] ?? 0
+            let transitiveDependencies = sccTransDeps[s] ?? 0
+            let depth = sccDepth(s)
+
+            let impactScore = Double(transitiveDependents) * (1.0 + Double(depth) * 0.2)
+            let vulnerabilityScore = Double(transitiveDependencies)
+
+            pinchPoints.append(PinchPointInfo(
+                name: name,
+                nodeType: node.nodeType,
+                directDependents: directDependents,
+                transitiveDependents: transitiveDependents,
+                directDependencies: directDependencies,
+                transitiveDependencies: transitiveDependencies,
+                dependencyDepth: depth,
+                impactScore: impactScore,
+                vulnerabilityScore: vulnerabilityScore,
+                cycleSize: sccSizes[s]
+            ))
+        }
+
+        return (pinchPoints, maxDepth)
     }
     
     func printPinchPointAnalysis(graph: Graph, internalOnly: Bool) {
@@ -2399,60 +2518,16 @@ struct DependencyGraph: ParsableCommand {
         } else {
             print("  (Analyzing explicit dependencies - excluding transient)")
         }
-        
-        var pinchPoints: [PinchPointInfo] = []
-        var depthMemo: [String: Int] = [:]
-        
-        for (name, node) in graph.nodes {
-            // Skip transient dependencies
-            if node.isTransient {
-                continue
-            }
-            
-            // If internal-only, skip external packages
-            if internalOnly && node.nodeType == .externalPackage {
-                continue
-            }
-            
-            let directDependents = graph.dependents(of: name).count
-            let directDependencies = graph.dependencies(of: name).count
-            
-            var visitedUp = Set<String>()
-            let transitiveDependents = getAllTransitiveDependents(of: name, graph: graph, visited: &visitedUp).count
-            
-            var visitedDown = Set<String>()
-            let transitiveDependencies = getAllTransitiveDependencies(of: name, graph: graph, visited: &visitedDown).count
-            
-            let depth = calculateDependencyDepth(of: name, graph: graph, memo: &depthMemo)
-            
-            // Impact score: how much damage changes TO this module cause
-            let impactScore = Double(transitiveDependents) * (1.0 + Double(depth) * 0.2)
-            
-            // Vulnerability score: how often this module needs to recompile due to dep changes
-            let vulnerabilityScore = Double(transitiveDependencies)
-            
-            // Include all non-transient nodes (projects, targets, explicit deps)
-            pinchPoints.append(PinchPointInfo(
-                name: name,
-                nodeType: node.nodeType,
-                directDependents: directDependents,
-                transitiveDependents: transitiveDependents,
-                directDependencies: directDependencies,
-                transitiveDependencies: transitiveDependencies,
-                dependencyDepth: depth,
-                impactScore: impactScore,
-                vulnerabilityScore: vulnerabilityScore
-            ))
-        }
-        
+
+        let (pinchPoints, maxDepth) = Self.computePinchPoints(graph: graph, internalOnly: internalOnly)
+
         // Sort by impact score descending
         let byImpact = pinchPoints.sorted { $0.impactScore > $1.impactScore }
         let byVulnerability = pinchPoints.sorted { $0.vulnerabilityScore > $1.vulnerabilityScore }
-        
+
         // Summary statistics
-        let totalNodes = graph.nodes.count
+        let totalNodes = pinchPoints.count
         let avgDependents = pinchPoints.isEmpty ? 0.0 : Double(pinchPoints.map { $0.transitiveDependents }.reduce(0, +)) / Double(pinchPoints.count)
-        let maxDepth = depthMemo.values.max() ?? 0
         
         print("\n📊 SUMMARY")
         print(String(repeating: "─", count: 80))
@@ -2472,9 +2547,10 @@ struct DependencyGraph: ParsableCommand {
         
         let topPinchPoints = Array(byImpact.prefix(20))
         for info in topPinchPoints {
-            let typeIcon = iconForNodeType(info.nodeType)
+            let typeIcon = Self.iconForNodeType(info.nodeType)
+            let cycle = info.cycleSize > 1 ? "↻" : ""
             let truncatedName = info.name.count > 38 ? String(info.name.prefix(35)) + "..." : info.name
-            let nameCol = "\(typeIcon) \(truncatedName)".padding(toLength: 42, withPad: " ", startingAt: 0)
+            let nameCol = "\(cycle)\(typeIcon) \(truncatedName)".padding(toLength: 42, withPad: " ", startingAt: 0)
             let directCol = String(info.directDependents).padding(toLength: 8, withPad: " ", startingAt: 0)
             let transitiveCol = String(info.transitiveDependents).padding(toLength: 12, withPad: " ", startingAt: 0)
             let depthCol = String(info.dependencyDepth).padding(toLength: 7, withPad: " ", startingAt: 0)
@@ -2493,9 +2569,10 @@ struct DependencyGraph: ParsableCommand {
         
         let topVulnerable = Array(byVulnerability.prefix(15))
         for info in topVulnerable {
-            let typeIcon = iconForNodeType(info.nodeType)
+            let typeIcon = Self.iconForNodeType(info.nodeType)
+            let cycle = info.cycleSize > 1 ? "↻" : ""
             let truncatedName = info.name.count > 38 ? String(info.name.prefix(35)) + "..." : info.name
-            let nameCol = "\(typeIcon) \(truncatedName)".padding(toLength: 42, withPad: " ", startingAt: 0)
+            let nameCol = "\(cycle)\(typeIcon) \(truncatedName)".padding(toLength: 42, withPad: " ", startingAt: 0)
             let directCol = String(info.directDependencies).padding(toLength: 8, withPad: " ", startingAt: 0)
             let transitiveCol = String(info.transitiveDependencies).padding(toLength: 12, withPad: " ", startingAt: 0)
             let vulnCol = String(format: "%.1f", info.vulnerabilityScore)

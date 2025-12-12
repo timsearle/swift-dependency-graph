@@ -1,5 +1,6 @@
 import XCTest
 import Foundation
+@testable import DependencyGraph
 
 final class DependencyGraphTests: XCTestCase {
     
@@ -718,6 +719,38 @@ final class DependencyGraphTests: XCTestCase {
     
     // MARK: - Helper Methods
     
+    func testAnalyze_IsCycleSafe_AndCondensesSCC() throws {
+        var g = Graph()
+        g.addNode("a", nodeType: .localPackage)
+        g.addNode("b", nodeType: .localPackage)
+        g.addNode("c", nodeType: .localPackage)
+
+        // a <-> b cycle, and c depends on a
+        g.addEdge(from: "a", to: "b")
+        g.addEdge(from: "b", to: "a")
+        g.addEdge(from: "c", to: "a")
+
+        let (points, maxDepth) = DependencyGraph.computePinchPoints(graph: g, internalOnly: true)
+        XCTAssertEqual(maxDepth, 1)
+
+        let aInfo = points.first(where: { $0.name == "a" })
+        let bInfo = points.first(where: { $0.name == "b" })
+        let cInfo = points.first(where: { $0.name == "c" })
+
+        XCTAssertEqual(aInfo?.cycleSize, 2)
+        XCTAssertEqual(bInfo?.cycleSize, 2)
+        XCTAssertEqual(cInfo?.cycleSize, 1)
+
+        // Cycle is treated as one component: dependents outside SCC is just {c}
+        XCTAssertEqual(aInfo?.directDependents, 1)
+        XCTAssertEqual(aInfo?.transitiveDependents, 1)
+        XCTAssertEqual(bInfo?.directDependents, 1)
+        XCTAssertEqual(bInfo?.transitiveDependents, 1)
+
+        // c depends directly on the SCC (size 2)
+        XCTAssertEqual(cInfo?.directDependencies, 2)
+    }
+
     func runBinary(args: [String]) throws -> String {
         let process = Process()
         process.executableURL = binaryURL
