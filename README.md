@@ -58,6 +58,17 @@ Variables:
 - `SWIFTPM_JSON=1|0`
 - `EXTRA_ARGS=...` (passed through to the CLI)
 
+### GraphML viewer (local)
+
+If you want a dedicated UI for exploring `graph.graphml`, we use https://github.com/Abhi5h3k/graphml-viewer checked out at `../graphml-viewer`.
+
+```bash
+make graphml PROJECT=/path/to/root
+make viewer-install
+make viewer-start
+# then open http://localhost:4200/ and drag/drop graph.graphml
+```
+
 ### Examples
 
 ```bash

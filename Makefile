@@ -1,4 +1,4 @@
-.PHONY: build release test clean html html-fast html-full json dot gexf graphml analyze analyze-internal help
+.PHONY: build release test clean html html-fast html-full json dot gexf graphml analyze analyze-internal viewer-install viewer-start viewer help
 
 # Default target
 help:
@@ -16,6 +16,9 @@ help:
 	@echo "  make graphml          - Export GraphML format"
 	@echo "  make analyze          - Run pinch point analysis"
 	@echo "  make analyze-internal - Run analysis for internal modules only"
+	@echo "  make viewer-install   - Install GraphML viewer deps (../graphml-viewer)"
+	@echo "  make viewer-start     - Start GraphML viewer (http://localhost:4200)"
+	@echo "  make viewer           - Open viewer in browser (starts if needed)"
 	@echo ""
 	@echo "Variables:"
 	@echo "  PROJECT=/path/to/root  (default: .)"
@@ -105,3 +108,17 @@ analyze: release
 
 analyze-internal: release
 	.build/release/DependencyGraph "$(PROJECT)" --format analyze $(CLI_FLAGS) $(EXTRA_ARGS) --internal-only
+
+# GraphML viewer (external repo)
+VIEWER_DIR ?= ../graphml-viewer
+
+viewer-install:
+	@cd "$(VIEWER_DIR)" && (node -v >/dev/null 2>&1 || (echo "Node.js is not available/working. Recommended: install Node 14.20.1 via nvm, or fix Homebrew Node (e.g. 'brew reinstall node')." && exit 1))
+	cd "$(VIEWER_DIR)" && npm install --legacy-peer-deps
+
+viewer-start:
+	@cd "$(VIEWER_DIR)" && (node -v >/dev/null 2>&1 || (echo "Node.js is not available/working. Recommended: install Node 14.20.1 via nvm, or fix Homebrew Node (e.g. 'brew reinstall node')." && exit 1))
+	cd "$(VIEWER_DIR)" && npm start
+
+viewer:
+	@open http://localhost:4200/ || true

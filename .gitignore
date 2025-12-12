@@ -20,3 +20,6 @@ test_*.js
 # Generated files
 *.html
 graph.dot
+graph.json
+graph.gexf
+graph.graphml
