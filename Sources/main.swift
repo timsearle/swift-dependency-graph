@@ -325,7 +325,13 @@ struct DependencyGraph: ParsableCommand {
             let localIdentities = Set(localPackages.map { $0.projectName.lowercased() })
             let referencedLocalIdentities = Set(pbxprojInfos.flatMap { $0.explicitPackages }).intersection(localIdentities)
             let spmRoots = referencedLocalIdentities.isEmpty ? localPackages : localPackages.filter { referencedLocalIdentities.contains($0.projectName.lowercased()) }
-            augmentGraphWithSwiftPMEdges(graph: &graph, packageRoots: spmRoots, hideTransient: hideTransient)
+
+            // Avoid triggering slow dependency resolution/network fetches for packages that don't have an existing resolution.
+            // Only apply this heuristic in Xcode-project mode (where we can discover many Package.swift files that aren't
+            // meant to be resolved as standalone packages).
+            let spmRootsToResolve = pbxprojInfos.isEmpty ? spmRoots : spmRoots.filter { swiftPMRootHasResolved(packageRoot: URL(fileURLWithPath: $0.projectPath)) }
+
+            augmentGraphWithSwiftPMEdges(graph: &graph, packageRoots: spmRootsToResolve, hideTransient: hideTransient)
         }
         
         // Filter transient dependencies if requested
@@ -547,6 +553,17 @@ struct DependencyGraph: ParsableCommand {
     
     // MARK: - Package.swift Parsing
     
+    func swiftPMRootHasResolved(packageRoot: URL) -> Bool {
+        let fm = FileManager.default
+        if fm.fileExists(atPath: packageRoot.appendingPathComponent("Package.resolved").path) {
+            return true
+        }
+        if fm.fileExists(atPath: packageRoot.appendingPathComponent(".swiftpm/configuration/Package.resolved").path) {
+            return true
+        }
+        return false
+    }
+
     func parsePackageSwift(at url: URL, useSwiftPMJSON: Bool) -> DependencyInfo? {
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         
@@ -556,7 +573,7 @@ struct DependencyGraph: ParsableCommand {
         var dependencies: [String] = []
         var explicitPackages = Set<String>()
 
-        if useSwiftPMJSON {
+        if useSwiftPMJSON, swiftPMRootHasResolved(packageRoot: url.deletingLastPathComponent()) {
             if let rootNode = loadSwiftPMShowDependencies(packageRoot: url.deletingLastPathComponent()) {
                 let direct = (rootNode.dependencies ?? []).map { $0.identity.lowercased() }
                 dependencies.append(contentsOf: direct)
