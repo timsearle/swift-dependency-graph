@@ -54,6 +54,10 @@ Repo (private): https://github.com/timsearle/dependency-graph
 - Implement real GraphML or keep `graphml` as an explicit alias (documented).
 - Consider emitting stable, collision-free ids (schema bump).
 
+### P5.2 — Profiling/timings
+- Add a `--profile` flag that prints phase timings (scan/parse/swiftpm/html) to stderr (TTY-only).
+- Use it to target the real bottleneck on large repos.
+
 ---
 
 ## Recent commits
