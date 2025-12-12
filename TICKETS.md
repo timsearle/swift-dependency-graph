@@ -2,7 +2,7 @@
 
 Repo (private): https://github.com/timsearle/dependency-graph
 
-## Current state (2025-12-12)
+## Current state (2025-12-12T22:16Z)
 
 ### Phase 0 (contract) — DONE
 - JSON graph output is versioned: `metadata.schemaVersion = 1`.
@@ -39,26 +39,28 @@ Repo (private): https://github.com/timsearle/dependency-graph
 
 ## Next tickets (recommended ordering)
 
-### P1.1 — Make PBXProj typed parsing authoritative
-- Add/expand fixtures for:
-  - multiple products from same package
-  - overlapping product names across packages
-  - local package references with relative paths
-- Ensure typed parsing produces the same explicit package set + target deps as legacy parsing.
-- If typed parsing can’t resolve something, explicitly record “unknown” with a reason (or keep fallback behind a debug flag).
+### P3.1 — Stop regex parsing of Package.swift
+- Prefer SwiftPM JSON outputs over parsing source:
+  - `swift package dump-package` for package name/targets/products and declared dependencies
+  - `swift package show-dependencies --format json` for package→package edges
+- Gate behind a flag first to avoid regressions, then make it the default once coverage is good.
+- Add fixtures for multiline/conditional deps, variables, `.package(path:)`, and multiple products.
 
-### P1.2 — Add target-to-target edges
-- Add `target -> target` edges for PBX target dependencies.
-- Add tests using fixtures.
+### P4.1 — Analysis correctness hardening
+- Add cycle handling (SCC condensation) so depth/impact metrics are well-defined.
+- Add tests for cycles/shared subgraphs.
 
-### P1.3 — Workspace support
-- Parse `.xcworkspace/contents.xcworkspacedata` and include all referenced `.xcodeproj`.
-
-### P2.1 — SwiftPM edges: attribute versions + URLs
-- Extend JSON nodes to include URL/version when known (schemaVersion bump).
+### P5.1 — Output/UX follow-ups
+- Implement real GraphML or keep `graphml` as an explicit alias (documented).
+- Consider emitting stable, collision-free ids (schema bump).
 
 ---
 
 ## Recent commits
-- `a0312c9` Use XcodeProj for PBXProj parsing
-- `082a083` Complete phase 0 contract and schema v1
+- `2f5d525` Avoid duplicate local package identities
+- `1620bcb` Fix root Package.swift node type
+- `92e040c` Fix HTML legend and update roadmap
+- `9f3ca33` Improve spm-edges performance
+- `b4689ab` Fix spm-edges transient classification
+- `88abe93` Makefile: support flags and document
+- `e6d9bde` Complete phases 1.1-1.3

@@ -47,7 +47,7 @@ Tests:
 ## Phase 1 — Replace PBXProj regex parsing with a real parser (without breaking outputs)
 **Objective:** correct target/product/package mapping from Xcode projects.
 
-Status: mostly complete — uses Tuist XcodeProj for typed parsing with a legacy regex fallback.
+Status: complete for current schema v1 (typed parsing + legacy fallback; target→target edges; workspace inclusion).
 
 Work items:
 - Introduce a pbxproj parser dependency (Swift library) and build a typed model.
@@ -71,7 +71,7 @@ Tests:
 ## Phase 2 — Build a true SwiftPM dependency graph (package→package edges)
 **Objective:** stop inferring edges from `Package.resolved`.
 
-Status: initial implementation is available behind `--spm-edges`.
+Status: working behind `--spm-edges` (performance-tuned; correct transient classification; supports SwiftPM-only roots).
 
 Approach (preferred):
 - Use `swift package show-dependencies --format json` for each discovered Swift package root.
