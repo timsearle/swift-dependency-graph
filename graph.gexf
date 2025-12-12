@@ -1,0 +1,4074 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://gexf.net/1.3"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://gexf.net/1.3 http://gexf.net/1.3/gexf.xsd"
+      version="1.3">
+  <meta>
+    <creator>DependencyGraph</creator>
+    <description>iOS Dependency Graph</description>
+  </meta>
+  <graph defaultedgetype="directed" mode="static">
+    <attributes class="node" mode="static">
+      <attribute id="0" title="type" type="string"/>
+      <attribute id="1" title="isTransient" type="boolean"/>
+      <attribute id="2" title="isInternal" type="boolean"/>
+    </attributes>
+    <nodes>
+  <node id="msfoundationmocks" label="msfoundationmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="console-kit" label="console-kit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="xctasync" label="xctasync">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MetricsUploader" label="MetricsUploader">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msurl" label="msurl">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Sparks" label="Sparks">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swift-argument-parser" label="swift-argument-parser">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSLoyalty" label="MSLoyalty">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="PersonalizedContent" label="PersonalizedContent">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="onboarding" label="onboarding">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msutils" label="msutils">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msexecution" label="msexecution">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msstrings" label="msstrings">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="storefinder" label="storefinder">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="purchaseshubtestdata" label="purchaseshubtestdata">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSHaptics" label="MSHaptics">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSError" label="MSError">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="jsonkit" label="jsonkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msloyaltymocks" label="msloyaltymocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="filestorage" label="filestorage">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="departmentlandingpage" label="departmentlandingpage">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="OrderFulfilment" label="OrderFulfilment">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MS3/MS3Tests" label="MS3/MS3Tests">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MS3/MS3SnapshotTests" label="MS3/MS3SnapshotTests">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swift-toolchain-sqlite" label="swift-toolchain-sqlite">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="StoreSelector" label="StoreSelector">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="apollotestsupport" label="apollotestsupport">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="marketingcloudsdk" label="marketingcloudsdk">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="inputbaraccessoryview" label="inputbaraccessoryview">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msloyalty" label="msloyalty">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="FastlaneSwiftRunner" label="FastlaneSwiftRunner">
+    <attvalues>
+      <attvalue for="0" value="project"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="yams" label="yams">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="swift-nio" label="swift-nio">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="lottie-ios" label="lottie-ios">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="aepidentity" label="aepidentity">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="deliverypass" label="deliverypass">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-json" label="mobile-swift-json">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msurlmocks" label="msurlmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="StyleTipsGraphGenerated" label="StyleTipsGraphGenerated">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="DeliveryPass" label="DeliveryPass">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSRegion" label="MSRegion">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="scanandshop" label="scanandshop">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Onboarding" label="Onboarding">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msplugins" label="msplugins">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="ApplePay" label="ApplePay">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mocknetworkingkit" label="mocknetworkingkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="DevTools" label="DevTools">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Banking" label="Banking">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mshaptics" label="mshaptics">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="storeselector" label="storeselector">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="aepcore" label="aepcore">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="remotecontentfulfilmentkit" label="remotecontentfulfilmentkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="inspiration" label="inspiration">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="profile" label="profile">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="xcodeproj" label="xcodeproj">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSDate" label="MSDate">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swift-syntax" label="swift-syntax">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="aepanalytics" label="aepanalytics">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="mslogincore" label="mslogincore">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="imagekit" label="imagekit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="applepaymocks" label="applepaymocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="bankingkit" label="bankingkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="Notices" label="Notices">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Terminal Notifier/&quot;terminal-notifier&quot;" label="Terminal Notifier/&quot;terminal-notifier&quot;">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swift-cmark" label="swift-cmark">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MS3" label="MS3">
+    <attvalues>
+      <attvalue for="0" value="project"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSLoginCore" label="MSLoginCore">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Recipes" label="Recipes">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msbarcodeview" label="msbarcodeview">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="DepartmentLandingPage" label="DepartmentLandingPage">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msgraphqlmesh" label="msgraphqlmesh">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="LottieKit" label="LottieKit">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSBarcodeView" label="MSBarcodeView">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="devtools" label="devtools">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msloyaltyanalytics" label="msloyaltyanalytics">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="productlistingpage" label="productlistingpage">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="AppleWalletPass" label="AppleWalletPass">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="StyleTips" label="StyleTips">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msanalytics" label="msanalytics">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="GuidanceUI" label="GuidanceUI">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Location" label="Location">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="storefindermocks" label="storefindermocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="mstiming" label="mstiming">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="DigitalRewards" label="DigitalRewards">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MS3/AppControlWidgetsExtension" label="MS3/AppControlWidgetsExtension">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="dynatracetelemetryintegration" label="dynatracetelemetryintegration">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="ProductDetailPage" label="ProductDetailPage">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="decoy" label="decoy">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="rainbow" label="rainbow">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="searchrecommendationoutfitskit" label="searchrecommendationoutfitskit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="aeptarget" label="aeptarget">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="remotecontentmessagingkitmocks" label="remotecontentmessagingkitmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="swiftymocky" label="swiftymocky">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="aepsignal" label="aepsignal">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msauth" label="msauth">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="recipes" label="recipes">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="debugmenuui" label="debugmenuui">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msgraphqlservice" label="msgraphqlservice">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="StyleTipsExample/StyleTipsExample" label="StyleTipsExample/StyleTipsExample">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="version" label="version">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="Differ" label="Differ">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="issuereportingtelemetryintegration" label="issuereportingtelemetryintegration">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="personalizedcontentmocks" label="personalizedcontentmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="notices" label="notices">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="xcodegen" label="xcodegen">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="orderfulfilmentkitmocks" label="orderfulfilmentkitmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSURL" label="MSURL">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="aexml" label="aexml">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="remotepricepricingkitmocks" label="remotepricepricingkitmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="Demo" label="Demo">
+    <attvalues>
+      <attvalue for="0" value="project"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="telemetrytesting" label="telemetrytesting">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="enrichedproduct" label="enrichedproduct">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="shellout" label="shellout">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="applepay" label="applepay">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swiftcli" label="swiftcli">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msmedallia" label="msmedallia">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Flux" label="Flux">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="remotecontentmessagingkit" label="remotecontentmessagingkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="productdetailpagekit" label="productdetailpagekit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="StoreFinder" label="StoreFinder">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="collectionviewvisibilitymonitoring" label="collectionviewvisibilitymonitoring">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSStrings" label="MSStrings">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mslog" label="mslog">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="OptimizelyFlagging" label="OptimizelyFlagging">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msregion" label="msregion">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msswiftui" label="msswiftui">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="chatlayout" label="chatlayout">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="Profile" label="Profile">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSObservable" label="MSObservable">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="sfmcsdk" label="sfmcsdk">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSPropertyWrappers" label="MSPropertyWrappers">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swift-custom-dump" label="swift-custom-dump">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="flux" label="flux">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="productdetailpage" label="productdetailpage">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="issuereporting" label="issuereporting">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="remoteproductlistingkit" label="remoteproductlistingkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="ProductStockTrawler/&quot;ProductStockTrawler (iOS)&quot;" label="ProductStockTrawler/&quot;ProductStockTrawler (iOS)&quot;">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-telemetry-new-relic" label="mobile-swift-telemetry-new-relic">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="searchmocks" label="searchmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="EnrichedProduct" label="EnrichedProduct">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="flaggingoverride" label="flaggingoverride">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="swift-markdown" label="swift-markdown">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="Home" label="Home">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="sdwebimage" label="sdwebimage">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-telemetry-adobe" label="mobile-swift-telemetry-adobe">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="combineext" label="combineext">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="styletips" label="styletips">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="purchaseshub" label="purchaseshub">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="enrichedproductservicemocks" label="enrichedproductservicemocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="digital-ios-sdk" label="digital-ios-sdk">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-flagging" label="mobile-swift-flagging">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="customerorderkit" label="customerorderkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="GenerateKeys" label="GenerateKeys">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="recipesdeeplinks" label="recipesdeeplinks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="mstimingmocks" label="mstimingmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="swrve-mparticle" label="swrve-mparticle">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="webkitutilities" label="webkitutilities">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="telemetrylogging" label="telemetrylogging">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="spectre" label="spectre">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="recommendationstrategy" label="recommendationstrategy">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="optimizelyflaggingintegration" label="optimizelyflaggingintegration">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="html" label="html">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSGraphQLService" label="MSGraphQLService">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSAPICore" label="MSAPICore">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Recommendations" label="Recommendations">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msdate" label="msdate">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="ProductContentProvider" label="ProductContentProvider">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swift-algorithms" label="swift-algorithms">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="flaggingkit" label="flaggingkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="SocialMediaGallery" label="SocialMediaGallery">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="personalizedcontent" label="personalizedcontent">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="metricmanager" label="metricmanager">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSSwiftUI" label="MSSwiftUI">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="ScanAndShop" label="ScanAndShop">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msdesignwrapper" label="msdesignwrapper">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="dynatracetelemetry" label="dynatracetelemetry">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="SampleApp" label="SampleApp">
+    <attvalues>
+      <attvalue for="0" value="project"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="styletipsmockdata" label="styletipsmockdata">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="food" label="food">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="FluxUI" label="FluxUI">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="optimizelyflagging" label="optimizelyflagging">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swrvesdkcommon" label="swrvesdkcommon">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="commander" label="commander">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSUtils" label="MSUtils">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mocknetworkingui" label="mocknetworkingui">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MS3/PercyPigWidgetExtension" label="MS3/PercyPigWidgetExtension">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="jsonutilities" label="jsonutilities">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-image" label="mobile-swift-image">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msgraphqlmeshtestingsupport" label="msgraphqlmeshtestingsupport">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="socialmediagalleryui" label="socialmediagalleryui">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="home" label="home">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSTiming" label="MSTiming">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Modulator" label="Modulator">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="otpublishersheadlesssdk" label="otpublishersheadlesssdk">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="applewalletpass" label="applewalletpass">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="customdump" label="customdump">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="ProductStockTrawler/&quot;ProductStockTrawler (macOS)&quot;" label="ProductStockTrawler/&quot;ProductStockTrawler (macOS)&quot;">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mparticle-apple-sdk" label="mparticle-apple-sdk">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="xctest-dynamic-overlay" label="xctest-dynamic-overlay">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="testingsupport" label="testingsupport">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mserror" label="mserror">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="sparks" label="sparks">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="RemotePrice" label="RemotePrice">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="dynamicmotivation" label="dynamicmotivation">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-telemetry" label="mobile-swift-telemetry">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msui" label="msui">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msapicore" label="msapicore">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="SampleApp/SampleApp" label="SampleApp/SampleApp">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msfoundation" label="msfoundation">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="RecommendationStrategy" label="RecommendationStrategy">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="telemetrykit" label="telemetrykit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="Demo/&quot;Loyalty Demo&quot;" label="Demo/&quot;Loyalty Demo&quot;">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSMedallia" label="MSMedallia">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="apollo" label="apollo">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="AIStylist" label="AIStylist">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="storeattributes" label="storeattributes">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swift-numerics" label="swift-numerics">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="productcontentprovider" label="productcontentprovider">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-telemetry-dynatrace" label="mobile-swift-telemetry-dynatrace">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MetricManager" label="MetricManager">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msobservable" label="msobservable">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mswishlist" label="mswishlist">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSModules" label="MSModules">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="medalliadigitalsdk" label="medalliadigitalsdk">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="swift-atomics" label="swift-atomics">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSDesignWrapper" label="MSDesignWrapper">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="apollo-ios" label="apollo-ios">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="RemoteStock" label="RemoteStock">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-configuration" label="mobile-swift-configuration">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msloyaltytestingsupport" label="msloyaltytestingsupport">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="ProductListingPage" label="ProductListingPage">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="location" label="location">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSUI" label="MSUI">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="IdentityService" label="IdentityService">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="RemoteContent" label="RemoteContent">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msroundshadowview" label="msroundshadowview">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="pathkit" label="pathkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="swift-collections" label="swift-collections">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="TestingSupport" label="TestingSupport">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Search" label="Search">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="tpkeyboardavoiding" label="tpkeyboardavoiding">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="mspropertywrappers" label="mspropertywrappers">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="sdwebimageswiftui" label="sdwebimageswiftui">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="mobile-ios-msdesign" label="mobile-ios-msdesign">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="sqlite.swift" label="sqlite.swift">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="SearchRecommendation" label="SearchRecommendation">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="aistylist" label="aistylist">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="Inspiration" label="Inspiration">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="orderfulfilmentkit" label="orderfulfilmentkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="remotecontentlistingkit" label="remotecontentlistingkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="Food" label="Food">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="search" label="search">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msmedalliamocks" label="msmedalliamocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="overlaycontainer" label="overlaycontainer">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MS3/MS3UITests" label="MS3/MS3UITests">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="ProductStockTrawler" label="ProductStockTrawler">
+    <attvalues>
+      <attvalue for="0" value="project"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="utilities" label="utilities">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="memorystorage" label="memorystorage">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MS3Mocks" label="MS3Mocks">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSLog" label="MSLog">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="aeplifecycle" label="aeplifecycle">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="adobetelemetry" label="adobetelemetry">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="applewalletpassmocks" label="applewalletpassmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="jgprogresshud" label="jgprogresshud">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-flagging-optimizely-integration" label="mobile-swift-flagging-optimizely-integration">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="CustomerOrder" label="CustomerOrder">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="styletipspackage" label="styletipspackage">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="socialmediagallerykit" label="socialmediagallerykit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="swift-snapshot-testing" label="swift-snapshot-testing">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="Terminal Notifier" label="Terminal Notifier">
+    <attvalues>
+      <attvalue for="0" value="project"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSFoundation" label="MSFoundation">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="digitalrewards" label="digitalrewards">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="lnzcollectionlayouts" label="lnzcollectionlayouts">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msgraphqlclientmocks" label="msgraphqlclientmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSGraphQL" label="MSGraphQL">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mobile-swift-storage" label="mobile-swift-storage">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msfeatureflagging" label="msfeatureflagging">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSAnalytics" label="MSAnalytics">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MS3/RichPush" label="MS3/RichPush">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="configurationkit" label="configurationkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="loyaltyplatformkitmocks" label="loyaltyplatformkitmocks">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="chalk" label="chalk">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="CreateCodeCoverageReports" label="CreateCodeCoverageReports">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="RemoteRange" label="RemoteRange">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="msgraphql" label="msgraphql">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="MSExecution" label="MSExecution">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swift-system" label="swift-system">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="imageui" label="imageui">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="identityservice" label="identityservice">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="FastlaneSwiftRunner/FastlaneRunner" label="FastlaneSwiftRunner/FastlaneRunner">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="digitalrewardsanalytics" label="digitalrewardsanalytics">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="PurchasesHub" label="PurchasesHub">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="optimizely" label="optimizely">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="msloyaltyui" label="msloyaltyui">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="SocialProof" label="SocialProof">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="enrichedproductservice" label="enrichedproductservice">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="a11y" label="a11y">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="Depend" label="Depend">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="stubkit" label="stubkit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="reachability" label="reachability">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="swift-sdk" label="swift-sdk">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="aepassurance" label="aepassurance">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="DynamicMotivation" label="DynamicMotivation">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="mparticle-onetrust" label="mparticle-onetrust">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MSRoundShadowView" label="MSRoundShadowView">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="storagekit" label="storagekit">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="MS3/MS3" label="MS3/MS3">
+    <attvalues>
+      <attvalue for="0" value="target"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="GenerateExportOptions" label="GenerateExportOptions">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="StoreAttributes" label="StoreAttributes">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="swift-log" label="swift-log">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="filebuilder" label="filebuilder">
+    <attvalues>
+      <attvalue for="0" value="externalPackage"/>
+      <attvalue for="1" value="true"/>
+      <attvalue for="2" value="false"/>
+    </attvalues>
+  </node>
+  <node id="socialproof" label="socialproof">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="WebKitUtilities" label="WebKitUtilities">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="StyleTipsExample" label="StyleTipsExample">
+    <attvalues>
+      <attvalue for="0" value="project"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+  <node id="fluxui" label="fluxui">
+    <attvalues>
+      <attvalue for="0" value="localPackage"/>
+      <attvalue for="1" value="false"/>
+      <attvalue for="2" value="true"/>
+    </attvalues>
+  </node>
+        </nodes>
+        <edges>
+  <edge id="0" source="Modulator" target="aexml"/>
+  <edge id="1" source="Modulator" target="console-kit"/>
+  <edge id="2" source="Modulator" target="filebuilder"/>
+  <edge id="3" source="Modulator" target="jsonutilities"/>
+  <edge id="4" source="Modulator" target="pathkit"/>
+  <edge id="5" source="Modulator" target="rainbow"/>
+  <edge id="6" source="Modulator" target="spectre"/>
+  <edge id="7" source="Modulator" target="swift-atomics"/>
+  <edge id="8" source="Modulator" target="swift-collections"/>
+  <edge id="9" source="Modulator" target="swift-log"/>
+  <edge id="10" source="Modulator" target="swift-nio"/>
+  <edge id="11" source="Modulator" target="swift-system"/>
+  <edge id="12" source="Modulator" target="swiftcli"/>
+  <edge id="13" source="Modulator" target="version"/>
+  <edge id="14" source="Modulator" target="xcodegen"/>
+  <edge id="15" source="Modulator" target="xcodeproj"/>
+  <edge id="16" source="Modulator" target="yams"/>
+  <edge id="17" source="CreateCodeCoverageReports" target="swift-argument-parser"/>
+  <edge id="18" source="GenerateExportOptions" target="aexml"/>
+  <edge id="19" source="GenerateExportOptions" target="pathkit"/>
+  <edge id="20" source="GenerateExportOptions" target="spectre"/>
+  <edge id="21" source="GenerateExportOptions" target="swift-argument-parser"/>
+  <edge id="22" source="GenerateExportOptions" target="xcodeproj"/>
+  <edge id="23" source="GenerateKeys" target="swift-argument-parser"/>
+  <edge id="24" source="MetricsUploader" target="mobile-swift-json"/>
+  <edge id="25" source="MetricsUploader" target="swift-argument-parser"/>
+  <edge id="26" source="TestingSupport" target="aexml"/>
+  <edge id="27" source="TestingSupport" target="chalk"/>
+  <edge id="28" source="TestingSupport" target="commander"/>
+  <edge id="29" source="TestingSupport" target="pathkit"/>
+  <edge id="30" source="TestingSupport" target="rainbow"/>
+  <edge id="31" source="TestingSupport" target="shellout"/>
+  <edge id="32" source="TestingSupport" target="spectre"/>
+  <edge id="33" source="TestingSupport" target="swift-custom-dump"/>
+  <edge id="34" source="TestingSupport" target="swift-snapshot-testing"/>
+  <edge id="35" source="TestingSupport" target="swift-syntax"/>
+  <edge id="36" source="TestingSupport" target="swiftymocky"/>
+  <edge id="37" source="TestingSupport" target="xcodeproj"/>
+  <edge id="38" source="TestingSupport" target="xctest-dynamic-overlay"/>
+  <edge id="39" source="TestingSupport" target="yams"/>
+  <edge id="40" source="MSFoundation" target="aexml"/>
+  <edge id="41" source="MSFoundation" target="apollo-ios"/>
+  <edge id="42" source="MSFoundation" target="chalk"/>
+  <edge id="43" source="MSFoundation" target="combineext"/>
+  <edge id="44" source="MSFoundation" target="commander"/>
+  <edge id="45" source="MSFoundation" target="decoy"/>
+  <edge id="46" source="MSFoundation" target="digital-ios-sdk"/>
+  <edge id="47" source="MSFoundation" target="lottie-ios"/>
+  <edge id="48" source="MSFoundation" target="mobile-ios-msdesign"/>
+  <edge id="49" source="MSFoundation" target="mobile-swift-configuration"/>
+  <edge id="50" source="MSFoundation" target="mobile-swift-flagging"/>
+  <edge id="51" source="MSFoundation" target="mobile-swift-image"/>
+  <edge id="52" source="MSFoundation" target="mobile-swift-json"/>
+  <edge id="53" source="MSFoundation" target="mobile-swift-storage"/>
+  <edge id="54" source="MSFoundation" target="mobile-swift-telemetry"/>
+  <edge id="55" source="MSFoundation" target="mobile-swift-telemetry-adobe"/>
+  <edge id="56" source="MSFoundation" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="57" source="MSFoundation" target="pathkit"/>
+  <edge id="58" source="MSFoundation" target="rainbow"/>
+  <edge id="59" source="MSFoundation" target="sdwebimage"/>
+  <edge id="60" source="MSFoundation" target="shellout"/>
+  <edge id="61" source="MSFoundation" target="spectre"/>
+  <edge id="62" source="MSFoundation" target="sqlite.swift"/>
+  <edge id="63" source="MSFoundation" target="stubkit"/>
+  <edge id="64" source="MSFoundation" target="swift-algorithms"/>
+  <edge id="65" source="MSFoundation" target="swift-argument-parser"/>
+  <edge id="66" source="MSFoundation" target="swift-collections"/>
+  <edge id="67" source="MSFoundation" target="swift-custom-dump"/>
+  <edge id="68" source="MSFoundation" target="swift-numerics"/>
+  <edge id="69" source="MSFoundation" target="swift-snapshot-testing"/>
+  <edge id="70" source="MSFoundation" target="swift-syntax"/>
+  <edge id="71" source="MSFoundation" target="swift-toolchain-sqlite"/>
+  <edge id="72" source="MSFoundation" target="swiftymocky"/>
+  <edge id="73" source="MSFoundation" target="xcodeproj"/>
+  <edge id="74" source="MSFoundation" target="xctest-dynamic-overlay"/>
+  <edge id="75" source="MSFoundation" target="yams"/>
+  <edge id="76" source="MSGraphQL" target="aexml"/>
+  <edge id="77" source="MSGraphQL" target="apollo-ios"/>
+  <edge id="78" source="MSGraphQL" target="chalk"/>
+  <edge id="79" source="MSGraphQL" target="commander"/>
+  <edge id="80" source="MSGraphQL" target="pathkit"/>
+  <edge id="81" source="MSGraphQL" target="rainbow"/>
+  <edge id="82" source="MSGraphQL" target="shellout"/>
+  <edge id="83" source="MSGraphQL" target="spectre"/>
+  <edge id="84" source="MSGraphQL" target="sqlite.swift"/>
+  <edge id="85" source="MSGraphQL" target="swift-custom-dump"/>
+  <edge id="86" source="MSGraphQL" target="swift-snapshot-testing"/>
+  <edge id="87" source="MSGraphQL" target="swift-syntax"/>
+  <edge id="88" source="MSGraphQL" target="swiftymocky"/>
+  <edge id="89" source="MSGraphQL" target="xcodeproj"/>
+  <edge id="90" source="MSGraphQL" target="xctest-dynamic-overlay"/>
+  <edge id="91" source="MSGraphQL" target="yams"/>
+  <edge id="92" source="MSModules" target="aexml"/>
+  <edge id="93" source="MSModules" target="apollo-ios"/>
+  <edge id="94" source="MSModules" target="chalk"/>
+  <edge id="95" source="MSModules" target="combineext"/>
+  <edge id="96" source="MSModules" target="commander"/>
+  <edge id="97" source="MSModules" target="digital-ios-sdk"/>
+  <edge id="98" source="MSModules" target="mobile-ios-msdesign"/>
+  <edge id="99" source="MSModules" target="mobile-swift-configuration"/>
+  <edge id="100" source="MSModules" target="mobile-swift-flagging"/>
+  <edge id="101" source="MSModules" target="mobile-swift-image"/>
+  <edge id="102" source="MSModules" target="mobile-swift-json"/>
+  <edge id="103" source="MSModules" target="mobile-swift-storage"/>
+  <edge id="104" source="MSModules" target="mobile-swift-telemetry"/>
+  <edge id="105" source="MSModules" target="mobile-swift-telemetry-adobe"/>
+  <edge id="106" source="MSModules" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="107" source="MSModules" target="pathkit"/>
+  <edge id="108" source="MSModules" target="rainbow"/>
+  <edge id="109" source="MSModules" target="sdwebimage"/>
+  <edge id="110" source="MSModules" target="shellout"/>
+  <edge id="111" source="MSModules" target="spectre"/>
+  <edge id="112" source="MSModules" target="sqlite.swift"/>
+  <edge id="113" source="MSModules" target="stubkit"/>
+  <edge id="114" source="MSModules" target="swift-collections"/>
+  <edge id="115" source="MSModules" target="swift-custom-dump"/>
+  <edge id="116" source="MSModules" target="swift-snapshot-testing"/>
+  <edge id="117" source="MSModules" target="swift-syntax"/>
+  <edge id="118" source="MSModules" target="swiftymocky"/>
+  <edge id="119" source="MSModules" target="xcodeproj"/>
+  <edge id="120" source="MSModules" target="xctest-dynamic-overlay"/>
+  <edge id="121" source="MSModules" target="yams"/>
+  <edge id="122" source="MSSwiftUI" target="aexml"/>
+  <edge id="123" source="MSSwiftUI" target="chalk"/>
+  <edge id="124" source="MSSwiftUI" target="combineext"/>
+  <edge id="125" source="MSSwiftUI" target="commander"/>
+  <edge id="126" source="MSSwiftUI" target="mobile-ios-msdesign"/>
+  <edge id="127" source="MSSwiftUI" target="mobile-swift-configuration"/>
+  <edge id="128" source="MSSwiftUI" target="mobile-swift-image"/>
+  <edge id="129" source="MSSwiftUI" target="mobile-swift-json"/>
+  <edge id="130" source="MSSwiftUI" target="mobile-swift-telemetry"/>
+  <edge id="131" source="MSSwiftUI" target="pathkit"/>
+  <edge id="132" source="MSSwiftUI" target="rainbow"/>
+  <edge id="133" source="MSSwiftUI" target="sdwebimage"/>
+  <edge id="134" source="MSSwiftUI" target="shellout"/>
+  <edge id="135" source="MSSwiftUI" target="spectre"/>
+  <edge id="136" source="MSSwiftUI" target="swift-argument-parser"/>
+  <edge id="137" source="MSSwiftUI" target="swift-custom-dump"/>
+  <edge id="138" source="MSSwiftUI" target="swift-snapshot-testing"/>
+  <edge id="139" source="MSSwiftUI" target="swift-syntax"/>
+  <edge id="140" source="MSSwiftUI" target="swiftymocky"/>
+  <edge id="141" source="MSSwiftUI" target="xcodeproj"/>
+  <edge id="142" source="MSSwiftUI" target="xctest-dynamic-overlay"/>
+  <edge id="143" source="MSSwiftUI" target="yams"/>
+  <edge id="144" source="MSMedallia" target="aexml"/>
+  <edge id="145" source="MSMedallia" target="chalk"/>
+  <edge id="146" source="MSMedallia" target="combineext"/>
+  <edge id="147" source="MSMedallia" target="commander"/>
+  <edge id="148" source="MSMedallia" target="digital-ios-sdk"/>
+  <edge id="149" source="MSMedallia" target="mobile-swift-telemetry"/>
+  <edge id="150" source="MSMedallia" target="pathkit"/>
+  <edge id="151" source="MSMedallia" target="rainbow"/>
+  <edge id="152" source="MSMedallia" target="shellout"/>
+  <edge id="153" source="MSMedallia" target="spectre"/>
+  <edge id="154" source="MSMedallia" target="swift-custom-dump"/>
+  <edge id="155" source="MSMedallia" target="swift-snapshot-testing"/>
+  <edge id="156" source="MSMedallia" target="swift-syntax"/>
+  <edge id="157" source="MSMedallia" target="swiftymocky"/>
+  <edge id="158" source="MSMedallia" target="xcodeproj"/>
+  <edge id="159" source="MSMedallia" target="xctest-dynamic-overlay"/>
+  <edge id="160" source="MSMedallia" target="yams"/>
+  <edge id="161" source="MSUI" target="aexml"/>
+  <edge id="162" source="MSUI" target="chalk"/>
+  <edge id="163" source="MSUI" target="commander"/>
+  <edge id="164" source="MSUI" target="mobile-ios-msdesign"/>
+  <edge id="165" source="MSUI" target="pathkit"/>
+  <edge id="166" source="MSUI" target="rainbow"/>
+  <edge id="167" source="MSUI" target="sdwebimage"/>
+  <edge id="168" source="MSUI" target="shellout"/>
+  <edge id="169" source="MSUI" target="spectre"/>
+  <edge id="170" source="MSUI" target="swift-snapshot-testing"/>
+  <edge id="171" source="MSUI" target="swiftymocky"/>
+  <edge id="172" source="MSUI" target="xcodeproj"/>
+  <edge id="173" source="MSUI" target="yams"/>
+  <edge id="174" source="DigitalRewards" target="aexml"/>
+  <edge id="175" source="DigitalRewards" target="apollo-ios"/>
+  <edge id="176" source="DigitalRewards" target="chalk"/>
+  <edge id="177" source="DigitalRewards" target="combineext"/>
+  <edge id="178" source="DigitalRewards" target="commander"/>
+  <edge id="179" source="DigitalRewards" target="decoy"/>
+  <edge id="180" source="DigitalRewards" target="digital-ios-sdk"/>
+  <edge id="181" source="DigitalRewards" target="lottie-ios"/>
+  <edge id="182" source="DigitalRewards" target="mobile-ios-msdesign"/>
+  <edge id="183" source="DigitalRewards" target="mobile-swift-configuration"/>
+  <edge id="184" source="DigitalRewards" target="mobile-swift-flagging"/>
+  <edge id="185" source="DigitalRewards" target="mobile-swift-image"/>
+  <edge id="186" source="DigitalRewards" target="mobile-swift-json"/>
+  <edge id="187" source="DigitalRewards" target="mobile-swift-storage"/>
+  <edge id="188" source="DigitalRewards" target="mobile-swift-telemetry"/>
+  <edge id="189" source="DigitalRewards" target="mobile-swift-telemetry-adobe"/>
+  <edge id="190" source="DigitalRewards" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="191" source="DigitalRewards" target="pathkit"/>
+  <edge id="192" source="DigitalRewards" target="rainbow"/>
+  <edge id="193" source="DigitalRewards" target="sdwebimage"/>
+  <edge id="194" source="DigitalRewards" target="shellout"/>
+  <edge id="195" source="DigitalRewards" target="spectre"/>
+  <edge id="196" source="DigitalRewards" target="sqlite.swift"/>
+  <edge id="197" source="DigitalRewards" target="stubkit"/>
+  <edge id="198" source="DigitalRewards" target="swift-algorithms"/>
+  <edge id="199" source="DigitalRewards" target="swift-argument-parser"/>
+  <edge id="200" source="DigitalRewards" target="swift-collections"/>
+  <edge id="201" source="DigitalRewards" target="swift-custom-dump"/>
+  <edge id="202" source="DigitalRewards" target="swift-numerics"/>
+  <edge id="203" source="DigitalRewards" target="swift-snapshot-testing"/>
+  <edge id="204" source="DigitalRewards" target="swift-syntax"/>
+  <edge id="205" source="DigitalRewards" target="swift-toolchain-sqlite"/>
+  <edge id="206" source="DigitalRewards" target="swiftymocky"/>
+  <edge id="207" source="DigitalRewards" target="xcodeproj"/>
+  <edge id="208" source="DigitalRewards" target="xctest-dynamic-overlay"/>
+  <edge id="209" source="DigitalRewards" target="yams"/>
+  <edge id="210" source="StyleTips" target="aexml"/>
+  <edge id="211" source="StyleTips" target="apollo-ios"/>
+  <edge id="212" source="StyleTips" target="chalk"/>
+  <edge id="213" source="StyleTips" target="combineext"/>
+  <edge id="214" source="StyleTips" target="commander"/>
+  <edge id="215" source="StyleTips" target="decoy"/>
+  <edge id="216" source="StyleTips" target="digital-ios-sdk"/>
+  <edge id="217" source="StyleTips" target="mobile-ios-msdesign"/>
+  <edge id="218" source="StyleTips" target="mobile-swift-configuration"/>
+  <edge id="219" source="StyleTips" target="mobile-swift-flagging"/>
+  <edge id="220" source="StyleTips" target="mobile-swift-flagging-optimizely-integration"/>
+  <edge id="221" source="StyleTips" target="mobile-swift-image"/>
+  <edge id="222" source="StyleTips" target="mobile-swift-json"/>
+  <edge id="223" source="StyleTips" target="mobile-swift-storage"/>
+  <edge id="224" source="StyleTips" target="mobile-swift-telemetry"/>
+  <edge id="225" source="StyleTips" target="mobile-swift-telemetry-adobe"/>
+  <edge id="226" source="StyleTips" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="227" source="StyleTips" target="pathkit"/>
+  <edge id="228" source="StyleTips" target="rainbow"/>
+  <edge id="229" source="StyleTips" target="sdwebimage"/>
+  <edge id="230" source="StyleTips" target="shellout"/>
+  <edge id="231" source="StyleTips" target="spectre"/>
+  <edge id="232" source="StyleTips" target="sqlite.swift"/>
+  <edge id="233" source="StyleTips" target="swift-argument-parser"/>
+  <edge id="234" source="StyleTips" target="swift-collections"/>
+  <edge id="235" source="StyleTips" target="swift-custom-dump"/>
+  <edge id="236" source="StyleTips" target="swift-sdk"/>
+  <edge id="237" source="StyleTips" target="swift-snapshot-testing"/>
+  <edge id="238" source="StyleTips" target="swift-syntax"/>
+  <edge id="239" source="StyleTips" target="swiftymocky"/>
+  <edge id="240" source="StyleTips" target="xcodeproj"/>
+  <edge id="241" source="StyleTips" target="xctasync"/>
+  <edge id="242" source="StyleTips" target="xctest-dynamic-overlay"/>
+  <edge id="243" source="StyleTips" target="yams"/>
+  <edge id="244" source="StyleTipsGraphGenerated" target="apollo-ios"/>
+  <edge id="245" source="StyleTipsGraphGenerated" target="sqlite.swift"/>
+  <edge id="246" source="Home" target="aexml"/>
+  <edge id="247" source="Home" target="apollo-ios"/>
+  <edge id="248" source="Home" target="chalk"/>
+  <edge id="249" source="Home" target="combineext"/>
+  <edge id="250" source="Home" target="commander"/>
+  <edge id="251" source="Home" target="digital-ios-sdk"/>
+  <edge id="252" source="Home" target="mobile-ios-msdesign"/>
+  <edge id="253" source="Home" target="mobile-swift-configuration"/>
+  <edge id="254" source="Home" target="mobile-swift-flagging"/>
+  <edge id="255" source="Home" target="mobile-swift-flagging-optimizely-integration"/>
+  <edge id="256" source="Home" target="mobile-swift-image"/>
+  <edge id="257" source="Home" target="mobile-swift-json"/>
+  <edge id="258" source="Home" target="mobile-swift-storage"/>
+  <edge id="259" source="Home" target="mobile-swift-telemetry"/>
+  <edge id="260" source="Home" target="mobile-swift-telemetry-adobe"/>
+  <edge id="261" source="Home" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="262" source="Home" target="pathkit"/>
+  <edge id="263" source="Home" target="rainbow"/>
+  <edge id="264" source="Home" target="sdwebimage"/>
+  <edge id="265" source="Home" target="shellout"/>
+  <edge id="266" source="Home" target="spectre"/>
+  <edge id="267" source="Home" target="sqlite.swift"/>
+  <edge id="268" source="Home" target="stubkit"/>
+  <edge id="269" source="Home" target="swift-collections"/>
+  <edge id="270" source="Home" target="swift-custom-dump"/>
+  <edge id="271" source="Home" target="swift-sdk"/>
+  <edge id="272" source="Home" target="swift-snapshot-testing"/>
+  <edge id="273" source="Home" target="swift-syntax"/>
+  <edge id="274" source="Home" target="swiftymocky"/>
+  <edge id="275" source="Home" target="xcodeproj"/>
+  <edge id="276" source="Home" target="xctest-dynamic-overlay"/>
+  <edge id="277" source="Home" target="yams"/>
+  <edge id="278" source="SocialMediaGallery" target="aexml"/>
+  <edge id="279" source="SocialMediaGallery" target="chalk"/>
+  <edge id="280" source="SocialMediaGallery" target="combineext"/>
+  <edge id="281" source="SocialMediaGallery" target="commander"/>
+  <edge id="282" source="SocialMediaGallery" target="mobile-ios-msdesign"/>
+  <edge id="283" source="SocialMediaGallery" target="mobile-swift-configuration"/>
+  <edge id="284" source="SocialMediaGallery" target="mobile-swift-image"/>
+  <edge id="285" source="SocialMediaGallery" target="mobile-swift-json"/>
+  <edge id="286" source="SocialMediaGallery" target="mobile-swift-telemetry"/>
+  <edge id="287" source="SocialMediaGallery" target="pathkit"/>
+  <edge id="288" source="SocialMediaGallery" target="rainbow"/>
+  <edge id="289" source="SocialMediaGallery" target="sdwebimage"/>
+  <edge id="290" source="SocialMediaGallery" target="shellout"/>
+  <edge id="291" source="SocialMediaGallery" target="spectre"/>
+  <edge id="292" source="SocialMediaGallery" target="swift-argument-parser"/>
+  <edge id="293" source="SocialMediaGallery" target="swift-custom-dump"/>
+  <edge id="294" source="SocialMediaGallery" target="swift-snapshot-testing"/>
+  <edge id="295" source="SocialMediaGallery" target="swift-syntax"/>
+  <edge id="296" source="SocialMediaGallery" target="swiftymocky"/>
+  <edge id="297" source="SocialMediaGallery" target="xcodeproj"/>
+  <edge id="298" source="SocialMediaGallery" target="xctest-dynamic-overlay"/>
+  <edge id="299" source="SocialMediaGallery" target="yams"/>
+  <edge id="300" source="DeliveryPass" target="aexml"/>
+  <edge id="301" source="DeliveryPass" target="apollo-ios"/>
+  <edge id="302" source="DeliveryPass" target="chalk"/>
+  <edge id="303" source="DeliveryPass" target="combineext"/>
+  <edge id="304" source="DeliveryPass" target="commander"/>
+  <edge id="305" source="DeliveryPass" target="decoy"/>
+  <edge id="306" source="DeliveryPass" target="digital-ios-sdk"/>
+  <edge id="307" source="DeliveryPass" target="lottie-ios"/>
+  <edge id="308" source="DeliveryPass" target="mobile-ios-msdesign"/>
+  <edge id="309" source="DeliveryPass" target="mobile-swift-configuration"/>
+  <edge id="310" source="DeliveryPass" target="mobile-swift-flagging"/>
+  <edge id="311" source="DeliveryPass" target="mobile-swift-image"/>
+  <edge id="312" source="DeliveryPass" target="mobile-swift-json"/>
+  <edge id="313" source="DeliveryPass" target="mobile-swift-storage"/>
+  <edge id="314" source="DeliveryPass" target="mobile-swift-telemetry"/>
+  <edge id="315" source="DeliveryPass" target="mobile-swift-telemetry-adobe"/>
+  <edge id="316" source="DeliveryPass" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="317" source="DeliveryPass" target="pathkit"/>
+  <edge id="318" source="DeliveryPass" target="rainbow"/>
+  <edge id="319" source="DeliveryPass" target="sdwebimage"/>
+  <edge id="320" source="DeliveryPass" target="shellout"/>
+  <edge id="321" source="DeliveryPass" target="spectre"/>
+  <edge id="322" source="DeliveryPass" target="sqlite.swift"/>
+  <edge id="323" source="DeliveryPass" target="stubkit"/>
+  <edge id="324" source="DeliveryPass" target="swift-algorithms"/>
+  <edge id="325" source="DeliveryPass" target="swift-argument-parser"/>
+  <edge id="326" source="DeliveryPass" target="swift-collections"/>
+  <edge id="327" source="DeliveryPass" target="swift-custom-dump"/>
+  <edge id="328" source="DeliveryPass" target="swift-numerics"/>
+  <edge id="329" source="DeliveryPass" target="swift-snapshot-testing"/>
+  <edge id="330" source="DeliveryPass" target="swift-syntax"/>
+  <edge id="331" source="DeliveryPass" target="swift-toolchain-sqlite"/>
+  <edge id="332" source="DeliveryPass" target="swiftymocky"/>
+  <edge id="333" source="DeliveryPass" target="xcodeproj"/>
+  <edge id="334" source="DeliveryPass" target="xctest-dynamic-overlay"/>
+  <edge id="335" source="DeliveryPass" target="yams"/>
+  <edge id="336" source="AIStylist" target="aexml"/>
+  <edge id="337" source="AIStylist" target="apollo-ios"/>
+  <edge id="338" source="AIStylist" target="chalk"/>
+  <edge id="339" source="AIStylist" target="chatlayout"/>
+  <edge id="340" source="AIStylist" target="combineext"/>
+  <edge id="341" source="AIStylist" target="commander"/>
+  <edge id="342" source="AIStylist" target="decoy"/>
+  <edge id="343" source="AIStylist" target="digital-ios-sdk"/>
+  <edge id="344" source="AIStylist" target="inputbaraccessoryview"/>
+  <edge id="345" source="AIStylist" target="mobile-ios-msdesign"/>
+  <edge id="346" source="AIStylist" target="mobile-swift-configuration"/>
+  <edge id="347" source="AIStylist" target="mobile-swift-flagging"/>
+  <edge id="348" source="AIStylist" target="mobile-swift-image"/>
+  <edge id="349" source="AIStylist" target="mobile-swift-json"/>
+  <edge id="350" source="AIStylist" target="mobile-swift-storage"/>
+  <edge id="351" source="AIStylist" target="mobile-swift-telemetry"/>
+  <edge id="352" source="AIStylist" target="mobile-swift-telemetry-adobe"/>
+  <edge id="353" source="AIStylist" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="354" source="AIStylist" target="pathkit"/>
+  <edge id="355" source="AIStylist" target="rainbow"/>
+  <edge id="356" source="AIStylist" target="sdwebimage"/>
+  <edge id="357" source="AIStylist" target="shellout"/>
+  <edge id="358" source="AIStylist" target="spectre"/>
+  <edge id="359" source="AIStylist" target="sqlite.swift"/>
+  <edge id="360" source="AIStylist" target="stubkit"/>
+  <edge id="361" source="AIStylist" target="swift-argument-parser"/>
+  <edge id="362" source="AIStylist" target="swift-collections"/>
+  <edge id="363" source="AIStylist" target="swift-custom-dump"/>
+  <edge id="364" source="AIStylist" target="swift-snapshot-testing"/>
+  <edge id="365" source="AIStylist" target="swift-syntax"/>
+  <edge id="366" source="AIStylist" target="swift-toolchain-sqlite"/>
+  <edge id="367" source="AIStylist" target="swiftymocky"/>
+  <edge id="368" source="AIStylist" target="xcodeproj"/>
+  <edge id="369" source="AIStylist" target="xctest-dynamic-overlay"/>
+  <edge id="370" source="AIStylist" target="yams"/>
+  <edge id="371" source="ScanAndShop" target="mobile-swift-telemetry"/>
+  <edge id="372" source="ScanAndShop" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="373" source="Sparks" target="aexml"/>
+  <edge id="374" source="Sparks" target="apollo-ios"/>
+  <edge id="375" source="Sparks" target="chalk"/>
+  <edge id="376" source="Sparks" target="combineext"/>
+  <edge id="377" source="Sparks" target="commander"/>
+  <edge id="378" source="Sparks" target="digital-ios-sdk"/>
+  <edge id="379" source="Sparks" target="lottie-ios"/>
+  <edge id="380" source="Sparks" target="mobile-ios-msdesign"/>
+  <edge id="381" source="Sparks" target="mobile-swift-configuration"/>
+  <edge id="382" source="Sparks" target="mobile-swift-flagging"/>
+  <edge id="383" source="Sparks" target="mobile-swift-image"/>
+  <edge id="384" source="Sparks" target="mobile-swift-json"/>
+  <edge id="385" source="Sparks" target="mobile-swift-storage"/>
+  <edge id="386" source="Sparks" target="mobile-swift-telemetry"/>
+  <edge id="387" source="Sparks" target="mobile-swift-telemetry-adobe"/>
+  <edge id="388" source="Sparks" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="389" source="Sparks" target="pathkit"/>
+  <edge id="390" source="Sparks" target="rainbow"/>
+  <edge id="391" source="Sparks" target="sdwebimage"/>
+  <edge id="392" source="Sparks" target="shellout"/>
+  <edge id="393" source="Sparks" target="spectre"/>
+  <edge id="394" source="Sparks" target="sqlite.swift"/>
+  <edge id="395" source="Sparks" target="stubkit"/>
+  <edge id="396" source="Sparks" target="swift-algorithms"/>
+  <edge id="397" source="Sparks" target="swift-collections"/>
+  <edge id="398" source="Sparks" target="swift-custom-dump"/>
+  <edge id="399" source="Sparks" target="swift-numerics"/>
+  <edge id="400" source="Sparks" target="swift-snapshot-testing"/>
+  <edge id="401" source="Sparks" target="swift-syntax"/>
+  <edge id="402" source="Sparks" target="swift-toolchain-sqlite"/>
+  <edge id="403" source="Sparks" target="swiftymocky"/>
+  <edge id="404" source="Sparks" target="xcodeproj"/>
+  <edge id="405" source="Sparks" target="xctest-dynamic-overlay"/>
+  <edge id="406" source="Sparks" target="yams"/>
+  <edge id="407" source="Notices" target="aexml"/>
+  <edge id="408" source="Notices" target="chalk"/>
+  <edge id="409" source="Notices" target="combineext"/>
+  <edge id="410" source="Notices" target="commander"/>
+  <edge id="411" source="Notices" target="mobile-ios-msdesign"/>
+  <edge id="412" source="Notices" target="mobile-swift-configuration"/>
+  <edge id="413" source="Notices" target="mobile-swift-image"/>
+  <edge id="414" source="Notices" target="mobile-swift-json"/>
+  <edge id="415" source="Notices" target="mobile-swift-telemetry"/>
+  <edge id="416" source="Notices" target="pathkit"/>
+  <edge id="417" source="Notices" target="rainbow"/>
+  <edge id="418" source="Notices" target="sdwebimage"/>
+  <edge id="419" source="Notices" target="shellout"/>
+  <edge id="420" source="Notices" target="spectre"/>
+  <edge id="421" source="Notices" target="swift-argument-parser"/>
+  <edge id="422" source="Notices" target="swift-custom-dump"/>
+  <edge id="423" source="Notices" target="swift-snapshot-testing"/>
+  <edge id="424" source="Notices" target="swift-syntax"/>
+  <edge id="425" source="Notices" target="swiftymocky"/>
+  <edge id="426" source="Notices" target="xcodeproj"/>
+  <edge id="427" source="Notices" target="xctest-dynamic-overlay"/>
+  <edge id="428" source="Notices" target="yams"/>
+  <edge id="429" source="Recommendations" target="aexml"/>
+  <edge id="430" source="Recommendations" target="chalk"/>
+  <edge id="431" source="Recommendations" target="combineext"/>
+  <edge id="432" source="Recommendations" target="commander"/>
+  <edge id="433" source="Recommendations" target="mobile-ios-msdesign"/>
+  <edge id="434" source="Recommendations" target="mobile-swift-configuration"/>
+  <edge id="435" source="Recommendations" target="mobile-swift-flagging"/>
+  <edge id="436" source="Recommendations" target="mobile-swift-image"/>
+  <edge id="437" source="Recommendations" target="mobile-swift-json"/>
+  <edge id="438" source="Recommendations" target="mobile-swift-storage"/>
+  <edge id="439" source="Recommendations" target="mobile-swift-telemetry"/>
+  <edge id="440" source="Recommendations" target="pathkit"/>
+  <edge id="441" source="Recommendations" target="rainbow"/>
+  <edge id="442" source="Recommendations" target="sdwebimage"/>
+  <edge id="443" source="Recommendations" target="shellout"/>
+  <edge id="444" source="Recommendations" target="spectre"/>
+  <edge id="445" source="Recommendations" target="swift-argument-parser"/>
+  <edge id="446" source="Recommendations" target="swift-custom-dump"/>
+  <edge id="447" source="Recommendations" target="swift-snapshot-testing"/>
+  <edge id="448" source="Recommendations" target="swift-syntax"/>
+  <edge id="449" source="Recommendations" target="swiftymocky"/>
+  <edge id="450" source="Recommendations" target="xcodeproj"/>
+  <edge id="451" source="Recommendations" target="xctest-dynamic-overlay"/>
+  <edge id="452" source="Recommendations" target="yams"/>
+  <edge id="453" source="SocialProof" target="aexml"/>
+  <edge id="454" source="SocialProof" target="chalk"/>
+  <edge id="455" source="SocialProof" target="combineext"/>
+  <edge id="456" source="SocialProof" target="commander"/>
+  <edge id="457" source="SocialProof" target="mobile-ios-msdesign"/>
+  <edge id="458" source="SocialProof" target="mobile-swift-configuration"/>
+  <edge id="459" source="SocialProof" target="mobile-swift-image"/>
+  <edge id="460" source="SocialProof" target="mobile-swift-json"/>
+  <edge id="461" source="SocialProof" target="mobile-swift-storage"/>
+  <edge id="462" source="SocialProof" target="mobile-swift-telemetry"/>
+  <edge id="463" source="SocialProof" target="pathkit"/>
+  <edge id="464" source="SocialProof" target="rainbow"/>
+  <edge id="465" source="SocialProof" target="sdwebimage"/>
+  <edge id="466" source="SocialProof" target="shellout"/>
+  <edge id="467" source="SocialProof" target="spectre"/>
+  <edge id="468" source="SocialProof" target="swift-custom-dump"/>
+  <edge id="469" source="SocialProof" target="swift-snapshot-testing"/>
+  <edge id="470" source="SocialProof" target="swift-syntax"/>
+  <edge id="471" source="SocialProof" target="swiftymocky"/>
+  <edge id="472" source="SocialProof" target="xcodeproj"/>
+  <edge id="473" source="SocialProof" target="xctest-dynamic-overlay"/>
+  <edge id="474" source="SocialProof" target="yams"/>
+  <edge id="475" source="DynamicMotivation" target="aexml"/>
+  <edge id="476" source="DynamicMotivation" target="chalk"/>
+  <edge id="477" source="DynamicMotivation" target="combineext"/>
+  <edge id="478" source="DynamicMotivation" target="commander"/>
+  <edge id="479" source="DynamicMotivation" target="mobile-ios-msdesign"/>
+  <edge id="480" source="DynamicMotivation" target="mobile-swift-configuration"/>
+  <edge id="481" source="DynamicMotivation" target="mobile-swift-image"/>
+  <edge id="482" source="DynamicMotivation" target="mobile-swift-json"/>
+  <edge id="483" source="DynamicMotivation" target="mobile-swift-storage"/>
+  <edge id="484" source="DynamicMotivation" target="mobile-swift-telemetry"/>
+  <edge id="485" source="DynamicMotivation" target="pathkit"/>
+  <edge id="486" source="DynamicMotivation" target="rainbow"/>
+  <edge id="487" source="DynamicMotivation" target="sdwebimage"/>
+  <edge id="488" source="DynamicMotivation" target="shellout"/>
+  <edge id="489" source="DynamicMotivation" target="spectre"/>
+  <edge id="490" source="DynamicMotivation" target="swift-custom-dump"/>
+  <edge id="491" source="DynamicMotivation" target="swift-snapshot-testing"/>
+  <edge id="492" source="DynamicMotivation" target="swift-syntax"/>
+  <edge id="493" source="DynamicMotivation" target="swiftymocky"/>
+  <edge id="494" source="DynamicMotivation" target="xcodeproj"/>
+  <edge id="495" source="DynamicMotivation" target="xctest-dynamic-overlay"/>
+  <edge id="496" source="DynamicMotivation" target="yams"/>
+  <edge id="497" source="Banking" target="mobile-swift-telemetry"/>
+  <edge id="498" source="Recipes" target="aexml"/>
+  <edge id="499" source="Recipes" target="apollo-ios"/>
+  <edge id="500" source="Recipes" target="chalk"/>
+  <edge id="501" source="Recipes" target="chatlayout"/>
+  <edge id="502" source="Recipes" target="combineext"/>
+  <edge id="503" source="Recipes" target="commander"/>
+  <edge id="504" source="Recipes" target="digital-ios-sdk"/>
+  <edge id="505" source="Recipes" target="inputbaraccessoryview"/>
+  <edge id="506" source="Recipes" target="mobile-ios-msdesign"/>
+  <edge id="507" source="Recipes" target="mobile-swift-configuration"/>
+  <edge id="508" source="Recipes" target="mobile-swift-flagging"/>
+  <edge id="509" source="Recipes" target="mobile-swift-image"/>
+  <edge id="510" source="Recipes" target="mobile-swift-json"/>
+  <edge id="511" source="Recipes" target="mobile-swift-storage"/>
+  <edge id="512" source="Recipes" target="mobile-swift-telemetry"/>
+  <edge id="513" source="Recipes" target="mobile-swift-telemetry-adobe"/>
+  <edge id="514" source="Recipes" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="515" source="Recipes" target="pathkit"/>
+  <edge id="516" source="Recipes" target="rainbow"/>
+  <edge id="517" source="Recipes" target="sdwebimage"/>
+  <edge id="518" source="Recipes" target="shellout"/>
+  <edge id="519" source="Recipes" target="spectre"/>
+  <edge id="520" source="Recipes" target="sqlite.swift"/>
+  <edge id="521" source="Recipes" target="stubkit"/>
+  <edge id="522" source="Recipes" target="swift-collections"/>
+  <edge id="523" source="Recipes" target="swift-custom-dump"/>
+  <edge id="524" source="Recipes" target="swift-snapshot-testing"/>
+  <edge id="525" source="Recipes" target="swift-syntax"/>
+  <edge id="526" source="Recipes" target="swiftymocky"/>
+  <edge id="527" source="Recipes" target="xcodeproj"/>
+  <edge id="528" source="Recipes" target="xctasync"/>
+  <edge id="529" source="Recipes" target="xctest-dynamic-overlay"/>
+  <edge id="530" source="Recipes" target="yams"/>
+  <edge id="531" source="StoreSelector" target="aexml"/>
+  <edge id="532" source="StoreSelector" target="apollo-ios"/>
+  <edge id="533" source="StoreSelector" target="chalk"/>
+  <edge id="534" source="StoreSelector" target="combineext"/>
+  <edge id="535" source="StoreSelector" target="commander"/>
+  <edge id="536" source="StoreSelector" target="decoy"/>
+  <edge id="537" source="StoreSelector" target="digital-ios-sdk"/>
+  <edge id="538" source="StoreSelector" target="lottie-ios"/>
+  <edge id="539" source="StoreSelector" target="mobile-ios-msdesign"/>
+  <edge id="540" source="StoreSelector" target="mobile-swift-configuration"/>
+  <edge id="541" source="StoreSelector" target="mobile-swift-flagging"/>
+  <edge id="542" source="StoreSelector" target="mobile-swift-image"/>
+  <edge id="543" source="StoreSelector" target="mobile-swift-json"/>
+  <edge id="544" source="StoreSelector" target="mobile-swift-storage"/>
+  <edge id="545" source="StoreSelector" target="mobile-swift-telemetry"/>
+  <edge id="546" source="StoreSelector" target="mobile-swift-telemetry-adobe"/>
+  <edge id="547" source="StoreSelector" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="548" source="StoreSelector" target="pathkit"/>
+  <edge id="549" source="StoreSelector" target="rainbow"/>
+  <edge id="550" source="StoreSelector" target="sdwebimage"/>
+  <edge id="551" source="StoreSelector" target="shellout"/>
+  <edge id="552" source="StoreSelector" target="spectre"/>
+  <edge id="553" source="StoreSelector" target="sqlite.swift"/>
+  <edge id="554" source="StoreSelector" target="stubkit"/>
+  <edge id="555" source="StoreSelector" target="swift-algorithms"/>
+  <edge id="556" source="StoreSelector" target="swift-argument-parser"/>
+  <edge id="557" source="StoreSelector" target="swift-collections"/>
+  <edge id="558" source="StoreSelector" target="swift-custom-dump"/>
+  <edge id="559" source="StoreSelector" target="swift-numerics"/>
+  <edge id="560" source="StoreSelector" target="swift-snapshot-testing"/>
+  <edge id="561" source="StoreSelector" target="swift-syntax"/>
+  <edge id="562" source="StoreSelector" target="swiftymocky"/>
+  <edge id="563" source="StoreSelector" target="xcodeproj"/>
+  <edge id="564" source="StoreSelector" target="xctest-dynamic-overlay"/>
+  <edge id="565" source="StoreSelector" target="yams"/>
+  <edge id="566" source="Inspiration" target="aexml"/>
+  <edge id="567" source="Inspiration" target="apollo-ios"/>
+  <edge id="568" source="Inspiration" target="chalk"/>
+  <edge id="569" source="Inspiration" target="combineext"/>
+  <edge id="570" source="Inspiration" target="commander"/>
+  <edge id="571" source="Inspiration" target="mobile-ios-msdesign"/>
+  <edge id="572" source="Inspiration" target="mobile-swift-configuration"/>
+  <edge id="573" source="Inspiration" target="mobile-swift-flagging"/>
+  <edge id="574" source="Inspiration" target="mobile-swift-image"/>
+  <edge id="575" source="Inspiration" target="mobile-swift-json"/>
+  <edge id="576" source="Inspiration" target="mobile-swift-storage"/>
+  <edge id="577" source="Inspiration" target="mobile-swift-telemetry"/>
+  <edge id="578" source="Inspiration" target="mobile-swift-telemetry-adobe"/>
+  <edge id="579" source="Inspiration" target="pathkit"/>
+  <edge id="580" source="Inspiration" target="rainbow"/>
+  <edge id="581" source="Inspiration" target="sdwebimage"/>
+  <edge id="582" source="Inspiration" target="shellout"/>
+  <edge id="583" source="Inspiration" target="spectre"/>
+  <edge id="584" source="Inspiration" target="sqlite.swift"/>
+  <edge id="585" source="Inspiration" target="swift-custom-dump"/>
+  <edge id="586" source="Inspiration" target="swift-snapshot-testing"/>
+  <edge id="587" source="Inspiration" target="swift-syntax"/>
+  <edge id="588" source="Inspiration" target="swiftymocky"/>
+  <edge id="589" source="Inspiration" target="xcodeproj"/>
+  <edge id="590" source="Inspiration" target="xctest-dynamic-overlay"/>
+  <edge id="591" source="Inspiration" target="yams"/>
+  <edge id="592" source="Food" target="aexml"/>
+  <edge id="593" source="Food" target="apollo-ios"/>
+  <edge id="594" source="Food" target="chalk"/>
+  <edge id="595" source="Food" target="chatlayout"/>
+  <edge id="596" source="Food" target="combineext"/>
+  <edge id="597" source="Food" target="commander"/>
+  <edge id="598" source="Food" target="digital-ios-sdk"/>
+  <edge id="599" source="Food" target="inputbaraccessoryview"/>
+  <edge id="600" source="Food" target="lottie-ios"/>
+  <edge id="601" source="Food" target="mobile-ios-msdesign"/>
+  <edge id="602" source="Food" target="mobile-swift-configuration"/>
+  <edge id="603" source="Food" target="mobile-swift-flagging"/>
+  <edge id="604" source="Food" target="mobile-swift-image"/>
+  <edge id="605" source="Food" target="mobile-swift-json"/>
+  <edge id="606" source="Food" target="mobile-swift-storage"/>
+  <edge id="607" source="Food" target="mobile-swift-telemetry"/>
+  <edge id="608" source="Food" target="mobile-swift-telemetry-adobe"/>
+  <edge id="609" source="Food" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="610" source="Food" target="pathkit"/>
+  <edge id="611" source="Food" target="rainbow"/>
+  <edge id="612" source="Food" target="sdwebimage"/>
+  <edge id="613" source="Food" target="sdwebimageswiftui"/>
+  <edge id="614" source="Food" target="shellout"/>
+  <edge id="615" source="Food" target="spectre"/>
+  <edge id="616" source="Food" target="sqlite.swift"/>
+  <edge id="617" source="Food" target="stubkit"/>
+  <edge id="618" source="Food" target="swift-algorithms"/>
+  <edge id="619" source="Food" target="swift-collections"/>
+  <edge id="620" source="Food" target="swift-custom-dump"/>
+  <edge id="621" source="Food" target="swift-numerics"/>
+  <edge id="622" source="Food" target="swift-snapshot-testing"/>
+  <edge id="623" source="Food" target="swift-syntax"/>
+  <edge id="624" source="Food" target="swiftymocky"/>
+  <edge id="625" source="Food" target="xcodeproj"/>
+  <edge id="626" source="Food" target="xctest-dynamic-overlay"/>
+  <edge id="627" source="Food" target="yams"/>
+  <edge id="628" source="DepartmentLandingPage" target="aexml"/>
+  <edge id="629" source="DepartmentLandingPage" target="apollo-ios"/>
+  <edge id="630" source="DepartmentLandingPage" target="chalk"/>
+  <edge id="631" source="DepartmentLandingPage" target="combineext"/>
+  <edge id="632" source="DepartmentLandingPage" target="commander"/>
+  <edge id="633" source="DepartmentLandingPage" target="digital-ios-sdk"/>
+  <edge id="634" source="DepartmentLandingPage" target="lottie-ios"/>
+  <edge id="635" source="DepartmentLandingPage" target="mobile-ios-msdesign"/>
+  <edge id="636" source="DepartmentLandingPage" target="mobile-swift-configuration"/>
+  <edge id="637" source="DepartmentLandingPage" target="mobile-swift-flagging"/>
+  <edge id="638" source="DepartmentLandingPage" target="mobile-swift-image"/>
+  <edge id="639" source="DepartmentLandingPage" target="mobile-swift-json"/>
+  <edge id="640" source="DepartmentLandingPage" target="mobile-swift-storage"/>
+  <edge id="641" source="DepartmentLandingPage" target="mobile-swift-telemetry"/>
+  <edge id="642" source="DepartmentLandingPage" target="mobile-swift-telemetry-adobe"/>
+  <edge id="643" source="DepartmentLandingPage" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="644" source="DepartmentLandingPage" target="pathkit"/>
+  <edge id="645" source="DepartmentLandingPage" target="rainbow"/>
+  <edge id="646" source="DepartmentLandingPage" target="sdwebimage"/>
+  <edge id="647" source="DepartmentLandingPage" target="shellout"/>
+  <edge id="648" source="DepartmentLandingPage" target="spectre"/>
+  <edge id="649" source="DepartmentLandingPage" target="sqlite.swift"/>
+  <edge id="650" source="DepartmentLandingPage" target="stubkit"/>
+  <edge id="651" source="DepartmentLandingPage" target="swift-algorithms"/>
+  <edge id="652" source="DepartmentLandingPage" target="swift-collections"/>
+  <edge id="653" source="DepartmentLandingPage" target="swift-custom-dump"/>
+  <edge id="654" source="DepartmentLandingPage" target="swift-numerics"/>
+  <edge id="655" source="DepartmentLandingPage" target="swift-snapshot-testing"/>
+  <edge id="656" source="DepartmentLandingPage" target="swift-syntax"/>
+  <edge id="657" source="DepartmentLandingPage" target="swiftymocky"/>
+  <edge id="658" source="DepartmentLandingPage" target="xcodeproj"/>
+  <edge id="659" source="DepartmentLandingPage" target="xctasync"/>
+  <edge id="660" source="DepartmentLandingPage" target="xctest-dynamic-overlay"/>
+  <edge id="661" source="DepartmentLandingPage" target="yams"/>
+  <edge id="662" source="ProductDetailPage" target="aexml"/>
+  <edge id="663" source="ProductDetailPage" target="apollo-ios"/>
+  <edge id="664" source="ProductDetailPage" target="chalk"/>
+  <edge id="665" source="ProductDetailPage" target="combineext"/>
+  <edge id="666" source="ProductDetailPage" target="commander"/>
+  <edge id="667" source="ProductDetailPage" target="digital-ios-sdk"/>
+  <edge id="668" source="ProductDetailPage" target="lottie-ios"/>
+  <edge id="669" source="ProductDetailPage" target="mobile-ios-msdesign"/>
+  <edge id="670" source="ProductDetailPage" target="mobile-swift-configuration"/>
+  <edge id="671" source="ProductDetailPage" target="mobile-swift-flagging"/>
+  <edge id="672" source="ProductDetailPage" target="mobile-swift-image"/>
+  <edge id="673" source="ProductDetailPage" target="mobile-swift-json"/>
+  <edge id="674" source="ProductDetailPage" target="mobile-swift-storage"/>
+  <edge id="675" source="ProductDetailPage" target="mobile-swift-telemetry"/>
+  <edge id="676" source="ProductDetailPage" target="mobile-swift-telemetry-adobe"/>
+  <edge id="677" source="ProductDetailPage" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="678" source="ProductDetailPage" target="pathkit"/>
+  <edge id="679" source="ProductDetailPage" target="rainbow"/>
+  <edge id="680" source="ProductDetailPage" target="sdwebimage"/>
+  <edge id="681" source="ProductDetailPage" target="shellout"/>
+  <edge id="682" source="ProductDetailPage" target="spectre"/>
+  <edge id="683" source="ProductDetailPage" target="sqlite.swift"/>
+  <edge id="684" source="ProductDetailPage" target="stubkit"/>
+  <edge id="685" source="ProductDetailPage" target="swift-algorithms"/>
+  <edge id="686" source="ProductDetailPage" target="swift-collections"/>
+  <edge id="687" source="ProductDetailPage" target="swift-custom-dump"/>
+  <edge id="688" source="ProductDetailPage" target="swift-numerics"/>
+  <edge id="689" source="ProductDetailPage" target="swift-snapshot-testing"/>
+  <edge id="690" source="ProductDetailPage" target="swift-syntax"/>
+  <edge id="691" source="ProductDetailPage" target="swiftymocky"/>
+  <edge id="692" source="ProductDetailPage" target="xcodeproj"/>
+  <edge id="693" source="ProductDetailPage" target="xctest-dynamic-overlay"/>
+  <edge id="694" source="ProductDetailPage" target="yams"/>
+  <edge id="695" source="ApplePay" target="aexml"/>
+  <edge id="696" source="ApplePay" target="apollo-ios"/>
+  <edge id="697" source="ApplePay" target="chalk"/>
+  <edge id="698" source="ApplePay" target="combineext"/>
+  <edge id="699" source="ApplePay" target="commander"/>
+  <edge id="700" source="ApplePay" target="decoy"/>
+  <edge id="701" source="ApplePay" target="digital-ios-sdk"/>
+  <edge id="702" source="ApplePay" target="mobile-ios-msdesign"/>
+  <edge id="703" source="ApplePay" target="mobile-swift-configuration"/>
+  <edge id="704" source="ApplePay" target="mobile-swift-flagging"/>
+  <edge id="705" source="ApplePay" target="mobile-swift-image"/>
+  <edge id="706" source="ApplePay" target="mobile-swift-json"/>
+  <edge id="707" source="ApplePay" target="mobile-swift-storage"/>
+  <edge id="708" source="ApplePay" target="mobile-swift-telemetry"/>
+  <edge id="709" source="ApplePay" target="mobile-swift-telemetry-adobe"/>
+  <edge id="710" source="ApplePay" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="711" source="ApplePay" target="pathkit"/>
+  <edge id="712" source="ApplePay" target="rainbow"/>
+  <edge id="713" source="ApplePay" target="sdwebimage"/>
+  <edge id="714" source="ApplePay" target="shellout"/>
+  <edge id="715" source="ApplePay" target="spectre"/>
+  <edge id="716" source="ApplePay" target="sqlite.swift"/>
+  <edge id="717" source="ApplePay" target="swift-argument-parser"/>
+  <edge id="718" source="ApplePay" target="swift-collections"/>
+  <edge id="719" source="ApplePay" target="swift-custom-dump"/>
+  <edge id="720" source="ApplePay" target="swift-snapshot-testing"/>
+  <edge id="721" source="ApplePay" target="swift-syntax"/>
+  <edge id="722" source="ApplePay" target="swift-toolchain-sqlite"/>
+  <edge id="723" source="ApplePay" target="swiftymocky"/>
+  <edge id="724" source="ApplePay" target="xcodeproj"/>
+  <edge id="725" source="ApplePay" target="xctest-dynamic-overlay"/>
+  <edge id="726" source="ApplePay" target="yams"/>
+  <edge id="727" source="PurchasesHub" target="aexml"/>
+  <edge id="728" source="PurchasesHub" target="apollo-ios"/>
+  <edge id="729" source="PurchasesHub" target="chalk"/>
+  <edge id="730" source="PurchasesHub" target="combineext"/>
+  <edge id="731" source="PurchasesHub" target="commander"/>
+  <edge id="732" source="PurchasesHub" target="decoy"/>
+  <edge id="733" source="PurchasesHub" target="digital-ios-sdk"/>
+  <edge id="734" source="PurchasesHub" target="lottie-ios"/>
+  <edge id="735" source="PurchasesHub" target="mobile-ios-msdesign"/>
+  <edge id="736" source="PurchasesHub" target="mobile-swift-configuration"/>
+  <edge id="737" source="PurchasesHub" target="mobile-swift-flagging"/>
+  <edge id="738" source="PurchasesHub" target="mobile-swift-image"/>
+  <edge id="739" source="PurchasesHub" target="mobile-swift-json"/>
+  <edge id="740" source="PurchasesHub" target="mobile-swift-storage"/>
+  <edge id="741" source="PurchasesHub" target="mobile-swift-telemetry"/>
+  <edge id="742" source="PurchasesHub" target="mobile-swift-telemetry-adobe"/>
+  <edge id="743" source="PurchasesHub" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="744" source="PurchasesHub" target="pathkit"/>
+  <edge id="745" source="PurchasesHub" target="rainbow"/>
+  <edge id="746" source="PurchasesHub" target="sdwebimage"/>
+  <edge id="747" source="PurchasesHub" target="shellout"/>
+  <edge id="748" source="PurchasesHub" target="spectre"/>
+  <edge id="749" source="PurchasesHub" target="sqlite.swift"/>
+  <edge id="750" source="PurchasesHub" target="stubkit"/>
+  <edge id="751" source="PurchasesHub" target="swift-algorithms"/>
+  <edge id="752" source="PurchasesHub" target="swift-argument-parser"/>
+  <edge id="753" source="PurchasesHub" target="swift-collections"/>
+  <edge id="754" source="PurchasesHub" target="swift-custom-dump"/>
+  <edge id="755" source="PurchasesHub" target="swift-numerics"/>
+  <edge id="756" source="PurchasesHub" target="swift-snapshot-testing"/>
+  <edge id="757" source="PurchasesHub" target="swift-syntax"/>
+  <edge id="758" source="PurchasesHub" target="swiftymocky"/>
+  <edge id="759" source="PurchasesHub" target="xcodeproj"/>
+  <edge id="760" source="PurchasesHub" target="xctest-dynamic-overlay"/>
+  <edge id="761" source="PurchasesHub" target="yams"/>
+  <edge id="762" source="ProductListingPage" target="aexml"/>
+  <edge id="763" source="ProductListingPage" target="apollo-ios"/>
+  <edge id="764" source="ProductListingPage" target="chalk"/>
+  <edge id="765" source="ProductListingPage" target="combineext"/>
+  <edge id="766" source="ProductListingPage" target="commander"/>
+  <edge id="767" source="ProductListingPage" target="digital-ios-sdk"/>
+  <edge id="768" source="ProductListingPage" target="lottie-ios"/>
+  <edge id="769" source="ProductListingPage" target="mobile-ios-msdesign"/>
+  <edge id="770" source="ProductListingPage" target="mobile-swift-configuration"/>
+  <edge id="771" source="ProductListingPage" target="mobile-swift-flagging"/>
+  <edge id="772" source="ProductListingPage" target="mobile-swift-flagging-optimizely-integration"/>
+  <edge id="773" source="ProductListingPage" target="mobile-swift-image"/>
+  <edge id="774" source="ProductListingPage" target="mobile-swift-json"/>
+  <edge id="775" source="ProductListingPage" target="mobile-swift-storage"/>
+  <edge id="776" source="ProductListingPage" target="mobile-swift-telemetry"/>
+  <edge id="777" source="ProductListingPage" target="mobile-swift-telemetry-adobe"/>
+  <edge id="778" source="ProductListingPage" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="779" source="ProductListingPage" target="pathkit"/>
+  <edge id="780" source="ProductListingPage" target="rainbow"/>
+  <edge id="781" source="ProductListingPage" target="sdwebimage"/>
+  <edge id="782" source="ProductListingPage" target="shellout"/>
+  <edge id="783" source="ProductListingPage" target="spectre"/>
+  <edge id="784" source="ProductListingPage" target="sqlite.swift"/>
+  <edge id="785" source="ProductListingPage" target="stubkit"/>
+  <edge id="786" source="ProductListingPage" target="swift-algorithms"/>
+  <edge id="787" source="ProductListingPage" target="swift-collections"/>
+  <edge id="788" source="ProductListingPage" target="swift-custom-dump"/>
+  <edge id="789" source="ProductListingPage" target="swift-numerics"/>
+  <edge id="790" source="ProductListingPage" target="swift-sdk"/>
+  <edge id="791" source="ProductListingPage" target="swift-snapshot-testing"/>
+  <edge id="792" source="ProductListingPage" target="swift-syntax"/>
+  <edge id="793" source="ProductListingPage" target="swiftymocky"/>
+  <edge id="794" source="ProductListingPage" target="xcodeproj"/>
+  <edge id="795" source="ProductListingPage" target="xctasync"/>
+  <edge id="796" source="ProductListingPage" target="xctest-dynamic-overlay"/>
+  <edge id="797" source="ProductListingPage" target="yams"/>
+  <edge id="798" source="Onboarding" target="aexml"/>
+  <edge id="799" source="Onboarding" target="apollo-ios"/>
+  <edge id="800" source="Onboarding" target="chalk"/>
+  <edge id="801" source="Onboarding" target="combineext"/>
+  <edge id="802" source="Onboarding" target="commander"/>
+  <edge id="803" source="Onboarding" target="decoy"/>
+  <edge id="804" source="Onboarding" target="digital-ios-sdk"/>
+  <edge id="805" source="Onboarding" target="lottie-ios"/>
+  <edge id="806" source="Onboarding" target="mobile-ios-msdesign"/>
+  <edge id="807" source="Onboarding" target="mobile-swift-configuration"/>
+  <edge id="808" source="Onboarding" target="mobile-swift-flagging"/>
+  <edge id="809" source="Onboarding" target="mobile-swift-image"/>
+  <edge id="810" source="Onboarding" target="mobile-swift-json"/>
+  <edge id="811" source="Onboarding" target="mobile-swift-storage"/>
+  <edge id="812" source="Onboarding" target="mobile-swift-telemetry"/>
+  <edge id="813" source="Onboarding" target="mobile-swift-telemetry-adobe"/>
+  <edge id="814" source="Onboarding" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="815" source="Onboarding" target="pathkit"/>
+  <edge id="816" source="Onboarding" target="rainbow"/>
+  <edge id="817" source="Onboarding" target="sdwebimage"/>
+  <edge id="818" source="Onboarding" target="shellout"/>
+  <edge id="819" source="Onboarding" target="spectre"/>
+  <edge id="820" source="Onboarding" target="sqlite.swift"/>
+  <edge id="821" source="Onboarding" target="stubkit"/>
+  <edge id="822" source="Onboarding" target="swift-algorithms"/>
+  <edge id="823" source="Onboarding" target="swift-argument-parser"/>
+  <edge id="824" source="Onboarding" target="swift-cmark"/>
+  <edge id="825" source="Onboarding" target="swift-collections"/>
+  <edge id="826" source="Onboarding" target="swift-custom-dump"/>
+  <edge id="827" source="Onboarding" target="swift-markdown"/>
+  <edge id="828" source="Onboarding" target="swift-numerics"/>
+  <edge id="829" source="Onboarding" target="swift-snapshot-testing"/>
+  <edge id="830" source="Onboarding" target="swift-syntax"/>
+  <edge id="831" source="Onboarding" target="swift-toolchain-sqlite"/>
+  <edge id="832" source="Onboarding" target="swiftymocky"/>
+  <edge id="833" source="Onboarding" target="xcodeproj"/>
+  <edge id="834" source="Onboarding" target="xctest-dynamic-overlay"/>
+  <edge id="835" source="Onboarding" target="yams"/>
+  <edge id="836" source="MSLoginCore" target="aexml"/>
+  <edge id="837" source="MSLoginCore" target="chalk"/>
+  <edge id="838" source="MSLoginCore" target="combineext"/>
+  <edge id="839" source="MSLoginCore" target="commander"/>
+  <edge id="840" source="MSLoginCore" target="digital-ios-sdk"/>
+  <edge id="841" source="MSLoginCore" target="mobile-ios-msdesign"/>
+  <edge id="842" source="MSLoginCore" target="mobile-swift-configuration"/>
+  <edge id="843" source="MSLoginCore" target="mobile-swift-image"/>
+  <edge id="844" source="MSLoginCore" target="mobile-swift-json"/>
+  <edge id="845" source="MSLoginCore" target="mobile-swift-storage"/>
+  <edge id="846" source="MSLoginCore" target="mobile-swift-telemetry"/>
+  <edge id="847" source="MSLoginCore" target="pathkit"/>
+  <edge id="848" source="MSLoginCore" target="rainbow"/>
+  <edge id="849" source="MSLoginCore" target="sdwebimage"/>
+  <edge id="850" source="MSLoginCore" target="shellout"/>
+  <edge id="851" source="MSLoginCore" target="spectre"/>
+  <edge id="852" source="MSLoginCore" target="stubkit"/>
+  <edge id="853" source="MSLoginCore" target="swift-argument-parser"/>
+  <edge id="854" source="MSLoginCore" target="swift-collections"/>
+  <edge id="855" source="MSLoginCore" target="swift-snapshot-testing"/>
+  <edge id="856" source="MSLoginCore" target="swift-syntax"/>
+  <edge id="857" source="MSLoginCore" target="swiftymocky"/>
+  <edge id="858" source="MSLoginCore" target="xcodeproj"/>
+  <edge id="859" source="MSLoginCore" target="yams"/>
+  <edge id="860" source="IdentityService" target="aexml"/>
+  <edge id="861" source="IdentityService" target="apollo-ios"/>
+  <edge id="862" source="IdentityService" target="chalk"/>
+  <edge id="863" source="IdentityService" target="combineext"/>
+  <edge id="864" source="IdentityService" target="commander"/>
+  <edge id="865" source="IdentityService" target="decoy"/>
+  <edge id="866" source="IdentityService" target="digital-ios-sdk"/>
+  <edge id="867" source="IdentityService" target="lottie-ios"/>
+  <edge id="868" source="IdentityService" target="mobile-ios-msdesign"/>
+  <edge id="869" source="IdentityService" target="mobile-swift-configuration"/>
+  <edge id="870" source="IdentityService" target="mobile-swift-flagging"/>
+  <edge id="871" source="IdentityService" target="mobile-swift-image"/>
+  <edge id="872" source="IdentityService" target="mobile-swift-json"/>
+  <edge id="873" source="IdentityService" target="mobile-swift-storage"/>
+  <edge id="874" source="IdentityService" target="mobile-swift-telemetry"/>
+  <edge id="875" source="IdentityService" target="mobile-swift-telemetry-adobe"/>
+  <edge id="876" source="IdentityService" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="877" source="IdentityService" target="pathkit"/>
+  <edge id="878" source="IdentityService" target="rainbow"/>
+  <edge id="879" source="IdentityService" target="sdwebimage"/>
+  <edge id="880" source="IdentityService" target="shellout"/>
+  <edge id="881" source="IdentityService" target="spectre"/>
+  <edge id="882" source="IdentityService" target="sqlite.swift"/>
+  <edge id="883" source="IdentityService" target="stubkit"/>
+  <edge id="884" source="IdentityService" target="swift-algorithms"/>
+  <edge id="885" source="IdentityService" target="swift-argument-parser"/>
+  <edge id="886" source="IdentityService" target="swift-collections"/>
+  <edge id="887" source="IdentityService" target="swift-custom-dump"/>
+  <edge id="888" source="IdentityService" target="swift-numerics"/>
+  <edge id="889" source="IdentityService" target="swift-snapshot-testing"/>
+  <edge id="890" source="IdentityService" target="swift-syntax"/>
+  <edge id="891" source="IdentityService" target="swift-toolchain-sqlite"/>
+  <edge id="892" source="IdentityService" target="swiftymocky"/>
+  <edge id="893" source="IdentityService" target="xcodeproj"/>
+  <edge id="894" source="IdentityService" target="xctest-dynamic-overlay"/>
+  <edge id="895" source="IdentityService" target="yams"/>
+  <edge id="896" source="GuidanceUI" target="aexml"/>
+  <edge id="897" source="GuidanceUI" target="apollo-ios"/>
+  <edge id="898" source="GuidanceUI" target="chalk"/>
+  <edge id="899" source="GuidanceUI" target="combineext"/>
+  <edge id="900" source="GuidanceUI" target="commander"/>
+  <edge id="901" source="GuidanceUI" target="digital-ios-sdk"/>
+  <edge id="902" source="GuidanceUI" target="mobile-ios-msdesign"/>
+  <edge id="903" source="GuidanceUI" target="mobile-swift-configuration"/>
+  <edge id="904" source="GuidanceUI" target="mobile-swift-flagging"/>
+  <edge id="905" source="GuidanceUI" target="mobile-swift-image"/>
+  <edge id="906" source="GuidanceUI" target="mobile-swift-json"/>
+  <edge id="907" source="GuidanceUI" target="mobile-swift-storage"/>
+  <edge id="908" source="GuidanceUI" target="mobile-swift-telemetry"/>
+  <edge id="909" source="GuidanceUI" target="mobile-swift-telemetry-adobe"/>
+  <edge id="910" source="GuidanceUI" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="911" source="GuidanceUI" target="pathkit"/>
+  <edge id="912" source="GuidanceUI" target="rainbow"/>
+  <edge id="913" source="GuidanceUI" target="sdwebimage"/>
+  <edge id="914" source="GuidanceUI" target="shellout"/>
+  <edge id="915" source="GuidanceUI" target="spectre"/>
+  <edge id="916" source="GuidanceUI" target="sqlite.swift"/>
+  <edge id="917" source="GuidanceUI" target="swift-argument-parser"/>
+  <edge id="918" source="GuidanceUI" target="swift-collections"/>
+  <edge id="919" source="GuidanceUI" target="swift-custom-dump"/>
+  <edge id="920" source="GuidanceUI" target="swift-snapshot-testing"/>
+  <edge id="921" source="GuidanceUI" target="swift-syntax"/>
+  <edge id="922" source="GuidanceUI" target="swift-toolchain-sqlite"/>
+  <edge id="923" source="GuidanceUI" target="swiftymocky"/>
+  <edge id="924" source="GuidanceUI" target="xcodeproj"/>
+  <edge id="925" source="GuidanceUI" target="xctest-dynamic-overlay"/>
+  <edge id="926" source="GuidanceUI" target="yams"/>
+  <edge id="927" source="EnrichedProduct" target="aexml"/>
+  <edge id="928" source="EnrichedProduct" target="chalk"/>
+  <edge id="929" source="EnrichedProduct" target="combineext"/>
+  <edge id="930" source="EnrichedProduct" target="commander"/>
+  <edge id="931" source="EnrichedProduct" target="mobile-ios-msdesign"/>
+  <edge id="932" source="EnrichedProduct" target="mobile-swift-configuration"/>
+  <edge id="933" source="EnrichedProduct" target="mobile-swift-image"/>
+  <edge id="934" source="EnrichedProduct" target="mobile-swift-json"/>
+  <edge id="935" source="EnrichedProduct" target="mobile-swift-telemetry"/>
+  <edge id="936" source="EnrichedProduct" target="pathkit"/>
+  <edge id="937" source="EnrichedProduct" target="rainbow"/>
+  <edge id="938" source="EnrichedProduct" target="sdwebimage"/>
+  <edge id="939" source="EnrichedProduct" target="shellout"/>
+  <edge id="940" source="EnrichedProduct" target="spectre"/>
+  <edge id="941" source="EnrichedProduct" target="swift-argument-parser"/>
+  <edge id="942" source="EnrichedProduct" target="swift-snapshot-testing"/>
+  <edge id="943" source="EnrichedProduct" target="swift-syntax"/>
+  <edge id="944" source="EnrichedProduct" target="swiftymocky"/>
+  <edge id="945" source="EnrichedProduct" target="xcodeproj"/>
+  <edge id="946" source="EnrichedProduct" target="yams"/>
+  <edge id="947" source="MetricManager" target="mobile-swift-telemetry"/>
+  <edge id="948" source="MetricManager" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="949" source="MSAPICore" target="aexml"/>
+  <edge id="950" source="MSAPICore" target="chalk"/>
+  <edge id="951" source="MSAPICore" target="combineext"/>
+  <edge id="952" source="MSAPICore" target="commander"/>
+  <edge id="953" source="MSAPICore" target="mobile-ios-msdesign"/>
+  <edge id="954" source="MSAPICore" target="mobile-swift-configuration"/>
+  <edge id="955" source="MSAPICore" target="mobile-swift-image"/>
+  <edge id="956" source="MSAPICore" target="mobile-swift-json"/>
+  <edge id="957" source="MSAPICore" target="mobile-swift-telemetry"/>
+  <edge id="958" source="MSAPICore" target="pathkit"/>
+  <edge id="959" source="MSAPICore" target="rainbow"/>
+  <edge id="960" source="MSAPICore" target="sdwebimage"/>
+  <edge id="961" source="MSAPICore" target="shellout"/>
+  <edge id="962" source="MSAPICore" target="spectre"/>
+  <edge id="963" source="MSAPICore" target="swift-argument-parser"/>
+  <edge id="964" source="MSAPICore" target="swift-custom-dump"/>
+  <edge id="965" source="MSAPICore" target="swift-snapshot-testing"/>
+  <edge id="966" source="MSAPICore" target="swift-syntax"/>
+  <edge id="967" source="MSAPICore" target="swiftymocky"/>
+  <edge id="968" source="MSAPICore" target="xcodeproj"/>
+  <edge id="969" source="MSAPICore" target="xctest-dynamic-overlay"/>
+  <edge id="970" source="MSAPICore" target="yams"/>
+  <edge id="971" source="SearchRecommendation" target="aexml"/>
+  <edge id="972" source="SearchRecommendation" target="apollo-ios"/>
+  <edge id="973" source="SearchRecommendation" target="chalk"/>
+  <edge id="974" source="SearchRecommendation" target="combineext"/>
+  <edge id="975" source="SearchRecommendation" target="commander"/>
+  <edge id="976" source="SearchRecommendation" target="decoy"/>
+  <edge id="977" source="SearchRecommendation" target="mobile-ios-msdesign"/>
+  <edge id="978" source="SearchRecommendation" target="mobile-swift-configuration"/>
+  <edge id="979" source="SearchRecommendation" target="mobile-swift-image"/>
+  <edge id="980" source="SearchRecommendation" target="mobile-swift-json"/>
+  <edge id="981" source="SearchRecommendation" target="mobile-swift-telemetry"/>
+  <edge id="982" source="SearchRecommendation" target="mobile-swift-telemetry-adobe"/>
+  <edge id="983" source="SearchRecommendation" target="mobile-swift-telemetry-new-relic"/>
+  <edge id="984" source="SearchRecommendation" target="pathkit"/>
+  <edge id="985" source="SearchRecommendation" target="rainbow"/>
+  <edge id="986" source="SearchRecommendation" target="sdwebimage"/>
+  <edge id="987" source="SearchRecommendation" target="shellout"/>
+  <edge id="988" source="SearchRecommendation" target="spectre"/>
+  <edge id="989" source="SearchRecommendation" target="sqlite.swift"/>
+  <edge id="990" source="SearchRecommendation" target="swift-argument-parser"/>
+  <edge id="991" source="SearchRecommendation" target="swift-custom-dump"/>
+  <edge id="992" source="SearchRecommendation" target="swift-snapshot-testing"/>
+  <edge id="993" source="SearchRecommendation" target="swift-syntax"/>
+  <edge id="994" source="SearchRecommendation" target="swiftymocky"/>
+  <edge id="995" source="SearchRecommendation" target="xcodeproj"/>
+  <edge id="996" source="SearchRecommendation" target="xctest-dynamic-overlay"/>
+  <edge id="997" source="SearchRecommendation" target="yams"/>
+  <edge id="998" source="CustomerOrder" target="aexml"/>
+  <edge id="999" source="CustomerOrder" target="apollo-ios"/>
+  <edge id="1000" source="CustomerOrder" target="chalk"/>
+  <edge id="1001" source="CustomerOrder" target="combineext"/>
+  <edge id="1002" source="CustomerOrder" target="commander"/>
+  <edge id="1003" source="CustomerOrder" target="decoy"/>
+  <edge id="1004" source="CustomerOrder" target="mobile-ios-msdesign"/>
+  <edge id="1005" source="CustomerOrder" target="mobile-swift-configuration"/>
+  <edge id="1006" source="CustomerOrder" target="mobile-swift-image"/>
+  <edge id="1007" source="CustomerOrder" target="mobile-swift-json"/>
+  <edge id="1008" source="CustomerOrder" target="mobile-swift-telemetry"/>
+  <edge id="1009" source="CustomerOrder" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1010" source="CustomerOrder" target="pathkit"/>
+  <edge id="1011" source="CustomerOrder" target="rainbow"/>
+  <edge id="1012" source="CustomerOrder" target="sdwebimage"/>
+  <edge id="1013" source="CustomerOrder" target="shellout"/>
+  <edge id="1014" source="CustomerOrder" target="spectre"/>
+  <edge id="1015" source="CustomerOrder" target="sqlite.swift"/>
+  <edge id="1016" source="CustomerOrder" target="swift-argument-parser"/>
+  <edge id="1017" source="CustomerOrder" target="swift-custom-dump"/>
+  <edge id="1018" source="CustomerOrder" target="swift-snapshot-testing"/>
+  <edge id="1019" source="CustomerOrder" target="swift-syntax"/>
+  <edge id="1020" source="CustomerOrder" target="swiftymocky"/>
+  <edge id="1021" source="CustomerOrder" target="xcodeproj"/>
+  <edge id="1022" source="CustomerOrder" target="xctest-dynamic-overlay"/>
+  <edge id="1023" source="CustomerOrder" target="yams"/>
+  <edge id="1024" source="MSGraphQLService" target="aexml"/>
+  <edge id="1025" source="MSGraphQLService" target="chalk"/>
+  <edge id="1026" source="MSGraphQLService" target="combineext"/>
+  <edge id="1027" source="MSGraphQLService" target="commander"/>
+  <edge id="1028" source="MSGraphQLService" target="mobile-ios-msdesign"/>
+  <edge id="1029" source="MSGraphQLService" target="mobile-swift-configuration"/>
+  <edge id="1030" source="MSGraphQLService" target="mobile-swift-image"/>
+  <edge id="1031" source="MSGraphQLService" target="mobile-swift-json"/>
+  <edge id="1032" source="MSGraphQLService" target="mobile-swift-telemetry"/>
+  <edge id="1033" source="MSGraphQLService" target="pathkit"/>
+  <edge id="1034" source="MSGraphQLService" target="rainbow"/>
+  <edge id="1035" source="MSGraphQLService" target="sdwebimage"/>
+  <edge id="1036" source="MSGraphQLService" target="shellout"/>
+  <edge id="1037" source="MSGraphQLService" target="spectre"/>
+  <edge id="1038" source="MSGraphQLService" target="stubkit"/>
+  <edge id="1039" source="MSGraphQLService" target="swift-argument-parser"/>
+  <edge id="1040" source="MSGraphQLService" target="swift-snapshot-testing"/>
+  <edge id="1041" source="MSGraphQLService" target="swift-syntax"/>
+  <edge id="1042" source="MSGraphQLService" target="swiftymocky"/>
+  <edge id="1043" source="MSGraphQLService" target="xcodeproj"/>
+  <edge id="1044" source="MSGraphQLService" target="yams"/>
+  <edge id="1045" source="ProductContentProvider" target="aexml"/>
+  <edge id="1046" source="ProductContentProvider" target="chalk"/>
+  <edge id="1047" source="ProductContentProvider" target="combineext"/>
+  <edge id="1048" source="ProductContentProvider" target="commander"/>
+  <edge id="1049" source="ProductContentProvider" target="mobile-ios-msdesign"/>
+  <edge id="1050" source="ProductContentProvider" target="mobile-swift-configuration"/>
+  <edge id="1051" source="ProductContentProvider" target="mobile-swift-image"/>
+  <edge id="1052" source="ProductContentProvider" target="mobile-swift-json"/>
+  <edge id="1053" source="ProductContentProvider" target="mobile-swift-telemetry"/>
+  <edge id="1054" source="ProductContentProvider" target="pathkit"/>
+  <edge id="1055" source="ProductContentProvider" target="rainbow"/>
+  <edge id="1056" source="ProductContentProvider" target="sdwebimage"/>
+  <edge id="1057" source="ProductContentProvider" target="shellout"/>
+  <edge id="1058" source="ProductContentProvider" target="spectre"/>
+  <edge id="1059" source="ProductContentProvider" target="stubkit"/>
+  <edge id="1060" source="ProductContentProvider" target="swift-argument-parser"/>
+  <edge id="1061" source="ProductContentProvider" target="swift-snapshot-testing"/>
+  <edge id="1062" source="ProductContentProvider" target="swift-syntax"/>
+  <edge id="1063" source="ProductContentProvider" target="swiftymocky"/>
+  <edge id="1064" source="ProductContentProvider" target="xcodeproj"/>
+  <edge id="1065" source="ProductContentProvider" target="yams"/>
+  <edge id="1066" source="PersonalizedContent" target="aexml"/>
+  <edge id="1067" source="PersonalizedContent" target="apollo-ios"/>
+  <edge id="1068" source="PersonalizedContent" target="chalk"/>
+  <edge id="1069" source="PersonalizedContent" target="combineext"/>
+  <edge id="1070" source="PersonalizedContent" target="commander"/>
+  <edge id="1071" source="PersonalizedContent" target="decoy"/>
+  <edge id="1072" source="PersonalizedContent" target="digital-ios-sdk"/>
+  <edge id="1073" source="PersonalizedContent" target="lottie-ios"/>
+  <edge id="1074" source="PersonalizedContent" target="mobile-ios-msdesign"/>
+  <edge id="1075" source="PersonalizedContent" target="mobile-swift-configuration"/>
+  <edge id="1076" source="PersonalizedContent" target="mobile-swift-flagging"/>
+  <edge id="1077" source="PersonalizedContent" target="mobile-swift-image"/>
+  <edge id="1078" source="PersonalizedContent" target="mobile-swift-json"/>
+  <edge id="1079" source="PersonalizedContent" target="mobile-swift-storage"/>
+  <edge id="1080" source="PersonalizedContent" target="mobile-swift-telemetry"/>
+  <edge id="1081" source="PersonalizedContent" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1082" source="PersonalizedContent" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="1083" source="PersonalizedContent" target="pathkit"/>
+  <edge id="1084" source="PersonalizedContent" target="rainbow"/>
+  <edge id="1085" source="PersonalizedContent" target="sdwebimage"/>
+  <edge id="1086" source="PersonalizedContent" target="shellout"/>
+  <edge id="1087" source="PersonalizedContent" target="spectre"/>
+  <edge id="1088" source="PersonalizedContent" target="sqlite.swift"/>
+  <edge id="1089" source="PersonalizedContent" target="stubkit"/>
+  <edge id="1090" source="PersonalizedContent" target="swift-algorithms"/>
+  <edge id="1091" source="PersonalizedContent" target="swift-argument-parser"/>
+  <edge id="1092" source="PersonalizedContent" target="swift-collections"/>
+  <edge id="1093" source="PersonalizedContent" target="swift-custom-dump"/>
+  <edge id="1094" source="PersonalizedContent" target="swift-numerics"/>
+  <edge id="1095" source="PersonalizedContent" target="swift-snapshot-testing"/>
+  <edge id="1096" source="PersonalizedContent" target="swift-syntax"/>
+  <edge id="1097" source="PersonalizedContent" target="swiftymocky"/>
+  <edge id="1098" source="PersonalizedContent" target="xcodeproj"/>
+  <edge id="1099" source="PersonalizedContent" target="xctest-dynamic-overlay"/>
+  <edge id="1100" source="PersonalizedContent" target="yams"/>
+  <edge id="1101" source="RemoteContent" target="aexml"/>
+  <edge id="1102" source="RemoteContent" target="apollo-ios"/>
+  <edge id="1103" source="RemoteContent" target="chalk"/>
+  <edge id="1104" source="RemoteContent" target="combineext"/>
+  <edge id="1105" source="RemoteContent" target="commander"/>
+  <edge id="1106" source="RemoteContent" target="decoy"/>
+  <edge id="1107" source="RemoteContent" target="mobile-ios-msdesign"/>
+  <edge id="1108" source="RemoteContent" target="mobile-swift-configuration"/>
+  <edge id="1109" source="RemoteContent" target="mobile-swift-image"/>
+  <edge id="1110" source="RemoteContent" target="mobile-swift-json"/>
+  <edge id="1111" source="RemoteContent" target="mobile-swift-telemetry"/>
+  <edge id="1112" source="RemoteContent" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1113" source="RemoteContent" target="pathkit"/>
+  <edge id="1114" source="RemoteContent" target="rainbow"/>
+  <edge id="1115" source="RemoteContent" target="sdwebimage"/>
+  <edge id="1116" source="RemoteContent" target="shellout"/>
+  <edge id="1117" source="RemoteContent" target="spectre"/>
+  <edge id="1118" source="RemoteContent" target="sqlite.swift"/>
+  <edge id="1119" source="RemoteContent" target="swift-argument-parser"/>
+  <edge id="1120" source="RemoteContent" target="swift-custom-dump"/>
+  <edge id="1121" source="RemoteContent" target="swift-snapshot-testing"/>
+  <edge id="1122" source="RemoteContent" target="swift-syntax"/>
+  <edge id="1123" source="RemoteContent" target="swiftymocky"/>
+  <edge id="1124" source="RemoteContent" target="xcodeproj"/>
+  <edge id="1125" source="RemoteContent" target="xctest-dynamic-overlay"/>
+  <edge id="1126" source="RemoteContent" target="yams"/>
+  <edge id="1127" source="MSTiming" target="aexml"/>
+  <edge id="1128" source="MSTiming" target="chalk"/>
+  <edge id="1129" source="MSTiming" target="commander"/>
+  <edge id="1130" source="MSTiming" target="pathkit"/>
+  <edge id="1131" source="MSTiming" target="rainbow"/>
+  <edge id="1132" source="MSTiming" target="shellout"/>
+  <edge id="1133" source="MSTiming" target="spectre"/>
+  <edge id="1134" source="MSTiming" target="swift-snapshot-testing"/>
+  <edge id="1135" source="MSTiming" target="swiftymocky"/>
+  <edge id="1136" source="MSTiming" target="xcodeproj"/>
+  <edge id="1137" source="MSTiming" target="yams"/>
+  <edge id="1138" source="MSPropertyWrappers" target="stubkit"/>
+  <edge id="1139" source="MSURL" target="aexml"/>
+  <edge id="1140" source="MSURL" target="chalk"/>
+  <edge id="1141" source="MSURL" target="combineext"/>
+  <edge id="1142" source="MSURL" target="commander"/>
+  <edge id="1143" source="MSURL" target="pathkit"/>
+  <edge id="1144" source="MSURL" target="rainbow"/>
+  <edge id="1145" source="MSURL" target="shellout"/>
+  <edge id="1146" source="MSURL" target="spectre"/>
+  <edge id="1147" source="MSURL" target="swift-snapshot-testing"/>
+  <edge id="1148" source="MSURL" target="swiftymocky"/>
+  <edge id="1149" source="MSURL" target="xcodeproj"/>
+  <edge id="1150" source="MSURL" target="yams"/>
+  <edge id="1151" source="MSRegion" target="combineext"/>
+  <edge id="1152" source="MSRegion" target="mobile-swift-telemetry"/>
+  <edge id="1153" source="StoreFinder" target="aexml"/>
+  <edge id="1154" source="StoreFinder" target="apollo-ios"/>
+  <edge id="1155" source="StoreFinder" target="chalk"/>
+  <edge id="1156" source="StoreFinder" target="combineext"/>
+  <edge id="1157" source="StoreFinder" target="commander"/>
+  <edge id="1158" source="StoreFinder" target="mobile-ios-msdesign"/>
+  <edge id="1159" source="StoreFinder" target="mobile-swift-configuration"/>
+  <edge id="1160" source="StoreFinder" target="mobile-swift-image"/>
+  <edge id="1161" source="StoreFinder" target="mobile-swift-json"/>
+  <edge id="1162" source="StoreFinder" target="mobile-swift-storage"/>
+  <edge id="1163" source="StoreFinder" target="mobile-swift-telemetry"/>
+  <edge id="1164" source="StoreFinder" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1165" source="StoreFinder" target="pathkit"/>
+  <edge id="1166" source="StoreFinder" target="rainbow"/>
+  <edge id="1167" source="StoreFinder" target="sdwebimage"/>
+  <edge id="1168" source="StoreFinder" target="shellout"/>
+  <edge id="1169" source="StoreFinder" target="spectre"/>
+  <edge id="1170" source="StoreFinder" target="sqlite.swift"/>
+  <edge id="1171" source="StoreFinder" target="stubkit"/>
+  <edge id="1172" source="StoreFinder" target="swift-argument-parser"/>
+  <edge id="1173" source="StoreFinder" target="swift-custom-dump"/>
+  <edge id="1174" source="StoreFinder" target="swift-snapshot-testing"/>
+  <edge id="1175" source="StoreFinder" target="swift-syntax"/>
+  <edge id="1176" source="StoreFinder" target="swift-toolchain-sqlite"/>
+  <edge id="1177" source="StoreFinder" target="swiftymocky"/>
+  <edge id="1178" source="StoreFinder" target="xcodeproj"/>
+  <edge id="1179" source="StoreFinder" target="xctest-dynamic-overlay"/>
+  <edge id="1180" source="StoreFinder" target="yams"/>
+  <edge id="1181" source="MSDesignWrapper" target="mobile-ios-msdesign"/>
+  <edge id="1182" source="LottieKit" target="lottie-ios"/>
+  <edge id="1183" source="Search" target="aexml"/>
+  <edge id="1184" source="Search" target="apollo-ios"/>
+  <edge id="1185" source="Search" target="chalk"/>
+  <edge id="1186" source="Search" target="combineext"/>
+  <edge id="1187" source="Search" target="commander"/>
+  <edge id="1188" source="Search" target="decoy"/>
+  <edge id="1189" source="Search" target="digital-ios-sdk"/>
+  <edge id="1190" source="Search" target="mobile-ios-msdesign"/>
+  <edge id="1191" source="Search" target="mobile-swift-configuration"/>
+  <edge id="1192" source="Search" target="mobile-swift-flagging"/>
+  <edge id="1193" source="Search" target="mobile-swift-image"/>
+  <edge id="1194" source="Search" target="mobile-swift-json"/>
+  <edge id="1195" source="Search" target="mobile-swift-storage"/>
+  <edge id="1196" source="Search" target="mobile-swift-telemetry"/>
+  <edge id="1197" source="Search" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1198" source="Search" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="1199" source="Search" target="pathkit"/>
+  <edge id="1200" source="Search" target="rainbow"/>
+  <edge id="1201" source="Search" target="sdwebimage"/>
+  <edge id="1202" source="Search" target="shellout"/>
+  <edge id="1203" source="Search" target="spectre"/>
+  <edge id="1204" source="Search" target="sqlite.swift"/>
+  <edge id="1205" source="Search" target="stubkit"/>
+  <edge id="1206" source="Search" target="swift-argument-parser"/>
+  <edge id="1207" source="Search" target="swift-collections"/>
+  <edge id="1208" source="Search" target="swift-custom-dump"/>
+  <edge id="1209" source="Search" target="swift-snapshot-testing"/>
+  <edge id="1210" source="Search" target="swift-syntax"/>
+  <edge id="1211" source="Search" target="swiftymocky"/>
+  <edge id="1212" source="Search" target="xcodeproj"/>
+  <edge id="1213" source="Search" target="xctest-dynamic-overlay"/>
+  <edge id="1214" source="Search" target="yams"/>
+  <edge id="1215" source="OptimizelyFlagging" target="mobile-swift-flagging"/>
+  <edge id="1216" source="OptimizelyFlagging" target="mobile-swift-flagging-optimizely-integration"/>
+  <edge id="1217" source="OptimizelyFlagging" target="mobile-swift-json"/>
+  <edge id="1218" source="OptimizelyFlagging" target="mobile-swift-storage"/>
+  <edge id="1219" source="OptimizelyFlagging" target="mobile-swift-telemetry"/>
+  <edge id="1220" source="OptimizelyFlagging" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1221" source="OptimizelyFlagging" target="swift-sdk"/>
+  <edge id="1222" source="MSObservable" target="aexml"/>
+  <edge id="1223" source="MSObservable" target="chalk"/>
+  <edge id="1224" source="MSObservable" target="combineext"/>
+  <edge id="1225" source="MSObservable" target="commander"/>
+  <edge id="1226" source="MSObservable" target="pathkit"/>
+  <edge id="1227" source="MSObservable" target="rainbow"/>
+  <edge id="1228" source="MSObservable" target="shellout"/>
+  <edge id="1229" source="MSObservable" target="spectre"/>
+  <edge id="1230" source="MSObservable" target="swift-custom-dump"/>
+  <edge id="1231" source="MSObservable" target="swift-snapshot-testing"/>
+  <edge id="1232" source="MSObservable" target="swift-syntax"/>
+  <edge id="1233" source="MSObservable" target="swiftymocky"/>
+  <edge id="1234" source="MSObservable" target="xcodeproj"/>
+  <edge id="1235" source="MSObservable" target="xctest-dynamic-overlay"/>
+  <edge id="1236" source="MSObservable" target="yams"/>
+  <edge id="1237" source="MSAnalytics" target="aexml"/>
+  <edge id="1238" source="MSAnalytics" target="chalk"/>
+  <edge id="1239" source="MSAnalytics" target="combineext"/>
+  <edge id="1240" source="MSAnalytics" target="commander"/>
+  <edge id="1241" source="MSAnalytics" target="mobile-ios-msdesign"/>
+  <edge id="1242" source="MSAnalytics" target="mobile-swift-configuration"/>
+  <edge id="1243" source="MSAnalytics" target="mobile-swift-image"/>
+  <edge id="1244" source="MSAnalytics" target="mobile-swift-json"/>
+  <edge id="1245" source="MSAnalytics" target="mobile-swift-telemetry"/>
+  <edge id="1246" source="MSAnalytics" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1247" source="MSAnalytics" target="pathkit"/>
+  <edge id="1248" source="MSAnalytics" target="rainbow"/>
+  <edge id="1249" source="MSAnalytics" target="sdwebimage"/>
+  <edge id="1250" source="MSAnalytics" target="shellout"/>
+  <edge id="1251" source="MSAnalytics" target="spectre"/>
+  <edge id="1252" source="MSAnalytics" target="stubkit"/>
+  <edge id="1253" source="MSAnalytics" target="swift-argument-parser"/>
+  <edge id="1254" source="MSAnalytics" target="swift-custom-dump"/>
+  <edge id="1255" source="MSAnalytics" target="swift-snapshot-testing"/>
+  <edge id="1256" source="MSAnalytics" target="swift-syntax"/>
+  <edge id="1257" source="MSAnalytics" target="swiftymocky"/>
+  <edge id="1258" source="MSAnalytics" target="xcodeproj"/>
+  <edge id="1259" source="MSAnalytics" target="xctest-dynamic-overlay"/>
+  <edge id="1260" source="MSAnalytics" target="yams"/>
+  <edge id="1261" source="MSHaptics" target="aexml"/>
+  <edge id="1262" source="MSHaptics" target="chalk"/>
+  <edge id="1263" source="MSHaptics" target="commander"/>
+  <edge id="1264" source="MSHaptics" target="pathkit"/>
+  <edge id="1265" source="MSHaptics" target="rainbow"/>
+  <edge id="1266" source="MSHaptics" target="shellout"/>
+  <edge id="1267" source="MSHaptics" target="spectre"/>
+  <edge id="1268" source="MSHaptics" target="swift-custom-dump"/>
+  <edge id="1269" source="MSHaptics" target="swift-snapshot-testing"/>
+  <edge id="1270" source="MSHaptics" target="swift-syntax"/>
+  <edge id="1271" source="MSHaptics" target="swiftymocky"/>
+  <edge id="1272" source="MSHaptics" target="xcodeproj"/>
+  <edge id="1273" source="MSHaptics" target="xctest-dynamic-overlay"/>
+  <edge id="1274" source="MSHaptics" target="yams"/>
+  <edge id="1275" source="FluxUI" target="Differ"/>
+  <edge id="1276" source="Profile" target="aexml"/>
+  <edge id="1277" source="Profile" target="apollo-ios"/>
+  <edge id="1278" source="Profile" target="chalk"/>
+  <edge id="1279" source="Profile" target="combineext"/>
+  <edge id="1280" source="Profile" target="commander"/>
+  <edge id="1281" source="Profile" target="digital-ios-sdk"/>
+  <edge id="1282" source="Profile" target="mobile-ios-msdesign"/>
+  <edge id="1283" source="Profile" target="mobile-swift-configuration"/>
+  <edge id="1284" source="Profile" target="mobile-swift-flagging"/>
+  <edge id="1285" source="Profile" target="mobile-swift-image"/>
+  <edge id="1286" source="Profile" target="mobile-swift-json"/>
+  <edge id="1287" source="Profile" target="mobile-swift-storage"/>
+  <edge id="1288" source="Profile" target="mobile-swift-telemetry"/>
+  <edge id="1289" source="Profile" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1290" source="Profile" target="pathkit"/>
+  <edge id="1291" source="Profile" target="rainbow"/>
+  <edge id="1292" source="Profile" target="sdwebimage"/>
+  <edge id="1293" source="Profile" target="shellout"/>
+  <edge id="1294" source="Profile" target="spectre"/>
+  <edge id="1295" source="Profile" target="sqlite.swift"/>
+  <edge id="1296" source="Profile" target="stubkit"/>
+  <edge id="1297" source="Profile" target="swift-algorithms"/>
+  <edge id="1298" source="Profile" target="swift-argument-parser"/>
+  <edge id="1299" source="Profile" target="swift-collections"/>
+  <edge id="1300" source="Profile" target="swift-numerics"/>
+  <edge id="1301" source="Profile" target="swift-snapshot-testing"/>
+  <edge id="1302" source="Profile" target="swift-syntax"/>
+  <edge id="1303" source="Profile" target="swiftymocky"/>
+  <edge id="1304" source="Profile" target="xcodeproj"/>
+  <edge id="1305" source="Profile" target="yams"/>
+  <edge id="1306" source="RemoteRange" target="aexml"/>
+  <edge id="1307" source="RemoteRange" target="chalk"/>
+  <edge id="1308" source="RemoteRange" target="combineext"/>
+  <edge id="1309" source="RemoteRange" target="commander"/>
+  <edge id="1310" source="RemoteRange" target="mobile-ios-msdesign"/>
+  <edge id="1311" source="RemoteRange" target="mobile-swift-configuration"/>
+  <edge id="1312" source="RemoteRange" target="mobile-swift-image"/>
+  <edge id="1313" source="RemoteRange" target="mobile-swift-json"/>
+  <edge id="1314" source="RemoteRange" target="mobile-swift-storage"/>
+  <edge id="1315" source="RemoteRange" target="mobile-swift-telemetry"/>
+  <edge id="1316" source="RemoteRange" target="pathkit"/>
+  <edge id="1317" source="RemoteRange" target="rainbow"/>
+  <edge id="1318" source="RemoteRange" target="sdwebimage"/>
+  <edge id="1319" source="RemoteRange" target="shellout"/>
+  <edge id="1320" source="RemoteRange" target="spectre"/>
+  <edge id="1321" source="RemoteRange" target="swift-custom-dump"/>
+  <edge id="1322" source="RemoteRange" target="swift-snapshot-testing"/>
+  <edge id="1323" source="RemoteRange" target="swift-syntax"/>
+  <edge id="1324" source="RemoteRange" target="swiftymocky"/>
+  <edge id="1325" source="RemoteRange" target="xcodeproj"/>
+  <edge id="1326" source="RemoteRange" target="xctest-dynamic-overlay"/>
+  <edge id="1327" source="RemoteRange" target="yams"/>
+  <edge id="1328" source="RemoteStock" target="aexml"/>
+  <edge id="1329" source="RemoteStock" target="apollo-ios"/>
+  <edge id="1330" source="RemoteStock" target="chalk"/>
+  <edge id="1331" source="RemoteStock" target="combineext"/>
+  <edge id="1332" source="RemoteStock" target="commander"/>
+  <edge id="1333" source="RemoteStock" target="mobile-ios-msdesign"/>
+  <edge id="1334" source="RemoteStock" target="mobile-swift-configuration"/>
+  <edge id="1335" source="RemoteStock" target="mobile-swift-image"/>
+  <edge id="1336" source="RemoteStock" target="mobile-swift-json"/>
+  <edge id="1337" source="RemoteStock" target="mobile-swift-telemetry"/>
+  <edge id="1338" source="RemoteStock" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1339" source="RemoteStock" target="pathkit"/>
+  <edge id="1340" source="RemoteStock" target="rainbow"/>
+  <edge id="1341" source="RemoteStock" target="sdwebimage"/>
+  <edge id="1342" source="RemoteStock" target="shellout"/>
+  <edge id="1343" source="RemoteStock" target="spectre"/>
+  <edge id="1344" source="RemoteStock" target="sqlite.swift"/>
+  <edge id="1345" source="RemoteStock" target="swift-argument-parser"/>
+  <edge id="1346" source="RemoteStock" target="swift-snapshot-testing"/>
+  <edge id="1347" source="RemoteStock" target="swift-syntax"/>
+  <edge id="1348" source="RemoteStock" target="swiftymocky"/>
+  <edge id="1349" source="RemoteStock" target="xcodeproj"/>
+  <edge id="1350" source="RemoteStock" target="yams"/>
+  <edge id="1351" source="DevTools" target="aexml"/>
+  <edge id="1352" source="DevTools" target="apollo-ios"/>
+  <edge id="1353" source="DevTools" target="chalk"/>
+  <edge id="1354" source="DevTools" target="combineext"/>
+  <edge id="1355" source="DevTools" target="commander"/>
+  <edge id="1356" source="DevTools" target="decoy"/>
+  <edge id="1357" source="DevTools" target="digital-ios-sdk"/>
+  <edge id="1358" source="DevTools" target="mobile-ios-msdesign"/>
+  <edge id="1359" source="DevTools" target="mobile-swift-configuration"/>
+  <edge id="1360" source="DevTools" target="mobile-swift-flagging"/>
+  <edge id="1361" source="DevTools" target="mobile-swift-image"/>
+  <edge id="1362" source="DevTools" target="mobile-swift-json"/>
+  <edge id="1363" source="DevTools" target="mobile-swift-storage"/>
+  <edge id="1364" source="DevTools" target="mobile-swift-telemetry"/>
+  <edge id="1365" source="DevTools" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1366" source="DevTools" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="1367" source="DevTools" target="pathkit"/>
+  <edge id="1368" source="DevTools" target="rainbow"/>
+  <edge id="1369" source="DevTools" target="sdwebimage"/>
+  <edge id="1370" source="DevTools" target="shellout"/>
+  <edge id="1371" source="DevTools" target="spectre"/>
+  <edge id="1372" source="DevTools" target="sqlite.swift"/>
+  <edge id="1373" source="DevTools" target="swift-argument-parser"/>
+  <edge id="1374" source="DevTools" target="swift-collections"/>
+  <edge id="1375" source="DevTools" target="swift-custom-dump"/>
+  <edge id="1376" source="DevTools" target="swift-snapshot-testing"/>
+  <edge id="1377" source="DevTools" target="swift-syntax"/>
+  <edge id="1378" source="DevTools" target="swiftymocky"/>
+  <edge id="1379" source="DevTools" target="xcodeproj"/>
+  <edge id="1380" source="DevTools" target="xctest-dynamic-overlay"/>
+  <edge id="1381" source="DevTools" target="yams"/>
+  <edge id="1382" source="RecommendationStrategy" target="aexml"/>
+  <edge id="1383" source="RecommendationStrategy" target="chalk"/>
+  <edge id="1384" source="RecommendationStrategy" target="combineext"/>
+  <edge id="1385" source="RecommendationStrategy" target="commander"/>
+  <edge id="1386" source="RecommendationStrategy" target="mobile-ios-msdesign"/>
+  <edge id="1387" source="RecommendationStrategy" target="mobile-swift-configuration"/>
+  <edge id="1388" source="RecommendationStrategy" target="mobile-swift-image"/>
+  <edge id="1389" source="RecommendationStrategy" target="mobile-swift-json"/>
+  <edge id="1390" source="RecommendationStrategy" target="mobile-swift-telemetry"/>
+  <edge id="1391" source="RecommendationStrategy" target="pathkit"/>
+  <edge id="1392" source="RecommendationStrategy" target="rainbow"/>
+  <edge id="1393" source="RecommendationStrategy" target="sdwebimage"/>
+  <edge id="1394" source="RecommendationStrategy" target="shellout"/>
+  <edge id="1395" source="RecommendationStrategy" target="spectre"/>
+  <edge id="1396" source="RecommendationStrategy" target="stubkit"/>
+  <edge id="1397" source="RecommendationStrategy" target="swift-argument-parser"/>
+  <edge id="1398" source="RecommendationStrategy" target="swift-snapshot-testing"/>
+  <edge id="1399" source="RecommendationStrategy" target="swift-syntax"/>
+  <edge id="1400" source="RecommendationStrategy" target="swiftymocky"/>
+  <edge id="1401" source="RecommendationStrategy" target="xcodeproj"/>
+  <edge id="1402" source="RecommendationStrategy" target="yams"/>
+  <edge id="1403" source="MSLog" target="mobile-swift-telemetry"/>
+  <edge id="1404" source="MSUtils" target="aexml"/>
+  <edge id="1405" source="MSUtils" target="chalk"/>
+  <edge id="1406" source="MSUtils" target="combineext"/>
+  <edge id="1407" source="MSUtils" target="commander"/>
+  <edge id="1408" source="MSUtils" target="mobile-ios-msdesign"/>
+  <edge id="1409" source="MSUtils" target="mobile-swift-configuration"/>
+  <edge id="1410" source="MSUtils" target="mobile-swift-image"/>
+  <edge id="1411" source="MSUtils" target="mobile-swift-json"/>
+  <edge id="1412" source="MSUtils" target="mobile-swift-storage"/>
+  <edge id="1413" source="MSUtils" target="mobile-swift-telemetry"/>
+  <edge id="1414" source="MSUtils" target="pathkit"/>
+  <edge id="1415" source="MSUtils" target="rainbow"/>
+  <edge id="1416" source="MSUtils" target="sdwebimage"/>
+  <edge id="1417" source="MSUtils" target="shellout"/>
+  <edge id="1418" source="MSUtils" target="spectre"/>
+  <edge id="1419" source="MSUtils" target="swift-custom-dump"/>
+  <edge id="1420" source="MSUtils" target="swift-snapshot-testing"/>
+  <edge id="1421" source="MSUtils" target="swift-syntax"/>
+  <edge id="1422" source="MSUtils" target="swiftymocky"/>
+  <edge id="1423" source="MSUtils" target="xcodeproj"/>
+  <edge id="1424" source="MSUtils" target="xctest-dynamic-overlay"/>
+  <edge id="1425" source="MSUtils" target="yams"/>
+  <edge id="1426" source="MSExecution" target="aexml"/>
+  <edge id="1427" source="MSExecution" target="chalk"/>
+  <edge id="1428" source="MSExecution" target="commander"/>
+  <edge id="1429" source="MSExecution" target="pathkit"/>
+  <edge id="1430" source="MSExecution" target="rainbow"/>
+  <edge id="1431" source="MSExecution" target="shellout"/>
+  <edge id="1432" source="MSExecution" target="spectre"/>
+  <edge id="1433" source="MSExecution" target="swift-snapshot-testing"/>
+  <edge id="1434" source="MSExecution" target="swiftymocky"/>
+  <edge id="1435" source="MSExecution" target="xcodeproj"/>
+  <edge id="1436" source="MSExecution" target="yams"/>
+  <edge id="1437" source="AppleWalletPass" target="aexml"/>
+  <edge id="1438" source="AppleWalletPass" target="chalk"/>
+  <edge id="1439" source="AppleWalletPass" target="combineext"/>
+  <edge id="1440" source="AppleWalletPass" target="commander"/>
+  <edge id="1441" source="AppleWalletPass" target="mobile-ios-msdesign"/>
+  <edge id="1442" source="AppleWalletPass" target="mobile-swift-configuration"/>
+  <edge id="1443" source="AppleWalletPass" target="mobile-swift-image"/>
+  <edge id="1444" source="AppleWalletPass" target="mobile-swift-json"/>
+  <edge id="1445" source="AppleWalletPass" target="mobile-swift-telemetry"/>
+  <edge id="1446" source="AppleWalletPass" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1447" source="AppleWalletPass" target="pathkit"/>
+  <edge id="1448" source="AppleWalletPass" target="rainbow"/>
+  <edge id="1449" source="AppleWalletPass" target="sdwebimage"/>
+  <edge id="1450" source="AppleWalletPass" target="shellout"/>
+  <edge id="1451" source="AppleWalletPass" target="spectre"/>
+  <edge id="1452" source="AppleWalletPass" target="swift-argument-parser"/>
+  <edge id="1453" source="AppleWalletPass" target="swift-custom-dump"/>
+  <edge id="1454" source="AppleWalletPass" target="swift-snapshot-testing"/>
+  <edge id="1455" source="AppleWalletPass" target="swift-syntax"/>
+  <edge id="1456" source="AppleWalletPass" target="swiftymocky"/>
+  <edge id="1457" source="AppleWalletPass" target="xcodeproj"/>
+  <edge id="1458" source="AppleWalletPass" target="xctest-dynamic-overlay"/>
+  <edge id="1459" source="AppleWalletPass" target="yams"/>
+  <edge id="1460" source="RemotePrice" target="aexml"/>
+  <edge id="1461" source="RemotePrice" target="apollo-ios"/>
+  <edge id="1462" source="RemotePrice" target="chalk"/>
+  <edge id="1463" source="RemotePrice" target="combineext"/>
+  <edge id="1464" source="RemotePrice" target="commander"/>
+  <edge id="1465" source="RemotePrice" target="mobile-ios-msdesign"/>
+  <edge id="1466" source="RemotePrice" target="mobile-swift-configuration"/>
+  <edge id="1467" source="RemotePrice" target="mobile-swift-image"/>
+  <edge id="1468" source="RemotePrice" target="mobile-swift-json"/>
+  <edge id="1469" source="RemotePrice" target="mobile-swift-telemetry"/>
+  <edge id="1470" source="RemotePrice" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1471" source="RemotePrice" target="pathkit"/>
+  <edge id="1472" source="RemotePrice" target="rainbow"/>
+  <edge id="1473" source="RemotePrice" target="sdwebimage"/>
+  <edge id="1474" source="RemotePrice" target="shellout"/>
+  <edge id="1475" source="RemotePrice" target="spectre"/>
+  <edge id="1476" source="RemotePrice" target="sqlite.swift"/>
+  <edge id="1477" source="RemotePrice" target="swift-argument-parser"/>
+  <edge id="1478" source="RemotePrice" target="swift-snapshot-testing"/>
+  <edge id="1479" source="RemotePrice" target="swift-syntax"/>
+  <edge id="1480" source="RemotePrice" target="swiftymocky"/>
+  <edge id="1481" source="RemotePrice" target="xcodeproj"/>
+  <edge id="1482" source="RemotePrice" target="yams"/>
+  <edge id="1483" source="OrderFulfilment" target="aexml"/>
+  <edge id="1484" source="OrderFulfilment" target="apollo-ios"/>
+  <edge id="1485" source="OrderFulfilment" target="chalk"/>
+  <edge id="1486" source="OrderFulfilment" target="combineext"/>
+  <edge id="1487" source="OrderFulfilment" target="commander"/>
+  <edge id="1488" source="OrderFulfilment" target="decoy"/>
+  <edge id="1489" source="OrderFulfilment" target="mobile-ios-msdesign"/>
+  <edge id="1490" source="OrderFulfilment" target="mobile-swift-configuration"/>
+  <edge id="1491" source="OrderFulfilment" target="mobile-swift-image"/>
+  <edge id="1492" source="OrderFulfilment" target="mobile-swift-json"/>
+  <edge id="1493" source="OrderFulfilment" target="mobile-swift-telemetry"/>
+  <edge id="1494" source="OrderFulfilment" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1495" source="OrderFulfilment" target="pathkit"/>
+  <edge id="1496" source="OrderFulfilment" target="rainbow"/>
+  <edge id="1497" source="OrderFulfilment" target="sdwebimage"/>
+  <edge id="1498" source="OrderFulfilment" target="shellout"/>
+  <edge id="1499" source="OrderFulfilment" target="spectre"/>
+  <edge id="1500" source="OrderFulfilment" target="sqlite.swift"/>
+  <edge id="1501" source="OrderFulfilment" target="swift-argument-parser"/>
+  <edge id="1502" source="OrderFulfilment" target="swift-custom-dump"/>
+  <edge id="1503" source="OrderFulfilment" target="swift-snapshot-testing"/>
+  <edge id="1504" source="OrderFulfilment" target="swift-syntax"/>
+  <edge id="1505" source="OrderFulfilment" target="swiftymocky"/>
+  <edge id="1506" source="OrderFulfilment" target="xcodeproj"/>
+  <edge id="1507" source="OrderFulfilment" target="xctest-dynamic-overlay"/>
+  <edge id="1508" source="OrderFulfilment" target="yams"/>
+  <edge id="1509" source="MSLoyalty" target="aexml"/>
+  <edge id="1510" source="MSLoyalty" target="apollo-ios"/>
+  <edge id="1511" source="MSLoyalty" target="chalk"/>
+  <edge id="1512" source="MSLoyalty" target="combineext"/>
+  <edge id="1513" source="MSLoyalty" target="commander"/>
+  <edge id="1514" source="MSLoyalty" target="digital-ios-sdk"/>
+  <edge id="1515" source="MSLoyalty" target="lottie-ios"/>
+  <edge id="1516" source="MSLoyalty" target="mobile-ios-msdesign"/>
+  <edge id="1517" source="MSLoyalty" target="mobile-swift-configuration"/>
+  <edge id="1518" source="MSLoyalty" target="mobile-swift-flagging"/>
+  <edge id="1519" source="MSLoyalty" target="mobile-swift-image"/>
+  <edge id="1520" source="MSLoyalty" target="mobile-swift-json"/>
+  <edge id="1521" source="MSLoyalty" target="mobile-swift-storage"/>
+  <edge id="1522" source="MSLoyalty" target="mobile-swift-telemetry"/>
+  <edge id="1523" source="MSLoyalty" target="mobile-swift-telemetry-adobe"/>
+  <edge id="1524" source="MSLoyalty" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="1525" source="MSLoyalty" target="pathkit"/>
+  <edge id="1526" source="MSLoyalty" target="rainbow"/>
+  <edge id="1527" source="MSLoyalty" target="sdwebimage"/>
+  <edge id="1528" source="MSLoyalty" target="shellout"/>
+  <edge id="1529" source="MSLoyalty" target="spectre"/>
+  <edge id="1530" source="MSLoyalty" target="sqlite.swift"/>
+  <edge id="1531" source="MSLoyalty" target="stubkit"/>
+  <edge id="1532" source="MSLoyalty" target="swift-algorithms"/>
+  <edge id="1533" source="MSLoyalty" target="swift-collections"/>
+  <edge id="1534" source="MSLoyalty" target="swift-custom-dump"/>
+  <edge id="1535" source="MSLoyalty" target="swift-numerics"/>
+  <edge id="1536" source="MSLoyalty" target="swift-snapshot-testing"/>
+  <edge id="1537" source="MSLoyalty" target="swift-syntax"/>
+  <edge id="1538" source="MSLoyalty" target="swiftymocky"/>
+  <edge id="1539" source="MSLoyalty" target="xcodeproj"/>
+  <edge id="1540" source="MSLoyalty" target="xctest-dynamic-overlay"/>
+  <edge id="1541" source="MSLoyalty" target="yams"/>
+  <edge id="1542" source="Depend" target="aexml"/>
+  <edge id="1543" source="Depend" target="chalk"/>
+  <edge id="1544" source="Depend" target="combineext"/>
+  <edge id="1545" source="Depend" target="commander"/>
+  <edge id="1546" source="Depend" target="mobile-ios-msdesign"/>
+  <edge id="1547" source="Depend" target="mobile-swift-configuration"/>
+  <edge id="1548" source="Depend" target="mobile-swift-image"/>
+  <edge id="1549" source="Depend" target="mobile-swift-json"/>
+  <edge id="1550" source="Depend" target="mobile-swift-telemetry"/>
+  <edge id="1551" source="Depend" target="mobile-swift-telemetry-dynatrace"/>
+  <edge id="1552" source="Depend" target="pathkit"/>
+  <edge id="1553" source="Depend" target="rainbow"/>
+  <edge id="1554" source="Depend" target="sdwebimage"/>
+  <edge id="1555" source="Depend" target="shellout"/>
+  <edge id="1556" source="Depend" target="spectre"/>
+  <edge id="1557" source="Depend" target="swift-argument-parser"/>
+  <edge id="1558" source="Depend" target="swift-snapshot-testing"/>
+  <edge id="1559" source="Depend" target="swift-syntax"/>
+  <edge id="1560" source="Depend" target="swiftymocky"/>
+  <edge id="1561" source="Depend" target="xcodeproj"/>
+  <edge id="1562" source="Depend" target="yams"/>
+  <edge id="1563" source="StyleTipsExample" target="StyleTipsExample/StyleTipsExample"/>
+  <edge id="1564" source="StyleTipsExample/StyleTipsExample" target="styletips"/>
+  <edge id="1565" source="StyleTipsExample/StyleTipsExample" target="styletipsmockdata"/>
+  <edge id="1566" source="MS3" target="MS3/MS3SnapshotTests"/>
+  <edge id="1567" source="MS3/MS3SnapshotTests" target="testingsupport"/>
+  <edge id="1568" source="MS3/MS3SnapshotTests" target="stubkit"/>
+  <edge id="1569" source="MS3/MS3SnapshotTests" target="utilities"/>
+  <edge id="1570" source="MS3/MS3SnapshotTests" target="applepay"/>
+  <edge id="1571" source="MS3/MS3SnapshotTests" target="webkitutilities"/>
+  <edge id="1572" source="MS3/MS3SnapshotTests" target="msgraphqlmeshtestingsupport"/>
+  <edge id="1573" source="MS3/MS3SnapshotTests" target="msfeatureflagging"/>
+  <edge id="1574" source="MS3/MS3SnapshotTests" target="msfoundation"/>
+  <edge id="1575" source="MS3/MS3SnapshotTests" target="mstiming"/>
+  <edge id="1576" source="MS3/MS3SnapshotTests" target="storeattributes"/>
+  <edge id="1577" source="MS3/MS3SnapshotTests" target="msdate"/>
+  <edge id="1578" source="MS3/MS3SnapshotTests" target="mslog"/>
+  <edge id="1579" source="MS3/MS3SnapshotTests" target="mserror"/>
+  <edge id="1580" source="MS3/MS3SnapshotTests" target="msbarcodeview"/>
+  <edge id="1581" source="MS3/MS3SnapshotTests" target="msroundshadowview"/>
+  <edge id="1582" source="MS3/MS3SnapshotTests" target="msexecution"/>
+  <edge id="1583" source="MS3/MS3SnapshotTests" target="location"/>
+  <edge id="1584" source="MS3/MS3SnapshotTests" target="msobservable"/>
+  <edge id="1585" source="MS3/MS3SnapshotTests" target="msregion"/>
+  <edge id="1586" source="MS3/MS3SnapshotTests" target="msurl"/>
+  <edge id="1587" source="MS3/MS3SnapshotTests" target="msutils"/>
+  <edge id="1588" source="MS3/MS3SnapshotTests" target="msapicore"/>
+  <edge id="1589" source="MS3/MS3SnapshotTests" target="msanalytics"/>
+  <edge id="1590" source="MS3/MS3SnapshotTests" target="msloyalty"/>
+  <edge id="1591" source="MS3/MS3SnapshotTests" target="mslogincore"/>
+  <edge id="1592" source="MS3/MS3SnapshotTests" target="socialproof"/>
+  <edge id="1593" source="MS3/MS3SnapshotTests" target="configurationkit"/>
+  <edge id="1594" source="MS3/MS3SnapshotTests" target="jsonkit"/>
+  <edge id="1595" source="MS3/MS3SnapshotTests" target="jsonkit"/>
+  <edge id="1596" source="MS3/MS3SnapshotTests" target="msloyaltymocks"/>
+  <edge id="1597" source="MS3/MS3SnapshotTests" target="msloyaltytestingsupport"/>
+  <edge id="1598" source="MS3/MS3SnapshotTests" target="msloyaltymocks"/>
+  <edge id="1599" source="MS3/MS3SnapshotTests" target="msmedalliamocks"/>
+  <edge id="1600" source="MS3/MS3SnapshotTests" target="telemetrykit"/>
+  <edge id="1601" source="MS3/MS3SnapshotTests" target="telemetrytesting"/>
+  <edge id="1602" source="MS3/MS3SnapshotTests" target="optimizely"/>
+  <edge id="1603" source="MS3/MS3SnapshotTests" target="msgraphqlclientmocks"/>
+  <edge id="1604" source="MS3/MS3SnapshotTests" target="flaggingkit"/>
+  <edge id="1605" source="MS3/MS3SnapshotTests" target="apollo"/>
+  <edge id="1606" source="MS3/MS3SnapshotTests" target="apollotestsupport"/>
+  <edge id="1607" source="MS3/MS3SnapshotTests" target="msgraphqlmesh"/>
+  <edge id="1608" source="MS3/MS3SnapshotTests" target="productcontentprovider"/>
+  <edge id="1609" source="MS3/MS3SnapshotTests" target="html"/>
+  <edge id="1610" source="MS3/MS3SnapshotTests" target="recommendationstrategy"/>
+  <edge id="1611" source="MS3/MS3SnapshotTests" target="storefindermocks"/>
+  <edge id="1612" source="MS3/MS3SnapshotTests" target="searchmocks"/>
+  <edge id="1613" source="MS3/MS3SnapshotTests" target="msfoundationmocks"/>
+  <edge id="1614" source="MS3/MS3SnapshotTests" target="enrichedproduct"/>
+  <edge id="1615" source="MS3/MS3SnapshotTests" target="enrichedproductservice"/>
+  <edge id="1616" source="MS3/MS3SnapshotTests" target="enrichedproductservicemocks"/>
+  <edge id="1617" source="MS3/MS3SnapshotTests" target="notices"/>
+  <edge id="1618" source="MS3/MS3SnapshotTests" target="purchaseshub"/>
+  <edge id="1619" source="MS3/MS3SnapshotTests" target="mstimingmocks"/>
+  <edge id="1620" source="MS3/MS3SnapshotTests" target="loyaltyplatformkitmocks"/>
+  <edge id="1621" source="MS3/MS3SnapshotTests" target="digitalrewardsanalytics"/>
+  <edge id="1622" source="MS3/MS3SnapshotTests" target="applewalletpassmocks"/>
+  <edge id="1623" source="MS3/MS3SnapshotTests" target="orderfulfilmentkitmocks"/>
+  <edge id="1624" source="MS3" target="MS3/MS3"/>
+  <edge id="1625" source="MS3/MS3" target="flux"/>
+  <edge id="1626" source="MS3/MS3" target="fluxui"/>
+  <edge id="1627" source="MS3/MS3" target="reachability"/>
+  <edge id="1628" source="MS3/MS3" target="jgprogresshud"/>
+  <edge id="1629" source="MS3/MS3" target="tpkeyboardavoiding"/>
+  <edge id="1630" source="MS3/MS3" target="aeptarget"/>
+  <edge id="1631" source="MS3/MS3" target="aepidentity"/>
+  <edge id="1632" source="MS3/MS3" target="aepsignal"/>
+  <edge id="1633" source="MS3/MS3" target="aepcore"/>
+  <edge id="1634" source="MS3/MS3" target="aeplifecycle"/>
+  <edge id="1635" source="MS3/MS3" target="aepanalytics"/>
+  <edge id="1636" source="MS3/MS3" target="aepassurance"/>
+  <edge id="1637" source="MS3/MS3" target="purchaseshub"/>
+  <edge id="1638" source="MS3/MS3" target="deliverypass"/>
+  <edge id="1639" source="MS3/MS3" target="digitalrewards"/>
+  <edge id="1640" source="MS3/MS3" target="onboarding"/>
+  <edge id="1641" source="MS3/MS3" target="msauth"/>
+  <edge id="1642" source="MS3/MS3" target="otpublishersheadlesssdk"/>
+  <edge id="1643" source="MS3/MS3" target="swrve-mparticle"/>
+  <edge id="1644" source="MS3/MS3" target="mswishlist"/>
+  <edge id="1645" source="MS3/MS3" target="utilities"/>
+  <edge id="1646" source="MS3/MS3" target="medalliadigitalsdk"/>
+  <edge id="1647" source="MS3/MS3" target="mparticle-onetrust"/>
+  <edge id="1648" source="MS3/MS3" target="applepay"/>
+  <edge id="1649" source="MS3/MS3" target="webkitutilities"/>
+  <edge id="1650" source="MS3/MS3" target="msswiftui"/>
+  <edge id="1651" source="MS3/MS3" target="msstrings"/>
+  <edge id="1652" source="MS3/MS3" target="msgraphql"/>
+  <edge id="1653" source="MS3/MS3" target="msgraphqlmesh"/>
+  <edge id="1654" source="MS3/MS3" target="recipes"/>
+  <edge id="1655" source="MS3/MS3" target="mparticle-apple-sdk"/>
+  <edge id="1656" source="MS3/MS3" target="msfeatureflagging"/>
+  <edge id="1657" source="MS3/MS3" target="optimizely"/>
+  <edge id="1658" source="MS3/MS3" target="msui"/>
+  <edge id="1659" source="MS3/MS3" target="lnzcollectionlayouts"/>
+  <edge id="1660" source="MS3/MS3" target="metricmanager"/>
+  <edge id="1661" source="MS3/MS3" target="mstiming"/>
+  <edge id="1662" source="MS3/MS3" target="msfoundation"/>
+  <edge id="1663" source="MS3/MS3" target="devtools"/>
+  <edge id="1664" source="MS3/MS3" target="home"/>
+  <edge id="1665" source="MS3/MS3" target="marketingcloudsdk"/>
+  <edge id="1666" source="MS3/MS3" target="sfmcsdk"/>
+  <edge id="1667" source="MS3/MS3" target="storeattributes"/>
+  <edge id="1668" source="MS3/MS3" target="configurationkit"/>
+  <edge id="1669" source="MS3/MS3" target="msdate"/>
+  <edge id="1670" source="MS3/MS3" target="mspropertywrappers"/>
+  <edge id="1671" source="MS3/MS3" target="mslog"/>
+  <edge id="1672" source="MS3/MS3" target="mserror"/>
+  <edge id="1673" source="MS3/MS3" target="msbarcodeview"/>
+  <edge id="1674" source="MS3/MS3" target="msroundshadowview"/>
+  <edge id="1675" source="MS3/MS3" target="msexecution"/>
+  <edge id="1676" source="MS3/MS3" target="location"/>
+  <edge id="1677" source="MS3/MS3" target="msobservable"/>
+  <edge id="1678" source="MS3/MS3" target="recipesdeeplinks"/>
+  <edge id="1679" source="MS3/MS3" target="msregion"/>
+  <edge id="1680" source="MS3/MS3" target="msurl"/>
+  <edge id="1681" source="MS3/MS3" target="msutils"/>
+  <edge id="1682" source="MS3/MS3" target="msdesignwrapper"/>
+  <edge id="1683" source="MS3/MS3" target="msapicore"/>
+  <edge id="1684" source="MS3/MS3" target="msanalytics"/>
+  <edge id="1685" source="MS3/MS3" target="msloyalty"/>
+  <edge id="1686" source="MS3/MS3" target="mslogincore"/>
+  <edge id="1687" source="MS3/MS3" target="food"/>
+  <edge id="1688" source="MS3/MS3" target="msgraphqlservice"/>
+  <edge id="1689" source="MS3/MS3" target="mshaptics"/>
+  <edge id="1690" source="MS3/MS3" target="identityservice"/>
+  <edge id="1691" source="MS3/MS3" target="socialproof"/>
+  <edge id="1692" source="MS3/MS3" target="storeselector"/>
+  <edge id="1693" source="MS3/MS3" target="imagekit"/>
+  <edge id="1694" source="MS3/MS3" target="imageui"/>
+  <edge id="1695" source="MS3/MS3" target="dynamicmotivation"/>
+  <edge id="1696" source="MS3/MS3" target="departmentlandingpage"/>
+  <edge id="1697" source="MS3/MS3" target="productdetailpage"/>
+  <edge id="1698" source="MS3/MS3" target="searchrecommendationoutfitskit"/>
+  <edge id="1699" source="MS3/MS3" target="msloyaltyui"/>
+  <edge id="1700" source="MS3/MS3" target="productlistingpage"/>
+  <edge id="1701" source="MS3/MS3" target="msmedallia"/>
+  <edge id="1702" source="MS3/MS3" target="telemetrykit"/>
+  <edge id="1703" source="MS3/MS3" target="aistylist"/>
+  <edge id="1704" source="MS3/MS3" target="msloyaltyanalytics"/>
+  <edge id="1705" source="MS3/MS3" target="bankingkit"/>
+  <edge id="1706" source="MS3/MS3" target="adobetelemetry"/>
+  <edge id="1707" source="MS3/MS3" target="remotecontentfulfilmentkit"/>
+  <edge id="1708" source="MS3/MS3" target="flaggingkit"/>
+  <edge id="1709" source="MS3/MS3" target="optimizelyflagging"/>
+  <edge id="1710" source="MS3/MS3" target="socialmediagallerykit"/>
+  <edge id="1711" source="MS3/MS3" target="socialmediagalleryui"/>
+  <edge id="1712" source="MS3/MS3" target="styletipspackage"/>
+  <edge id="1713" source="MS3/MS3" target="apollo"/>
+  <edge id="1714" source="MS3/MS3" target="apollotestsupport"/>
+  <edge id="1715" source="MS3/MS3" target="msgraphqlmeshtestingsupport"/>
+  <edge id="1716" source="MS3/MS3" target="customerorderkit"/>
+  <edge id="1717" source="MS3/MS3" target="orderfulfilmentkit"/>
+  <edge id="1718" source="MS3/MS3" target="remotecontentlistingkit"/>
+  <edge id="1719" source="MS3/MS3" target="inspiration"/>
+  <edge id="1720" source="MS3/MS3" target="storagekit"/>
+  <edge id="1721" source="MS3/MS3" target="debugmenuui"/>
+  <edge id="1722" source="MS3/MS3" target="filestorage"/>
+  <edge id="1723" source="MS3/MS3" target="flaggingoverride"/>
+  <edge id="1724" source="MS3/MS3" target="memorystorage"/>
+  <edge id="1725" source="MS3/MS3" target="productcontentprovider"/>
+  <edge id="1726" source="MS3/MS3" target="personalizedcontent"/>
+  <edge id="1727" source="MS3/MS3" target="html"/>
+  <edge id="1728" source="MS3/MS3" target="recommendationstrategy"/>
+  <edge id="1729" source="MS3/MS3" target="storefinder"/>
+  <edge id="1730" source="MS3/MS3" target="search"/>
+  <edge id="1731" source="MS3/MS3" target="enrichedproduct"/>
+  <edge id="1732" source="MS3/MS3" target="enrichedproductservice"/>
+  <edge id="1733" source="MS3/MS3" target="profile"/>
+  <edge id="1734" source="MS3/MS3" target="optimizelyflaggingintegration"/>
+  <edge id="1735" source="MS3/MS3" target="scanandshop"/>
+  <edge id="1736" source="MS3/MS3" target="overlaycontainer"/>
+  <edge id="1737" source="MS3/MS3" target="dynatracetelemetryintegration"/>
+  <edge id="1738" source="MS3/MS3" target="a11y"/>
+  <edge id="1739" source="MS3/MS3" target="notices"/>
+  <edge id="1740" source="MS3/MS3" target="dynatracetelemetry"/>
+  <edge id="1741" source="MS3/MS3" target="issuereporting"/>
+  <edge id="1742" source="MS3/MS3" target="issuereportingtelemetryintegration"/>
+  <edge id="1743" source="MS3/MS3" target="telemetrylogging"/>
+  <edge id="1744" source="MS3/MS3" target="productdetailpagekit"/>
+  <edge id="1745" source="MS3/MS3" target="remotecontentmessagingkit"/>
+  <edge id="1746" source="MS3/MS3" target="sparks"/>
+  <edge id="1747" source="MS3/MS3" target="remoteproductlistingkit"/>
+  <edge id="1748" source="MS3/MS3" target="applewalletpass"/>
+  <edge id="1749" source="MS3/MS3" target="collectionviewvisibilitymonitoring"/>
+  <edge id="1750" source="MS3" target="MS3/MS3Tests"/>
+  <edge id="1751" source="MS3/MS3Tests" target="stubkit"/>
+  <edge id="1752" source="MS3/MS3Tests" target="xctasync"/>
+  <edge id="1753" source="MS3/MS3Tests" target="utilities"/>
+  <edge id="1754" source="MS3/MS3Tests" target="applepay"/>
+  <edge id="1755" source="MS3/MS3Tests" target="applepaymocks"/>
+  <edge id="1756" source="MS3/MS3Tests" target="msgraphqlmeshtestingsupport"/>
+  <edge id="1757" source="MS3/MS3Tests" target="msfeatureflagging"/>
+  <edge id="1758" source="MS3/MS3Tests" target="mstimingmocks"/>
+  <edge id="1759" source="MS3/MS3Tests" target="msfoundation"/>
+  <edge id="1760" source="MS3/MS3Tests" target="storeattributes"/>
+  <edge id="1761" source="MS3/MS3Tests" target="mserror"/>
+  <edge id="1762" source="MS3/MS3Tests" target="location"/>
+  <edge id="1763" source="MS3/MS3Tests" target="msobservable"/>
+  <edge id="1764" source="MS3/MS3Tests" target="msregion"/>
+  <edge id="1765" source="MS3/MS3Tests" target="msurlmocks"/>
+  <edge id="1766" source="MS3/MS3Tests" target="msutils"/>
+  <edge id="1767" source="MS3/MS3Tests" target="msexecution"/>
+  <edge id="1768" source="MS3/MS3Tests" target="testingsupport"/>
+  <edge id="1769" source="MS3/MS3Tests" target="msanalytics"/>
+  <edge id="1770" source="MS3/MS3Tests" target="mslogincore"/>
+  <edge id="1771" source="MS3/MS3Tests" target="msgraphql"/>
+  <edge id="1772" source="MS3/MS3Tests" target="jsonkit"/>
+  <edge id="1773" source="MS3/MS3Tests" target="socialproof"/>
+  <edge id="1774" source="MS3/MS3Tests" target="customdump"/>
+  <edge id="1775" source="MS3/MS3Tests" target="msloyaltymocks"/>
+  <edge id="1776" source="MS3/MS3Tests" target="msloyaltytestingsupport"/>
+  <edge id="1777" source="MS3/MS3Tests" target="msdate"/>
+  <edge id="1778" source="MS3/MS3Tests" target="msapicore"/>
+  <edge id="1779" source="MS3/MS3Tests" target="msloyalty"/>
+  <edge id="1780" source="MS3/MS3Tests" target="msbarcodeview"/>
+  <edge id="1781" source="MS3/MS3Tests" target="msloyaltymocks"/>
+  <edge id="1782" source="MS3/MS3Tests" target="msmedallia"/>
+  <edge id="1783" source="MS3/MS3Tests" target="msmedalliamocks"/>
+  <edge id="1784" source="MS3/MS3Tests" target="telemetrykit"/>
+  <edge id="1785" source="MS3/MS3Tests" target="telemetrytesting"/>
+  <edge id="1786" source="MS3/MS3Tests" target="adobetelemetry"/>
+  <edge id="1787" source="MS3/MS3Tests" target="optimizely"/>
+  <edge id="1788" source="MS3/MS3Tests" target="aepcore"/>
+  <edge id="1789" source="MS3/MS3Tests" target="msgraphqlclientmocks"/>
+  <edge id="1790" source="MS3/MS3Tests" target="flaggingkit"/>
+  <edge id="1791" source="MS3/MS3Tests" target="remotepricepricingkitmocks"/>
+  <edge id="1792" source="MS3/MS3Tests" target="apollo"/>
+  <edge id="1793" source="MS3/MS3Tests" target="msgraphqlmesh"/>
+  <edge id="1794" source="MS3/MS3Tests" target="apollotestsupport"/>
+  <edge id="1795" source="MS3/MS3Tests" target="productcontentprovider"/>
+  <edge id="1796" source="MS3/MS3Tests" target="orderfulfilmentkitmocks"/>
+  <edge id="1797" source="MS3/MS3Tests" target="personalizedcontent"/>
+  <edge id="1798" source="MS3/MS3Tests" target="personalizedcontentmocks"/>
+  <edge id="1799" source="MS3/MS3Tests" target="html"/>
+  <edge id="1800" source="MS3/MS3Tests" target="recommendationstrategy"/>
+  <edge id="1801" source="MS3/MS3Tests" target="storefindermocks"/>
+  <edge id="1802" source="MS3/MS3Tests" target="searchmocks"/>
+  <edge id="1803" source="MS3/MS3Tests" target="msfoundationmocks"/>
+  <edge id="1804" source="MS3/MS3Tests" target="enrichedproduct"/>
+  <edge id="1805" source="MS3/MS3Tests" target="enrichedproductservice"/>
+  <edge id="1806" source="MS3/MS3Tests" target="enrichedproductservicemocks"/>
+  <edge id="1807" source="MS3/MS3Tests" target="loyaltyplatformkitmocks"/>
+  <edge id="1808" source="MS3/MS3Tests" target="notices"/>
+  <edge id="1809" source="MS3/MS3Tests" target="purchaseshub"/>
+  <edge id="1810" source="MS3/MS3Tests" target="purchaseshubtestdata"/>
+  <edge id="1811" source="MS3/MS3Tests" target="digitalrewardsanalytics"/>
+  <edge id="1812" source="MS3/MS3Tests" target="remotecontentmessagingkitmocks"/>
+  <edge id="1813" source="MS3/MS3Tests" target="remotecontentmessagingkit"/>
+  <edge id="1814" source="MS3/MS3Tests" target="applewalletpassmocks"/>
+  <edge id="1815" source="MS3" target="MS3/MS3UITests"/>
+  <edge id="1816" source="MS3/MS3UITests" target="a11y"/>
+  <edge id="1817" source="MS3/MS3UITests" target="jsonkit"/>
+  <edge id="1818" source="MS3/MS3UITests" target="mocknetworkingkit"/>
+  <edge id="1819" source="MS3/MS3UITests" target="mocknetworkingui"/>
+  <edge id="1820" source="MS3" target="MS3/AppControlWidgetsExtension"/>
+  <edge id="1821" source="MS3" target="MS3/PercyPigWidgetExtension"/>
+  <edge id="1822" source="MS3/PercyPigWidgetExtension" target="msurl"/>
+  <edge id="1823" source="MS3" target="MS3/RichPush"/>
+  <edge id="1824" source="MS3/RichPush" target="swrvesdkcommon"/>
+  <edge id="1825" source="Terminal Notifier" target="Terminal Notifier/&quot;terminal-notifier&quot;"/>
+  <edge id="1826" source="SampleApp" target="SampleApp/SampleApp"/>
+  <edge id="1827" source="Demo" target="Demo/&quot;Loyalty Demo&quot;"/>
+  <edge id="1828" source="Demo/&quot;Loyalty Demo&quot;" target="msloyalty"/>
+  <edge id="1829" source="Demo/&quot;Loyalty Demo&quot;" target="msloyaltyui"/>
+  <edge id="1830" source="Demo/&quot;Loyalty Demo&quot;" target="msutils"/>
+  <edge id="1831" source="Demo/&quot;Loyalty Demo&quot;" target="msdesignwrapper"/>
+  <edge id="1832" source="ProductStockTrawler" target="ProductStockTrawler/&quot;ProductStockTrawler (iOS)&quot;"/>
+  <edge id="1833" source="ProductStockTrawler" target="ProductStockTrawler/&quot;ProductStockTrawler (macOS)&quot;"/>
+  <edge id="1834" source="FastlaneSwiftRunner" target="FastlaneSwiftRunner/FastlaneRunner"/>
+  <edge id="1835" source="MSRoundShadowView" target="msplugins"/>
+  <edge id="1836" source="MSDate" target="msplugins"/>
+  <edge id="1837" source="WebKitUtilities" target="msplugins"/>
+  <edge id="1838" source="Flux" target="msplugins"/>
+  <edge id="1839" source="MS3Mocks" target="msplugins"/>
+  <edge id="1840" source="Location" target="mslog"/>
+  <edge id="1841" source="Location" target="msplugins"/>
+  <edge id="1842" source="MSBarcodeView" target="msplugins"/>
+  <edge id="1843" source="MSBarcodeView" target="mslog"/>
+  <edge id="1844" source="MSBarcodeView" target="testingsupport"/>
+  <edge id="1845" source="MSStrings" target="msplugins"/>
+  <edge id="1846" source="MSError" target="msplugins"/>
+  <edge id="1847" source="StoreAttributes" target="msplugins"/>
+    </edges>
+  </graph>
+</gexf>

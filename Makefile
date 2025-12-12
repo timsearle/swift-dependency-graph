@@ -28,7 +28,7 @@ test:
 
 clean:
 	swift package clean
-	rm -f graph.html graph.json graph.graphml
+	rm -f graph.html graph.json graph.gexf
 
 # Default project path (override with PROJECT=...)
 PROJECT ?= .
@@ -44,8 +44,8 @@ json: release
 	@echo "Generated graph.json"
 
 graphml: release
-	.build/release/DependencyGraph "$(PROJECT)" --format graphml --show-targets > graph.graphml
-	@echo "Generated graph.graphml (open with yEd or Gephi)"
+	.build/release/DependencyGraph "$(PROJECT)" --format graphml --show-targets > graph.gexf
+	@echo "Generated graph.gexf (open with Gephi)"
 
 # Analysis targets
 analyze: release

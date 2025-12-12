@@ -1587,43 +1587,54 @@ struct DependencyGraph: ParsableCommand {
     // MARK: - GraphML Output
     
     func printGraphMLGraph(graph: Graph) {
-        // GraphML format for yEd, Gephi, Cytoscape
+        // GEXF format - Gephi's native format with proper label support
         print("""
         <?xml version="1.0" encoding="UTF-8"?>
-        <graphml xmlns="http://graphml.graphdrawing.org/xmlns"
-                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                 xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
-                 http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-          <key id="type" for="node" attr.name="type" attr.type="string"/>
-          <key id="isTransient" for="node" attr.name="isTransient" attr.type="boolean"/>
-          <key id="isInternal" for="node" attr.name="isInternal" attr.type="boolean"/>
-          <key id="label" for="node" attr.name="label" attr.type="string"/>
-          <graph id="dependencies" edgedefault="directed">
+        <gexf xmlns="http://gexf.net/1.3"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://gexf.net/1.3 http://gexf.net/1.3/gexf.xsd"
+              version="1.3">
+          <meta>
+            <creator>DependencyGraph</creator>
+            <description>iOS Dependency Graph</description>
+          </meta>
+          <graph defaultedgetype="directed" mode="static">
+            <attributes class="node" mode="static">
+              <attribute id="0" title="type" type="string"/>
+              <attribute id="1" title="isTransient" type="boolean"/>
+              <attribute id="2" title="isInternal" type="boolean"/>
+            </attributes>
+            <nodes>
         """)
         
         for (name, node) in graph.nodes {
             let escapedName = escapeXML(name)
             print("""
-                <node id="\(escapedName)">
-                  <data key="label">\(escapedName)</data>
-                  <data key="type">\(node.nodeType.rawValue)</data>
-                  <data key="isTransient">\(node.isTransient)</data>
-                  <data key="isInternal">\(node.isInternal)</data>
-                </node>
+              <node id="\(escapedName)" label="\(escapedName)">
+                <attvalues>
+                  <attvalue for="0" value="\(node.nodeType.rawValue)"/>
+                  <attvalue for="1" value="\(node.isTransient)"/>
+                  <attvalue for="2" value="\(node.isInternal)"/>
+                </attvalues>
+              </node>
             """)
         }
+        
+        print("        </nodes>")
+        print("        <edges>")
         
         for (index, edge) in graph.edges.enumerated() {
             let from = escapeXML(edge.from)
             let to = escapeXML(edge.to)
             print("""
-                <edge id="e\(index)" source="\(from)" target="\(to)"/>
+              <edge id="\(index)" source="\(from)" target="\(to)"/>
             """)
         }
         
         print("""
+            </edges>
           </graph>
-        </graphml>
+        </gexf>
         """)
     }
     
