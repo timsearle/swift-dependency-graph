@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/dependency-graph.json-graph.v1.schema.json",
+  "title": "DependencyGraph JSON Graph v1",
+  "type": "object",
+  "required": ["nodes", "edges", "metadata"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["schemaVersion", "format", "nodeCount", "edgeCount"],
+      "properties": {
+        "schemaVersion": { "type": "integer", "const": 1 },
+        "format": { "type": "string", "const": "json-graph" },
+        "nodeCount": { "type": "integer", "minimum": 0 },
+        "edgeCount": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "type", "isTransient", "isInternal"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["project", "target", "localPackage", "externalPackage"]
+          },
+          "isTransient": { "type": "boolean" },
+          "isInternal": { "type": "boolean" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "target"],
+        "properties": {
+          "source": { "type": "string" },
+          "target": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

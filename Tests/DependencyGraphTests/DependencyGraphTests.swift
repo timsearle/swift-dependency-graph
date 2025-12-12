@@ -429,13 +429,13 @@ final class DependencyGraphTests: XCTestCase {
 
         let appPkg = tempDir.appendingPathComponent("AppPkg")
         let depB = tempDir.appendingPathComponent("SourcePackages").appendingPathComponent("DepB")
-        let depC = tempDir.appendingPathComponent("SourcePackages").appendingPathComponent("DepC")
+        let depC = tempDir.appendingPathComponent("DepC")
 
         try FileManager.default.createDirectory(at: appPkg, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: depB, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: depC, withIntermediateDirectories: true)
 
-        // AppPkg -> DepB (in SourcePackages, which the scanner skips)
+        // AppPkg -> DepB (DepB lives under SourcePackages, which the scanner skips)
         try FileManager.default.createDirectory(at: appPkg.appendingPathComponent("Sources/AppPkg"), withIntermediateDirectories: true)
         try "public struct AppPkg {}".write(to: appPkg.appendingPathComponent("Sources/AppPkg/AppPkg.swift"), atomically: true, encoding: .utf8)
         try """
@@ -449,7 +449,7 @@ final class DependencyGraphTests: XCTestCase {
         )
         """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
-        // DepB -> DepC
+        // DepB -> DepC (DepB is skipped; DepC is discoverable)
         try FileManager.default.createDirectory(at: depB.appendingPathComponent("Sources/DepB"), withIntermediateDirectories: true)
         try "public struct DepB {}".write(to: depB.appendingPathComponent("Sources/DepB/DepB.swift"), atomically: true, encoding: .utf8)
         try """
@@ -458,12 +458,12 @@ final class DependencyGraphTests: XCTestCase {
         let package = Package(
           name: \"DepB\",
           products: [.library(name: \"DepB\", targets: [\"DepB\"])],
-          dependencies: [ .package(path: \"../DepC\") ],
+          dependencies: [ .package(path: \"../../DepC\") ],
           targets: [ .target(name: \"DepB\", dependencies: [\"DepC\"]) ]
         )
         """.write(to: depB.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
-        // DepC (leaf)
+        // DepC (leaf, discoverable local package)
         try FileManager.default.createDirectory(at: depC.appendingPathComponent("Sources/DepC"), withIntermediateDirectories: true)
         try "public struct DepC {}".write(to: depC.appendingPathComponent("Sources/DepC/DepC.swift"), atomically: true, encoding: .utf8)
         try """
@@ -476,29 +476,33 @@ final class DependencyGraphTests: XCTestCase {
         )
         """.write(to: depC.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
-        func parseJSON(_ output: String) throws -> ([String: Any], [[String: Any]], [[String: Any]]) {
+        func parseJSON(_ output: String) throws -> ([[String: Any]], [[String: Any]]) {
             let data = try XCTUnwrap(output.data(using: .utf8))
             let jsonAny = try JSONSerialization.jsonObject(with: data)
             let json = try XCTUnwrap(jsonAny as? [String: Any])
             let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
             let edges = try XCTUnwrap(json["edges"] as? [[String: Any]])
-            return (json, nodes, edges)
+            return (nodes, edges)
         }
 
-        let outputNoFlag = try runBinary(args: [tempDir.path, "--format", "json"])
-        let (_, nodesNoFlag, _) = try parseJSON(outputNoFlag)
-        XCTAssertNil(nodesNoFlag.first(where: { $0["id"] as? String == "depc" }), "Without --spm-edges, skipped transitive deps should not be discovered")
+        func edgeSet(_ edges: [[String: Any]]) -> Set<String> {
+            Set(edges.compactMap { edge in
+                guard let s = edge["source"] as? String, let t = edge["target"] as? String else { return nil }
+                return "\(s)->\(t)"
+            })
+        }
 
-        let outputWithFlag = try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges"])
-        let (_, nodesWithFlag, edgesWithFlag) = try parseJSON(outputWithFlag)
+        let (nodesNoFlag, edgesNoFlag) = try parseJSON(try runBinary(args: [tempDir.path, "--format", "json"]))
+        XCTAssertNotNil(nodesNoFlag.first(where: { $0["id"] as? String == "depc" }))
+        XCTAssertFalse(edgeSet(edgesNoFlag).contains("depb->depc"), "Without --spm-edges, should not invent DepB->DepC edge")
 
-        XCTAssertNotNil(nodesWithFlag.first(where: { $0["id"] as? String == "depc" }), "With --spm-edges, DepC should be discovered")
+        let (nodesWithFlag, edgesWithFlag) = try parseJSON(try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges"]))
+        XCTAssertTrue(edgeSet(edgesWithFlag).contains("depb->depc"), "With --spm-edges, should include DepB->DepC transitive edge")
 
-        let edgeSet = Set<String>(edgesWithFlag.compactMap { edge in
-            guard let s = edge["source"] as? String, let t = edge["target"] as? String else { return nil }
-            return "\(s)->\(t)"
-        })
-        XCTAssertTrue(edgeSet.contains("depb->depc"), "With --spm-edges, should include DepB->DepC transitive edge")
+        let depcNodes = nodesWithFlag.filter { $0["id"] as? String == "depc" }
+        XCTAssertEqual(depcNodes.count, 1, "Should not create duplicate nodes for the same package identity")
+        XCTAssertEqual(depcNodes.first?["type"] as? String, "localPackage")
+        XCTAssertEqual(depcNodes.first?["isInternal"] as? Bool, true)
     }
     
     // MARK: - Helper Methods

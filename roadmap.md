@@ -27,6 +27,8 @@ Key risk: without authoritative dependency edges, pinch-point analysis can be mi
 ## Phase 0 — Lock down a correctness contract (tests first)
 **Objective:** define and test the exact graph semantics we promise.
 
+Status: complete (schemaVersion=1 + integration contract tests in place).
+
 Deliverables:
 - Documented graph model:
   - Project → Target

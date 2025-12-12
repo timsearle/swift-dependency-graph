@@ -71,6 +71,23 @@ make graphml PROJECT=/path/to/ios-project   # Alias for make gexf
 
 ## Features
 
+## Graph Model (contract)
+
+The tool emits a directed graph with these node types:
+- `project`: Xcode project/workspace root
+- `target`: Xcode build target node, identified as `ProjectName/TargetName`
+- `localPackage`: a local Swift package (node id is the lowercased package identity)
+- `externalPackage`: a remote Swift package (node id is the lowercased package identity)
+
+Edges:
+- `project -> target` (when `--show-targets`)
+- `target -> package` (when `--show-targets`)
+- `project -> package`
+- `package -> package` (only when `--spm-edges` is enabled)
+
+JSON schema:
+- `--format json` emits `metadata.schemaVersion = 1` and follows `Schemas/dependency-graph.json-graph.v1.schema.json`.
+
 ### Dependency Sources
 
 The tool scans for and merges dependencies from:

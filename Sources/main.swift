@@ -454,9 +454,10 @@ struct DependencyGraph: ParsableCommand {
                 }
             }
         }
-        
-        guard !dependencies.isEmpty else { return nil }
-        
+
+        // A local package is always explicit, even if it has no dependencies.
+        explicitPackages.insert(projectName)
+
         return DependencyInfo(
             projectPath: projectPath,
             projectName: projectName,
@@ -775,22 +776,26 @@ struct DependencyGraph: ParsableCommand {
     func buildGraph(from dependencies: [DependencyInfo], showTargets: Bool) -> Graph {
         var graph = Graph()
         
+        // Local packages are identified by having a Package.swift (targets are empty) and
+        // by explicitly including their own identity.
+        let localPackageNames = Set(
+            dependencies
+                .filter { $0.targets.isEmpty && $0.explicitPackages.contains($0.projectName.lowercased()) }
+                .map { $0.projectName.lowercased() }
+        )
+
         // Collect all explicit packages across all projects
         var allExplicitPackages = Set<String>()
         for info in dependencies {
             allExplicitPackages.formUnion(info.explicitPackages)
-            // Local packages (those with Package.swift) are explicit
-            if !info.dependencies.isEmpty {
+            if localPackageNames.contains(info.projectName.lowercased()) {
                 allExplicitPackages.insert(info.projectName.lowercased())
             }
         }
         
-        // Build set of local package names for reference
-        let localPackageNames = Set(dependencies.filter { !$0.dependencies.isEmpty }.map { $0.projectName.lowercased() })
-        
         for info in dependencies {
             // Determine if this is a local package or Xcode project
-            let isLocalPackage = !info.dependencies.isEmpty && info.targets.isEmpty
+            let isLocalPackage = localPackageNames.contains(info.projectName.lowercased()) && info.targets.isEmpty
             let nodeType: NodeType = isLocalPackage ? .localPackage : .project
             
             graph.addNode(info.projectName, nodeType: nodeType, isTransient: false)
