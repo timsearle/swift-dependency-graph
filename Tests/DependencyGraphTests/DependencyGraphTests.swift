@@ -21,6 +21,40 @@ final class DependencyGraphTests: XCTestCase {
     
     // MARK: - Package.resolved Parsing Tests
     
+    func testRootSwiftPackageRendersAsLocalPackageEvenWithPackageResolved() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let switRoot = tempDir.appendingPathComponent("Swit")
+        try FileManager.default.createDirectory(at: switRoot, withIntermediateDirectories: true)
+
+        try "// swift-tools-version: 5.9\nimport PackageDescription\nlet package = Package(name: \"Swit\", products: [], targets: [])\n".write(to: switRoot.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        let resolvedContent = """
+        {
+          \"pins\" : [
+            {
+              \"identity\" : \"alamofire\",
+              \"kind\" : \"remoteSourceControl\",
+              \"location\" : \"https://github.com/Alamofire/Alamofire.git\",
+              \"state\" : { \"version\" : \"5.8.1\" }
+            }
+          ],
+          \"version\" : 2
+        }
+        """
+        try resolvedContent.write(to: switRoot.appendingPathComponent("Package.resolved"), atomically: true, encoding: .utf8)
+
+        let output = try runBinary(args: [switRoot.path, "--format", "json"])
+        let data = try XCTUnwrap(output.data(using: .utf8))
+        let jsonAny = try JSONSerialization.jsonObject(with: data)
+        let json = try XCTUnwrap(jsonAny as? [String: Any])
+        let nodesArray = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+
+        let rootNode = nodesArray.first(where: { $0["id"] as? String == "Swit" })
+        XCTAssertEqual(rootNode?["type"] as? String, "localPackage")
+    }
+
     func testParsePackageResolvedV2() async throws {
         // Create a temp directory with our test fixture
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

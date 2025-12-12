@@ -1028,12 +1028,21 @@ struct DependencyGraph: ParsableCommand {
         // Process Package.resolved entries
         for resolvedInfo in resolved {
             let pbxInfo = pbxprojMap[resolvedInfo.projectName]
-            
+            let localInfo = localPackageMap[resolvedInfo.projectName.lowercased()]
+
+            // If we have a Package.swift at the same root as Package.resolved, treat this as a local Swift package root
+            // (otherwise the resolved entry would "shadow" the local package and we render it as an Xcode project).
+            var explicit = Set(pbxInfo?.explicitPackages ?? [])
+            if let localInfo {
+                explicit.formUnion(localInfo.explicitPackages)
+                explicit.insert(resolvedInfo.projectName.lowercased())
+            }
+
             let mergedInfo = DependencyInfo(
                 projectPath: resolvedInfo.projectPath,
                 projectName: resolvedInfo.projectName,
                 dependencies: resolvedInfo.dependencies,
-                explicitPackages: pbxInfo?.explicitPackages ?? [],
+                explicitPackages: explicit,
                 targets: pbxInfo?.targets ?? []
             )
             merged.append(mergedInfo)
