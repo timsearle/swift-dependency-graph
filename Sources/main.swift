@@ -315,7 +315,12 @@ struct DependencyGraph: ParsableCommand {
         var graph = buildGraph(from: allDependencies, showTargets: showTargets)
 
         if spmEdges {
-            augmentGraphWithSwiftPMEdges(graph: &graph, packageRoots: localPackages)
+            // Performance: in Xcode project mode, only run SwiftPM graph resolution for local packages that are
+            // explicitly referenced by the Xcode project(s).
+            let localIdentities = Set(localPackages.map { $0.projectName.lowercased() })
+            let referencedLocalIdentities = Set(pbxprojInfos.flatMap { $0.explicitPackages }).intersection(localIdentities)
+            let spmRoots = referencedLocalIdentities.isEmpty ? localPackages : localPackages.filter { referencedLocalIdentities.contains($0.projectName.lowercased()) }
+            augmentGraphWithSwiftPMEdges(graph: &graph, packageRoots: spmRoots, hideTransient: hideTransient)
         }
         
         // Filter transient dependencies if requested
@@ -950,7 +955,7 @@ struct DependencyGraph: ParsableCommand {
         return try? decoder.decode(SwiftPMShowDependenciesNode.self, from: data)
     }
 
-    func augmentGraphWithSwiftPMEdges(graph: inout Graph, packageRoots: [DependencyInfo]) {
+    func augmentGraphWithSwiftPMEdges(graph: inout Graph, packageRoots: [DependencyInfo], hideTransient: Bool) {
         var existingEdges = Set(graph.edges.map { "\($0.from)->\($0.to)" })
 
         func addEdgeUnique(from: String, to: String) {
@@ -967,6 +972,10 @@ struct DependencyGraph: ParsableCommand {
         )
 
         func walk(parentNodeName: String, node: SwiftPMShowDependenciesNode, depth: Int) {
+            if hideTransient && depth >= 1 {
+                return
+            }
+
             for dep in node.dependencies ?? [] {
                 let depIdentity = dep.identity.lowercased()
                 let depNodeName = localPackageNodeNameByIdentity[depIdentity] ?? depIdentity
