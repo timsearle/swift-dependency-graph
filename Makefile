@@ -1,4 +1,4 @@
-.PHONY: build release test clean html json dot gexf graphml analyze analyze-internal help
+.PHONY: build release test clean html html-fast html-full json dot gexf graphml analyze analyze-internal help
 
 # Default target
 help:
@@ -8,6 +8,8 @@ help:
 	@echo "  make test             - Run tests"
 	@echo "  make clean            - Clean build artifacts"
 	@echo "  make html             - Generate HTML graph and open in browser"
+	@echo "  make html-fast        - Recommended: targets + hide transient"
+	@echo "  make html-full        - Full: targets + SwiftPM JSON + spm-edges"
 	@echo "  make json             - Export JSON graph format"
 	@echo "  make dot              - Export Graphviz DOT format"
 	@echo "  make gexf             - Export GEXF format (for Gephi)"
@@ -24,9 +26,9 @@ help:
 	@echo "  EXTRA_ARGS=...         (passed through to CLI)"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make html PROJECT=/path/to/MyApp" 
-	@echo "  make html PROJECT=/path/to/MyApp HIDE_TRANSIENT=1"
-	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"
+	@echo "  make html-fast PROJECT=/path/to/MyApp"
+	@echo "  make html-full PROJECT=/path/to/MyApp"
+	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"
 	@echo "  make html PROJECT=/path/to/MyApp SWIFTPM_JSON=1"
 	@echo "  make json PROJECT=/path/to/MyApp HIDE_TRANSIENT=1"
 
@@ -73,6 +75,13 @@ html: release
 	.build/release/DependencyGraph "$(PROJECT)" --format html $(CLI_FLAGS) $(EXTRA_ARGS) > graph.html
 	@echo "Generated graph.html"
 	open graph.html
+
+# Opinionated HTML journeys
+html-fast: release
+	HIDE_TRANSIENT=1 SHOW_TARGETS=1 SPM_EDGES=0 SWIFTPM_JSON=0 $(MAKE) --no-print-directory html PROJECT="$(PROJECT)" EXTRA_ARGS="$(EXTRA_ARGS)"
+
+html-full: release
+	HIDE_TRANSIENT=1 SHOW_TARGETS=1 SPM_EDGES=1 SWIFTPM_JSON=1 $(MAKE) --no-print-directory html PROJECT="$(PROJECT)" EXTRA_ARGS="$(EXTRA_ARGS)"
 
 json: release
 	.build/release/DependencyGraph "$(PROJECT)" --format json $(CLI_FLAGS) $(EXTRA_ARGS) > graph.json

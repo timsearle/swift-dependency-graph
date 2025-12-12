@@ -64,9 +64,12 @@ Variables:
 
 ```bash
 # Interactive HTML (recommended)
-make html PROJECT=/path/to/ios-project
+make html-fast PROJECT=/path/to/ios-project
 
-# Include SwiftPM package→package edges
+# Full graph (SwiftPM JSON + spm-edges)
+make html-full PROJECT=/path/to/ios-project
+
+# Include SwiftPM package→package edges (manual)
 make html PROJECT=/path/to/ios-project SPM_EDGES=1
 
 # Use SwiftPM JSON to derive direct deps for local packages (instead of Package.swift regex)
