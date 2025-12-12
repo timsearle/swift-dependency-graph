@@ -241,6 +241,9 @@ struct DependencyGraph: ParsableCommand {
 
     @Flag(name: .long, help: "Include SwiftPM package-to-package edges (swift package show-dependencies)")
     var spmEdges: Bool = false
+
+    @Flag(name: .long, help: "Use SwiftPM JSON (show-dependencies) instead of regex parsing Package.swift")
+    var swiftpmJSON: Bool = false
     
     mutating func run() throws {
         let fileManager = FileManager.default
@@ -289,7 +292,7 @@ struct DependencyGraph: ParsableCommand {
                     pbxprojInfos.append(info)
                 }
             } else if fileURL.lastPathComponent == "Package.swift" {
-                if let info = parsePackageSwift(at: fileURL) {
+                if let info = parsePackageSwift(at: fileURL, useSwiftPMJSON: swiftpmJSON) {
                     localPackages.append(info)
                 }
             }
@@ -544,7 +547,7 @@ struct DependencyGraph: ParsableCommand {
     
     // MARK: - Package.swift Parsing
     
-    func parsePackageSwift(at url: URL) -> DependencyInfo? {
+    func parsePackageSwift(at url: URL, useSwiftPMJSON: Bool) -> DependencyInfo? {
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         
         let projectPath = url.deletingLastPathComponent().path
@@ -552,6 +555,24 @@ struct DependencyGraph: ParsableCommand {
         
         var dependencies: [String] = []
         var explicitPackages = Set<String>()
+
+        if useSwiftPMJSON {
+            if let rootNode = loadSwiftPMShowDependencies(packageRoot: url.deletingLastPathComponent()) {
+                let direct = (rootNode.dependencies ?? []).map { $0.identity.lowercased() }
+                dependencies.append(contentsOf: direct)
+                explicitPackages.formUnion(direct)
+            }
+
+            explicitPackages.insert(projectName)
+
+            return DependencyInfo(
+                projectPath: projectPath,
+                projectName: projectName,
+                dependencies: dependencies,
+                explicitPackages: explicitPackages,
+                targets: []
+            )
+        }
         
         // Parse .package(...) declarations to find dependencies
         // Matches: .package(url: "...", ...) and .package(name: "...", path: "...")
