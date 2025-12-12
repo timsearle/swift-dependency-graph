@@ -99,8 +99,10 @@ struct Graph {
     mutating func addNode(_ name: String, nodeType: NodeType, isTransient: Bool = false) {
         if let existing = nodes[name] {
             // Allow upgrading node type (e.g. externalPackage -> localPackage) and clearing transient.
+            // Prefer localPackage over project if both are discovered for the same id.
             let upgradedType: NodeType
-            if existing.nodeType == .externalPackage && nodeType == .localPackage {
+            if (existing.nodeType == .externalPackage && nodeType == .localPackage) ||
+               (existing.nodeType == .project && nodeType == .localPackage) {
                 upgradedType = .localPackage
             } else {
                 upgradedType = existing.nodeType
@@ -1732,14 +1734,25 @@ struct DependencyGraph: ParsableCommand {
         function showNodeInfo(nodeId) {
             const node = allNodes.find(n => n.id === nodeId);
             if (!node) return;
-            
+
             const deps = adjacencyMap[nodeId]?.deps || [];
             const dependents = adjacencyMap[nodeId]?.dependents || [];
-            
+
+            const typeLabel = (() => {
+                switch (node.nodeType) {
+                    case 'project': return 'Xcode Project';
+                    case 'target': return 'Build Target';
+                    case 'localPackage': return 'Internal Package';
+                    case 'externalPackage': return node.isTransient ? 'Transient Package' : 'External Package';
+                    default: return node.nodeType;
+                }
+            })();
+
             document.getElementById('selected-node-name').textContent = node.label;
-            document.getElementById('selected-node-deps').innerHTML = 
+            document.getElementById('selected-node-deps').innerHTML =
+                `<strong>Type:</strong> ${typeLabel}<br>` +
                 `<strong>Dependencies:</strong> ${deps.length}<br>` +
-                `<strong>Used by:</strong> ${dependents.length} projects`;
+                `<strong>Used by:</strong> ${dependents.length} nodes`;
             document.getElementById('node-info').style.display = 'block';
         }
         
@@ -1884,11 +1897,14 @@ struct DependencyGraph: ParsableCommand {
             const currentNodes = nodes.get();
             const projectCount = currentNodes.filter(n => n.nodeType === 'project').length;
             const targetCount = currentNodes.filter(n => n.nodeType === 'target').length;
-            const depCount = currentNodes.filter(n => n.nodeType === 'dependency').length;
+            const localCount = currentNodes.filter(n => n.nodeType === 'localPackage').length;
+            const externalCount = currentNodes.filter(n => n.nodeType === 'externalPackage').length;
             const transientCount = currentNodes.filter(n => n.isTransient).length;
+
             document.getElementById('stat-projects').textContent = projectCount;
             document.getElementById('stat-targets').textContent = targetCount;
-            document.getElementById('stat-deps').textContent = depCount;
+            document.getElementById('stat-local').textContent = localCount;
+            document.getElementById('stat-external').textContent = externalCount;
             document.getElementById('stat-transient').textContent = transientCount;
             document.getElementById('stat-edges').textContent = edgeCount;
         }

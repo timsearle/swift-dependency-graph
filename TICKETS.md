@@ -9,16 +9,16 @@ Repo (private): https://github.com/timsearle/dependency-graph
 - JSON schema file exists: `Schemas/dependency-graph.json-graph.v1.schema.json`.
 - Integration-style contract tests exist in `Tests/DependencyGraphTests/DependencyGraphTests.swift`.
 
-### Phase 1 (PBXProj parser) — IN PROGRESS (good baseline)
-- Added Tuist `XcodeProj` SwiftPM dependency.
-- `parsePBXProj(at:)` now prefers typed parsing via `XcodeProj(pathString:)` with a legacy regex fallback.
-- New fixture added for local SPM references:
-  - `Tests/DependencyGraphTests/Fixtures/project_with_local_packages.pbxproj`
-  - Test added: `testParsePBXProjLocalSwiftPackageReferences`
+### Phase 1 (PBXProj parser) — DONE (typed parsing + tests)
+- PBXProj parsing uses Tuist `XcodeProj` (typed) with legacy fallback.
+- Local package product deps resolved more correctly (incl. product-name mismatch fixture).
+- Target→target edges modeled (when `--show-targets`).
+- Workspace support: parses `.xcworkspace/contents.xcworkspacedata` and includes referenced projects.
 
-### Phase 2 (SwiftPM edges) — PARTIAL
+### Phase 2 (SwiftPM edges) — WORKING
 - `--spm-edges` uses `swift package show-dependencies --format json` to add package→package edges.
-- Tests cover a local transitive edge case.
+- With `--hide-transient`, direct SwiftPM deps remain and deeper deps are treated as transient.
+- Performance: when `--hide-transient`, SwiftPM walk stops at depth 1; in Xcode-project mode only referenced local packages are resolved.
 
 ## Handover notes
 
@@ -28,19 +28,14 @@ Repo (private): https://github.com/timsearle/dependency-graph
 - Example: `.build/release/DependencyGraph <dir> --format json --show-targets --spm-edges`
 
 ### Known limitations / correctness gaps
-1) **Local package product mapping in PBXProj typed parsing**
-   - In Xcode projects, `XCSwiftPackageProductDependency` for *local* packages often has **no `.package` reference**.
-   - Current typed parser falls back to using `product.productName.lowercased()` as an identity; this is not always correct.
-   - Desired: resolve local product dep → local package identity by using the project’s `XCLocalSwiftPackageReference` list and/or additional PBX metadata.
+1) **Ambiguous local product → package identity (multiple locals)**
+   - If a project has multiple local package references and a local `XCSwiftPackageProductDependency` has no `.package` ref, mapping can still be ambiguous.
 
-2) **Project/workspace scope**
-   - Still scans directories for `.xcodeproj/project.pbxproj`; does not yet model `.xcworkspace` aggregates.
+2) **Package.swift correctness**
+   - Still regex-based; roadmap Phase 3 is to move to SwiftPM JSON outputs.
 
-3) **Target-to-target dependencies**
-   - Not yet modeled. Need edges between PBX targets.
-
-4) **Output stability**
-   - Legacy regex fallback remains; goal in Phase 1 is to fully rely on typed parsing with equivalent/better coverage.
+3) **Node identifier collisions**
+   - If an Xcode project and a local package share the same id, the graph may collapse them into one node (schema v1 limitation).
 
 ## Next tickets (recommended ordering)
 

@@ -16,7 +16,8 @@ The graph must support:
 
 ## Current State (as-is)
 - Parses `Package.resolved` pins (no package→package edges available there).
-- Parses `project.pbxproj` via regex for repositoryURL and a simplified target packageProductDependencies.
+- Parses `project.pbxproj` via Tuist `XcodeProj` (typed) with legacy regex fallback.
+- Parses `.xcworkspace/contents.xcworkspacedata` to include referenced `.xcodeproj`.
 - Parses `Package.swift` via regex for `.package(...)` declarations.
 - Produces outputs: ASCII, DOT, HTML, JSON, and GEXF (`--format gexf`, with legacy alias `--format graphml`).
 
@@ -46,7 +47,7 @@ Tests:
 ## Phase 1 — Replace PBXProj regex parsing with a real parser (without breaking outputs)
 **Objective:** correct target/product/package mapping from Xcode projects.
 
-Status: in progress — now uses Tuist XcodeProj for typed parsing with a legacy regex fallback.
+Status: mostly complete — uses Tuist XcodeProj for typed parsing with a legacy regex fallback.
 
 Work items:
 - Introduce a pbxproj parser dependency (Swift library) and build a typed model.
