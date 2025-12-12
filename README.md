@@ -28,7 +28,7 @@ make html PROJECT=/path/to/root
 
 | Option | Description |
 |--------|-------------|
-| `--format <format>` | Output format: html, json, dot, gexf, or analyze (legacy: tree, graph, graphml; default: graph) |
+| `--format <format>` | Output format: html, json, dot, gexf, graphml, or analyze (default: html) |
 | `--hide-transient` | Hide transient (non-explicit) dependencies |
 | `--show-targets` | Show Xcode build targets in the graph |
 | `--internal-only` | In analyze mode, only show internal modules (not external packages) |
@@ -39,13 +39,11 @@ make html PROJECT=/path/to/root
 
 | Format | Description |
 |--------|-------------|
-| `tree` | ASCII tree view (original) |
-| `graph` | ASCII box diagram |
 | `dot` | Graphviz DOT format |
 | `html` | **Interactive web visualization** |
 | `json` | JSON graph format (D3.js, Cytoscape.js, vis.js) |
 | `gexf` | GEXF format (Gephi) |
-| `graphml` | Legacy alias for `gexf` (currently outputs GEXF, not GraphML) |
+| `graphml` | GraphML format |
 | `analyze` | **Pinch point analysis** for modularization |
 
 ### Makefile interface
@@ -81,8 +79,8 @@ make html PROJECT=/path/to/ios-project HIDE_TRANSIENT=1
 # Export for external tools
 make json PROJECT=/path/to/ios-project      # For D3.js, web tools
 make gexf PROJECT=/path/to/ios-project      # For Gephi
+make graphml PROJECT=/path/to/ios-project   # GraphML
 make dot PROJECT=/path/to/ios-project       # Graphviz
-make graphml PROJECT=/path/to/ios-project   # Alias for make gexf
 
 # Analyze pinch points
 make analyze PROJECT=/path/to/ios-project
@@ -217,7 +215,7 @@ Module                                    Direct  Transitive  Vuln Score
    - `PackageResolved`: Codable struct for parsing Package.resolved (v1 & v2 formats)
    - `DependencyInfo`: Project name, path, dependencies, explicit packages, and targets
    - `TargetInfo`: Xcode target with package dependencies
-   - `OutputFormat`: Enum for tree/graph/dot/html
+   - `OutputFormat`: Enum for html/json/dot/gexf/graphml/analyze
    - `NodeType`: Enum for project/target/dependency
 
 2. **Graph Data Structures** (lines 80-130)

@@ -13,7 +13,7 @@ help:
 	@echo "  make json             - Export JSON graph format"
 	@echo "  make dot              - Export Graphviz DOT format"
 	@echo "  make gexf             - Export GEXF format (for Gephi)"
-	@echo "  make graphml          - Alias for make gexf (legacy name)"
+	@echo "  make graphml          - Export GraphML format"
 	@echo "  make analyze          - Run pinch point analysis"
 	@echo "  make analyze-internal - Run analysis for internal modules only"
 	@echo ""
@@ -44,7 +44,7 @@ test:
 
 clean:
 	swift package clean
-	rm -f graph.html graph.json graph.gexf
+	rm -f graph.html graph.json graph.gexf graph.graphml graph.dot
 
 # Default project path (override with PROJECT=...)
 PROJECT ?= .
@@ -95,7 +95,9 @@ gexf: release
 	.build/release/DependencyGraph "$(PROJECT)" --format gexf $(CLI_FLAGS) $(EXTRA_ARGS) > graph.gexf
 	@echo "Generated graph.gexf (open with Gephi)"
 
-graphml: gexf
+graphml: release
+	.build/release/DependencyGraph "$(PROJECT)" --format graphml $(CLI_FLAGS) $(EXTRA_ARGS) > graph.graphml
+	@echo "Generated graph.graphml"
 
 # Analysis targets
 analyze: release

@@ -62,14 +62,12 @@ struct TargetInfo: Sendable {
 }
 
 enum OutputFormat: String, ExpressibleByArgument, CaseIterable {
-    case tree
-    case graph
-    case dot
     case html
-    case analyze
     case json      // JSON graph format for D3.js, Cytoscape, etc.
+    case dot
     case gexf      // GEXF for Gephi
-    case graphml   // Legacy alias for gexf (not GraphML)
+    case graphml   // GraphML
+    case analyze
 }
 
 // MARK: - Graph Data Structures
@@ -233,8 +231,8 @@ struct DependencyGraph: ParsableCommand {
     @Argument(help: "Project root directory (can contain an .xcodeproj/.xcworkspace and/or a root Package.swift)")
     var directory: String
     
-    @Option(name: .shortAndLong, help: "Output format: html, json, dot, gexf, or analyze (legacy: tree, graph, graphml)")
-    var format: OutputFormat = .graph
+    @Option(name: .shortAndLong, help: "Output format: html, json, dot, gexf, graphml, or analyze")
+    var format: OutputFormat = .html
     
     @Flag(name: .long, help: "Hide transient (non-explicit) dependencies")
     var hideTransient: Bool = false
@@ -377,23 +375,7 @@ struct DependencyGraph: ParsableCommand {
         
         graph.computeLayers()
 
-        // Legacy format notices (TTY-only) to help guide people to the modern UX.
         switch format {
-        case .tree:
-            eprint("Note: --format tree is legacy; prefer --format html/json.")
-        case .graph:
-            eprint("Note: --format graph is legacy; prefer --format html/json.")
-        case .graphml:
-            eprint("Note: --format graphml is a legacy alias for --format gexf (not GraphML).")
-        default:
-            break
-        }
-        
-        switch format {
-        case .tree:
-            printTreeGraph(dependencies: allDependencies)
-        case .graph:
-            printVisualGraph(graph: graph)
         case .dot:
             printDotGraph(graph: graph)
         case .html:
@@ -402,7 +384,9 @@ struct DependencyGraph: ParsableCommand {
             printPinchPointAnalysis(graph: graph, internalOnly: internalOnly)
         case .json:
             printJSONGraph(graph: graph)
-        case .graphml, .gexf:
+        case .gexf:
+            printGEXFGraph(graph: graph)
+        case .graphml:
             printGraphMLGraph(graph: graph)
         }
     }
@@ -1345,94 +1329,6 @@ struct DependencyGraph: ParsableCommand {
         return filtered
     }
     
-    // MARK: - Visual Graph Output
-    
-    func printVisualGraph(graph: Graph) {
-        let layers = graph.nodesByLayer()
-        
-        print("\n" + String(repeating: "═", count: 70))
-        print("  DEPENDENCY GRAPH  ◆ = Project  ○ = Dependency")
-        print(String(repeating: "═", count: 70) + "\n")
-        
-        var canvas = ASCIICanvas()
-        var nodePositions: [String: (x: Int, y: Int, width: Int)] = [:]
-        
-        let boxHeight = 4
-        let horizontalSpacing = 4
-        let verticalSpacing = 3
-        var currentY = 1
-        
-        // Draw nodes layer by layer
-        for (layerIndex, layer) in layers.enumerated() {
-            var currentX = 2
-            
-            for nodeName in layer {
-                let isProject = graph.nodes[nodeName]?.isProject ?? false
-                let (boxWidth, _) = canvas.drawBox(label: nodeName, x: currentX, y: currentY, isProject: isProject)
-                nodePositions[nodeName] = (x: currentX, y: currentY, width: boxWidth)
-                currentX += boxWidth + horizontalSpacing
-            }
-            
-            // Draw edges to next layer
-            if layerIndex < layers.count - 1 {
-                let edgeY = currentY + boxHeight - 1
-                canvas.ensureSize(width: canvas.width, height: edgeY + verticalSpacing)
-                
-                for nodeName in layer {
-                    guard let pos = nodePositions[nodeName] else { continue }
-                    let deps = graph.dependencies(of: nodeName)
-                    
-                    if !deps.isEmpty {
-                        let startX = pos.x + pos.width / 2
-                        // Draw vertical line down from node
-                        canvas.drawText("│", x: startX, y: currentY + 3)
-                        
-                        if deps.count == 1 {
-                            canvas.drawText("▼", x: startX, y: currentY + 4)
-                        } else {
-                            // Draw branching for multiple deps
-                            canvas.drawText("┴", x: startX, y: currentY + 4)
-                            let depPositions = deps.compactMap { nodePositions[$0] ?? nil }
-                            if depPositions.isEmpty {
-                                // Dependencies are in next layer, draw arrows
-                                var arrowX = startX - (deps.count - 1)
-                                for (i, _) in deps.enumerated() {
-                                    let arrow = i == deps.count / 2 ? "▼" : "▼"
-                                    canvas.drawText(arrow, x: arrowX, y: currentY + 5)
-                                    arrowX += 2
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            currentY += boxHeight + verticalSpacing
-        }
-        
-        print(canvas.render())
-        
-        // Print legend and connections
-        print("\n" + String(repeating: "─", count: 70))
-        print("CONNECTIONS:")
-        print(String(repeating: "─", count: 70))
-        
-        for (nodeName, node) in graph.nodes.sorted(by: { $0.key < $1.key }) {
-            let deps = graph.dependencies(of: nodeName)
-            if !deps.isEmpty {
-                let marker = node.isProject ? "◆" : "○"
-                print("\(marker) \(nodeName)")
-                for (i, dep) in deps.sorted().enumerated() {
-                    let prefix = i == deps.count - 1 ? "  └──▶" : "  ├──▶"
-                    print("\(prefix) \(dep)")
-                }
-            }
-        }
-        
-        // Statistics
-        printStatistics(graph: graph)
-    }
-    
     // MARK: - DOT Graph Output
     
     func escapeDotIdentifier(_ name: String) -> String {
@@ -2150,69 +2046,6 @@ struct DependencyGraph: ParsableCommand {
             .replacingOccurrences(of: "\t", with: "\\t")
     }
 
-    // MARK: - Tree Output (Original)
-    
-    func printTreeGraph(dependencies: [DependencyInfo]) {
-        var allDeps = Set<String>()
-        for info in dependencies {
-            for dep in info.dependencies {
-                allDeps.insert(dep)
-            }
-        }
-        
-        var depToProjects: [String: [String]] = [:]
-        for dep in allDeps {
-            depToProjects[dep] = []
-        }
-        for info in dependencies {
-            for dep in info.dependencies {
-                depToProjects[dep, default: []].append(info.projectName)
-            }
-        }
-        
-        print("\n" + String(repeating: "=", count: 60))
-        print("DEPENDENCY GRAPH")
-        print(String(repeating: "=", count: 60))
-        
-        for info in dependencies {
-            print("\n┌─ \(info.projectName)")
-            print("│  Path: \(info.projectPath)")
-            print("│")
-            
-            let deps = info.dependencies.sorted()
-            for (index, dep) in deps.enumerated() {
-                let isLast = index == deps.count - 1
-                let prefix = isLast ? "└──" : "├──"
-                let usedBy = depToProjects[dep] ?? []
-                let sharedIndicator = usedBy.count > 1 ? " [shared by \(usedBy.count) projects]" : ""
-                print("│  \(prefix) \(dep)\(sharedIndicator)")
-            }
-        }
-        
-        let sharedDeps = depToProjects.filter { $0.value.count > 1 }.sorted { $0.key < $1.key }
-        if !sharedDeps.isEmpty {
-            print("\n" + String(repeating: "=", count: 60))
-            print("SHARED DEPENDENCIES")
-            print(String(repeating: "=", count: 60))
-            
-            for (dep, projects) in sharedDeps {
-                print("\n◆ \(dep)")
-                for (index, project) in projects.sorted().enumerated() {
-                    let isLast = index == projects.count - 1
-                    let prefix = isLast ? "└──" : "├──"
-                    print("  \(prefix) \(project)")
-                }
-            }
-        }
-        
-        print("\n" + String(repeating: "=", count: 60))
-        print("STATISTICS")
-        print(String(repeating: "=", count: 60))
-        print("Total projects scanned: \(dependencies.count)")
-        print("Total unique dependencies: \(allDeps.count)")
-        print("Shared dependencies: \(sharedDeps.count)")
-        print(String(repeating: "=", count: 60) + "\n")
-    }
     
     func printStatistics(graph: Graph) {
         let projects = graph.nodes.values.filter { $0.isProject }.count
@@ -2273,7 +2106,7 @@ struct DependencyGraph: ParsableCommand {
     
     // MARK: - GEXF Output
     
-    func printGraphMLGraph(graph: Graph) {
+    func printGEXFGraph(graph: Graph) {
         // GEXF format - Gephi's native format with proper label support
         print("""
         <?xml version="1.0" encoding="UTF-8"?>
@@ -2293,7 +2126,7 @@ struct DependencyGraph: ParsableCommand {
             </attributes>
             <nodes>
         """)
-        
+
         for (name, node) in graph.nodes {
             let escapedName = escapeXML(name)
             print("""
@@ -2306,10 +2139,10 @@ struct DependencyGraph: ParsableCommand {
               </node>
             """)
         }
-        
+
         print("        </nodes>")
         print("        <edges>")
-        
+
         for (index, edge) in graph.edges.enumerated() {
             let from = escapeXML(edge.from)
             let to = escapeXML(edge.to)
@@ -2317,11 +2150,49 @@ struct DependencyGraph: ParsableCommand {
               <edge id="\(index)" source="\(from)" target="\(to)"/>
             """)
         }
-        
+
         print("""
             </edges>
           </graph>
         </gexf>
+        """)
+    }
+
+    // MARK: - GraphML Output
+
+    func printGraphMLGraph(graph: Graph) {
+        print("""
+        <?xml version="1.0" encoding="UTF-8"?>
+        <graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+                                     http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+          <key id="d0" for="node" attr.name="type" attr.type="string"/>
+          <key id="d1" for="node" attr.name="isTransient" attr.type="boolean"/>
+          <key id="d2" for="node" attr.name="isInternal" attr.type="boolean"/>
+          <graph id="G" edgedefault="directed">
+        """)
+
+        for (name, node) in graph.nodes {
+            let id = escapeXML(name)
+            print("""
+            <node id="\(id)">
+              <data key="d0">\(escapeXML(node.nodeType.rawValue))</data>
+              <data key="d1">\(node.isTransient)</data>
+              <data key="d2">\(node.isInternal)</data>
+            </node>
+            """)
+        }
+
+        for (index, edge) in graph.edges.enumerated() {
+            let from = escapeXML(edge.from)
+            let to = escapeXML(edge.to)
+            print("  <edge id=\"e\(index)\" source=\"\(from)\" target=\"\(to)\"/>")
+        }
+
+        print("""
+          </graph>
+        </graphml>
         """)
     }
     

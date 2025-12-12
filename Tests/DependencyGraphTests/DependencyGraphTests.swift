@@ -120,13 +120,16 @@ final class DependencyGraphTests: XCTestCase {
         let destFile = tempDir.appendingPathComponent("Package.resolved")
         try FileManager.default.copyItem(at: sourceFile, to: destFile)
         
-        // Run the binary
-        let output = try runBinary(args: [tempDir.path, "--format", "tree"])
-        
-        // Verify dependencies are found
-        XCTAssertTrue(output.contains("swift-argument-parser"), "Should find swift-argument-parser")
-        XCTAssertTrue(output.contains("swift-collections"), "Should find swift-collections")
-        XCTAssertTrue(output.contains("alamofire"), "Should find alamofire")
+        let output = try runBinary(args: [tempDir.path, "--format", "json"])
+        let data = try XCTUnwrap(output.data(using: .utf8))
+        let jsonAny = try JSONSerialization.jsonObject(with: data)
+        let json = try XCTUnwrap(jsonAny as? [String: Any])
+        let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+        let nodeIDs = Set(nodes.compactMap { $0["id"] as? String })
+
+        XCTAssertTrue(nodeIDs.contains("swift-argument-parser"))
+        XCTAssertTrue(nodeIDs.contains("swift-collections"))
+        XCTAssertTrue(nodeIDs.contains("alamofire"))
     }
     
     func testParsePackageResolvedV1() async throws {
@@ -138,10 +141,15 @@ final class DependencyGraphTests: XCTestCase {
         let destFile = tempDir.appendingPathComponent("Package.resolved")
         try FileManager.default.copyItem(at: sourceFile, to: destFile)
         
-        let output = try runBinary(args: [tempDir.path, "--format", "tree"])
-        
-        XCTAssertTrue(output.contains("swift-argument-parser"), "Should find swift-argument-parser")
-        XCTAssertTrue(output.contains("Alamofire"), "Should find Alamofire")
+        let output = try runBinary(args: [tempDir.path, "--format", "json"])
+        let data = try XCTUnwrap(output.data(using: .utf8))
+        let jsonAny = try JSONSerialization.jsonObject(with: data)
+        let json = try XCTUnwrap(jsonAny as? [String: Any])
+        let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+        let nodeIDs = Set(nodes.compactMap { $0["id"] as? String })
+
+        XCTAssertTrue(nodeIDs.contains("swift-argument-parser"))
+        XCTAssertTrue(nodeIDs.contains("alamofire"))
     }
     
     // MARK: - PBXProj Parsing Tests
@@ -626,8 +634,8 @@ final class DependencyGraphTests: XCTestCase {
         let outputGexf = try runBinary(args: [tempDir.path, "--format", "gexf"])
         XCTAssertTrue(outputGexf.contains("<gexf"), "Should output GEXF format")
 
-        let outputGraphmlAlias = try runBinary(args: [tempDir.path, "--format", "graphml"])
-        XCTAssertTrue(outputGraphmlAlias.contains("<gexf"), "graphml should be a legacy alias for GEXF")
+        let outputGraphml = try runBinary(args: [tempDir.path, "--format", "graphml"])
+        XCTAssertTrue(outputGraphml.contains("<graphml"), "Should output GraphML format")
     }
 
     func testSwiftPMEdgesFlagAddsTransitiveEdges() async throws {
