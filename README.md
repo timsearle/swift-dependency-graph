@@ -64,6 +64,8 @@ If you want a dedicated UI for exploring `graph.graphml`, we use https://github.
 
 ```bash
 make graphml PROJECT=/path/to/root
+
+# NOTE: the viewer repo is Angular 8 and requires Node 14.x.
 make viewer-install
 make viewer-start
 # then open http://localhost:4200/ and drag/drop graph.graphml

@@ -113,11 +113,13 @@ analyze-internal: release
 VIEWER_DIR ?= ../graphml-viewer
 
 viewer-install:
-	@cd "$(VIEWER_DIR)" && (node -v >/dev/null 2>&1 || (echo "Node.js is not available/working. Recommended: install Node 14.20.1 via nvm, or fix Homebrew Node (e.g. 'brew reinstall node')." && exit 1))
+	@cd "$(VIEWER_DIR)" && (node -v >/dev/null 2>&1 || (echo "Node.js is not available/working." && exit 1))
+	@cd "$(VIEWER_DIR)" && node -e 'const m=+process.versions.node.split(".")[0]; if(m!==14){console.error("GraphML viewer requires Node 14.x (Angular 8 / websocket-driver uses http_parser). Current: "+process.versions.node+". Install via nvm/asdf/volta and retry."); process.exit(1)}'
 	cd "$(VIEWER_DIR)" && npm install --legacy-peer-deps
 
 viewer-start:
-	@cd "$(VIEWER_DIR)" && (node -v >/dev/null 2>&1 || (echo "Node.js is not available/working. Recommended: install Node 14.20.1 via nvm, or fix Homebrew Node (e.g. 'brew reinstall node')." && exit 1))
+	@cd "$(VIEWER_DIR)" && (node -v >/dev/null 2>&1 || (echo "Node.js is not available/working." && exit 1))
+	@cd "$(VIEWER_DIR)" && node -e 'const m=+process.versions.node.split(".")[0]; if(m!==14){console.error("GraphML viewer requires Node 14.x (Angular 8 / websocket-driver uses http_parser). Current: "+process.versions.node+". Install via nvm/asdf/volta and retry."); process.exit(1)}'
 	cd "$(VIEWER_DIR)" && npm start
 
 viewer:
