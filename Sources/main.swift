@@ -56,7 +56,8 @@ struct DependencyInfo: Sendable {
 
 struct TargetInfo: Sendable {
     let name: String
-    let packageDependencies: [String]  // Package product names this target depends on
+    let packageDependencies: [String]  // Package identities this target depends on
+    let targetDependencies: [String]   // Other Xcode targets this target depends on
 }
 
 enum OutputFormat: String, ExpressibleByArgument, CaseIterable {
@@ -236,6 +237,8 @@ struct DependencyGraph: ParsableCommand {
         var allDependencies: [DependencyInfo] = []
         var pbxprojInfos: [DependencyInfo] = []
         var localPackages: [DependencyInfo] = []
+        var referencedXcodeprojURLs = Set<URL>()
+        var parsedPBXProjPaths = Set<String>()
         
         let enumerator = fileManager.enumerator(
             at: directoryURL,
@@ -255,11 +258,17 @@ struct DependencyGraph: ParsableCommand {
                 continue
             }
             
+            if fileURL.lastPathComponent == "contents.xcworkspacedata" {
+                referencedXcodeprojURLs.formUnion(parseWorkspaceXcodeprojURLs(at: fileURL))
+                continue
+            }
+
             if fileURL.lastPathComponent == "Package.resolved" {
                 if let info = parsePackageResolved(at: fileURL) {
                     allDependencies.append(info)
                 }
             } else if fileURL.lastPathComponent == "project.pbxproj" {
+                parsedPBXProjPaths.insert(fileURL.path)
                 if let info = parsePBXProj(at: fileURL) {
                     pbxprojInfos.append(info)
                 }
@@ -267,6 +276,16 @@ struct DependencyGraph: ParsableCommand {
                 if let info = parsePackageSwift(at: fileURL) {
                     localPackages.append(info)
                 }
+            }
+        }
+
+        // Include workspace-referenced projects (may be outside scanned directory)
+        for xcodeprojURL in referencedXcodeprojURLs {
+            let pbxprojURL = xcodeprojURL.appendingPathComponent("project.pbxproj")
+            if parsedPBXProjPaths.contains(pbxprojURL.path) { continue }
+            guard fileManager.fileExists(atPath: pbxprojURL.path) else { continue }
+            if let info = parsePBXProj(at: pbxprojURL) {
+                pbxprojInfos.append(info)
             }
         }
         
@@ -310,6 +329,35 @@ struct DependencyGraph: ParsableCommand {
         }
     }
     
+    func parseWorkspaceXcodeprojURLs(at url: URL) -> [URL] {
+        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return [] }
+
+        // contents.xcworkspacedata lives inside *.xcworkspace; group: paths are relative to the workspace's parent directory.
+        let baseURL = url.deletingLastPathComponent().deletingLastPathComponent()
+        let pattern = #"location\s*=\s*\"([^\"]+)\""#
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return [] }
+
+        let range = NSRange(content.startIndex..., in: content)
+        let matches = regex.matches(in: content, options: [], range: range)
+
+        var results: [URL] = []
+        for match in matches {
+            guard let r = Range(match.range(at: 1), in: content) else { continue }
+            let location = String(content[r])
+
+            let pathString: String
+            if location.hasPrefix("group:") {
+                pathString = String(location.dropFirst("group:".count))
+                results.append(baseURL.appendingPathComponent(pathString).standardizedFileURL)
+            } else if location.hasPrefix("absolute:") {
+                pathString = String(location.dropFirst("absolute:".count))
+                results.append(URL(fileURLWithPath: pathString).standardizedFileURL)
+            }
+        }
+
+        return results.filter { $0.pathExtension == "xcodeproj" }
+    }
+
     func parsePackageResolved(at url: URL) -> DependencyInfo? {
         guard let data = try? Data(contentsOf: url) else { return nil }
         
@@ -366,23 +414,37 @@ struct DependencyGraph: ParsableCommand {
             }
         }
 
-        let localPackageIdentities = Set(project.localPackages.map {
+        let localPackageIdentities = project.localPackages.map {
             URL(fileURLWithPath: $0.relativePath).lastPathComponent.lowercased()
-        })
-        explicitPackages.formUnion(localPackageIdentities)
+        }
+        let localPackageIdentitySet = Set(localPackageIdentities)
+        explicitPackages.formUnion(localPackageIdentitySet)
+
+        let legacyTargetDepsByName: [String: [String]] = {
+            guard let content = try? String(contentsOf: url, encoding: .utf8) else { return [:] }
+            return parseTargetDependenciesByTargetName(from: content)
+        }()
 
         var targets: [TargetInfo] = []
         for target in xcodeproj.pbxproj.nativeTargets {
-            var deps: [String] = []
+            var packageDeps: [String] = []
             for product in target.packageProductDependencies ?? [] {
                 if let remote = product.package, let repoURL = remote.repositoryURL {
-                    deps.append(extractPackageName(from: repoURL))
+                    packageDeps.append(extractPackageName(from: repoURL))
                 } else {
                     let productIdentity = product.productName.lowercased()
-                    deps.append(localPackageIdentities.contains(productIdentity) ? productIdentity : productIdentity)
+                    if localPackageIdentitySet.contains(productIdentity) {
+                        packageDeps.append(productIdentity)
+                    } else if localPackageIdentities.count == 1, let onlyLocal = localPackageIdentities.first {
+                        packageDeps.append(onlyLocal)
+                    } else {
+                        packageDeps.append(productIdentity)
+                    }
                 }
             }
-            targets.append(TargetInfo(name: target.name, packageDependencies: deps))
+
+            let targetDeps = legacyTargetDepsByName[target.name] ?? []
+            targets.append(TargetInfo(name: target.name, packageDependencies: packageDeps, targetDependencies: targetDeps))
         }
 
         guard !explicitPackages.isEmpty || !targets.isEmpty else { return nil }
@@ -437,8 +499,16 @@ struct DependencyGraph: ParsableCommand {
         let packageRefIdToIdentity = parsePackageReferenceIdentities(from: content)
         let productDepIdToPackageIdentity = parseProductDependencyToPackageIdentity(from: content, packageRefIdToIdentity: packageRefIdToIdentity)
 
+        let targetDepsByName = parseTargetDependenciesByTargetName(from: content)
+
         // Parse PBXNativeTarget entries and their package dependencies
-        targets = parseTargets(from: content, productDependencyIdToPackageIdentity: productDepIdToPackageIdentity)
+        targets = parseTargets(from: content, productDependencyIdToPackageIdentity: productDepIdToPackageIdentity).map {
+            TargetInfo(
+                name: $0.name,
+                packageDependencies: $0.packageDependencies,
+                targetDependencies: targetDepsByName[$0.name] ?? $0.targetDependencies
+            )
+        }
 
         guard !explicitPackages.isEmpty || !targets.isEmpty else { return nil }
 
@@ -629,6 +699,114 @@ struct DependencyGraph: ParsableCommand {
         return mapping
     }
 
+    func parseTargetDependencyToTargetName(from content: String) -> [String: String] {
+        var mapping: [String: String] = [:]
+
+        guard let sectionStart = content.range(of: "/* Begin PBXTargetDependency section */"),
+              let sectionEnd = content.range(of: "/* End PBXTargetDependency section */") else {
+            return mapping
+        }
+
+        let section = String(content[sectionStart.upperBound..<sectionEnd.lowerBound])
+        let lines = section.components(separatedBy: "\n")
+
+        var currentId: String? = nil
+        var isTargetDep = false
+        var targetName: String? = nil
+
+        for line in lines {
+            if currentId == nil, line.contains("= {") {
+                currentId = line.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: " ").first.map(String.init)
+                isTargetDep = false
+                targetName = nil
+                continue
+            }
+
+            guard let id = currentId else { continue }
+
+            if line.contains("isa = PBXTargetDependency") {
+                isTargetDep = true
+            }
+
+            if isTargetDep, line.contains("target =") {
+                if let match = line.range(of: #"/\*\s*([^*]+)\s*\*/"#, options: .regularExpression) {
+                    targetName = String(line[match])
+                        .replacingOccurrences(of: "/*", with: "")
+                        .replacingOccurrences(of: "*/", with: "")
+                        .trimmingCharacters(in: .whitespaces)
+                }
+            }
+
+            if line.contains("};") {
+                if isTargetDep, let name = targetName {
+                    mapping[id] = name
+                }
+                currentId = nil
+                isTargetDep = false
+                targetName = nil
+            }
+        }
+
+        return mapping
+    }
+
+    func parseTargetDependenciesByTargetName(from content: String) -> [String: [String]] {
+        var mapping: [String: [String]] = [:]
+
+        let targetDependencyIdToTargetName = parseTargetDependencyToTargetName(from: content)
+
+        guard let sectionStart = content.range(of: "/* Begin PBXNativeTarget section */"),
+              let sectionEnd = content.range(of: "/* End PBXNativeTarget section */") else {
+            return mapping
+        }
+
+        let section = String(content[sectionStart.upperBound..<sectionEnd.lowerBound])
+        let lines = section.components(separatedBy: "\n")
+
+        var currentTargetName: String? = nil
+        var inDeps = false
+        var currentDeps: [String] = []
+
+        for line in lines {
+            if let nameMatch = line.range(of: #"^\s*name\s*=\s*([^;]+);"#, options: .regularExpression) {
+                let nameValue = line[nameMatch]
+                    .replacingOccurrences(of: "name", with: "")
+                    .replacingOccurrences(of: "=", with: "")
+                    .replacingOccurrences(of: ";", with: "")
+                    .trimmingCharacters(in: .whitespaces)
+                currentTargetName = nameValue
+            }
+
+            if line.contains("dependencies = (") {
+                inDeps = true
+                currentDeps = []
+                continue
+            }
+
+            if inDeps && line.contains(");") {
+                inDeps = false
+                continue
+            }
+
+            if inDeps {
+                let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let depId = trimmed.split(separator: " ").first.map(String.init),
+                   let name = targetDependencyIdToTargetName[depId] {
+                    currentDeps.append(name)
+                }
+                continue
+            }
+
+            if line.contains("};"), let targetName = currentTargetName {
+                mapping[targetName] = currentDeps
+                currentTargetName = nil
+                currentDeps = []
+            }
+        }
+
+        return mapping
+    }
+
     func parseTargets(from content: String, productDependencyIdToPackageIdentity: [String: String]) -> [TargetInfo] {
         var targets: [TargetInfo] = []
 
@@ -640,11 +818,15 @@ struct DependencyGraph: ParsableCommand {
 
         let targetSection = String(content[sectionStart.upperBound..<sectionEnd.lowerBound])
 
+        let targetDependencyIdToTargetName = parseTargetDependencyToTargetName(from: content)
+
         // Find each target name and its packageProductDependencies
         let lines = targetSection.components(separatedBy: "\n")
         var currentTarget: String? = nil
         var inPackageDeps = false
-        var currentDeps: [String] = []
+        var inTargetDeps = false
+        var currentPackageDeps: [String] = []
+        var currentTargetDeps: [String] = []
 
         for line in lines {
             // Check for target name: "name = TargetName;"
@@ -656,10 +838,33 @@ struct DependencyGraph: ParsableCommand {
                 currentTarget = nameValue
             }
 
+            // Check for dependencies start
+            if line.contains("dependencies = (") {
+                inTargetDeps = true
+                currentTargetDeps = []
+                continue
+            }
+
+            // Check for end of dependencies
+            if inTargetDeps && line.contains(");") {
+                inTargetDeps = false
+                continue
+            }
+
+            // Parse target dependency: TARGET_DEP_ID /* PBXTargetDependency */,
+            if inTargetDeps {
+                let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let depId = trimmed.split(separator: " ").first.map(String.init),
+                   let name = targetDependencyIdToTargetName[depId] {
+                    currentTargetDeps.append(name)
+                }
+                continue
+            }
+
             // Check for packageProductDependencies start
             if line.contains("packageProductDependencies = (") {
                 inPackageDeps = true
-                currentDeps = []
+                currentPackageDeps = []
                 continue
             }
 
@@ -667,7 +872,7 @@ struct DependencyGraph: ParsableCommand {
             if inPackageDeps && line.contains(");") {
                 inPackageDeps = false
                 if let target = currentTarget {
-                    targets.append(TargetInfo(name: target, packageDependencies: currentDeps))
+                    targets.append(TargetInfo(name: target, packageDependencies: currentPackageDeps, targetDependencies: currentTargetDeps))
                     currentTarget = nil
                 }
                 continue
@@ -678,21 +883,21 @@ struct DependencyGraph: ParsableCommand {
                 let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
                 if let depId = trimmed.split(separator: " ").first.map(String.init),
                    let identity = productDependencyIdToPackageIdentity[depId] {
-                    currentDeps.append(identity)
+                    currentPackageDeps.append(identity)
                 } else if let depMatch = line.range(of: #"/\*\s*([^*]+)\s*\*/"#, options: .regularExpression) {
                     let depName = String(line[depMatch])
                         .replacingOccurrences(of: "/*", with: "")
                         .replacingOccurrences(of: "*/", with: "")
                         .trimmingCharacters(in: .whitespaces)
                         .lowercased()
-                    currentDeps.append(depName)
+                    currentPackageDeps.append(depName)
                 }
             }
 
             // End of target block
             if line.contains("};") && currentTarget != nil && !inPackageDeps {
                 // Target without packageProductDependencies
-                targets.append(TargetInfo(name: currentTarget!, packageDependencies: []))
+                targets.append(TargetInfo(name: currentTarget!, packageDependencies: [], targetDependencies: currentTargetDeps))
                 currentTarget = nil
             }
         }
@@ -860,6 +1065,13 @@ struct DependencyGraph: ParsableCommand {
                     let targetNodeName = "\(info.projectName)/\(target.name)"
                     graph.addNode(targetNodeName, nodeType: .target)
                     graph.addEdge(from: info.projectName, to: targetNodeName)
+
+                    // Connect target to other targets it depends on
+                    for depTargetName in target.targetDependencies {
+                        let depTargetNodeName = "\(info.projectName)/\(depTargetName)"
+                        graph.addNode(depTargetNodeName, nodeType: .target)
+                        graph.addEdge(from: targetNodeName, to: depTargetNodeName)
+                    }
                     
                     // Connect target to its package dependencies directly
                     for dep in target.packageDependencies {

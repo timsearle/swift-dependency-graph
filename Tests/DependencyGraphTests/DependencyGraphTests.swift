@@ -127,6 +127,59 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertTrue(output.contains("rxswift"), "Should find remote package")
         XCTAssertTrue(output.contains("mylocalpackage"), "Should find local package identity")
     }
+
+    func testParsePBXProjLocalPackageProductNameMismatchResolvesToPackageIdentity() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let xcodeproj = tempDir.appendingPathComponent("MismatchProject.xcodeproj")
+        try FileManager.default.createDirectory(at: xcodeproj, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let sourceFile = fixturesURL.appendingPathComponent("project_with_local_packages_product_mismatch.pbxproj")
+        let destFile = xcodeproj.appendingPathComponent("project.pbxproj")
+        try FileManager.default.copyItem(at: sourceFile, to: destFile)
+
+        let output = try runBinary(args: [tempDir.path, "--format", "json", "--show-targets"])
+        let data = try XCTUnwrap(output.data(using: .utf8))
+        let jsonAny = try JSONSerialization.jsonObject(with: data)
+        let json = try XCTUnwrap(jsonAny as? [String: Any])
+
+        let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+        let edges = try XCTUnwrap(json["edges"] as? [[String: Any]])
+
+        let nodeIDs = Set(nodes.compactMap { $0["id"] as? String })
+        XCTAssertTrue(nodeIDs.contains("localpkgdir"), "Should resolve local product dep to local package identity")
+        XCTAssertFalse(nodeIDs.contains("weirdproduct"), "Should not treat local product name as package identity")
+
+        let edgeSet = Set<String>(edges.compactMap { edge in
+            guard let s = edge["source"] as? String, let t = edge["target"] as? String else { return nil }
+            return "\(s)->\(t)"
+        })
+        XCTAssertTrue(edgeSet.contains("MismatchProject/iOS->localpkgdir"))
+    }
+
+    func testContract_TargetToTargetEdges() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let xcodeproj = tempDir.appendingPathComponent("LocalPackagesProject.xcodeproj")
+        try FileManager.default.createDirectory(at: xcodeproj, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let sourceFile = fixturesURL.appendingPathComponent("project_with_local_packages.pbxproj")
+        let destFile = xcodeproj.appendingPathComponent("project.pbxproj")
+        try FileManager.default.copyItem(at: sourceFile, to: destFile)
+
+        let output = try runBinary(args: [tempDir.path, "--format", "json", "--show-targets"])
+        let data = try XCTUnwrap(output.data(using: .utf8))
+        let jsonAny = try JSONSerialization.jsonObject(with: data)
+        let json = try XCTUnwrap(jsonAny as? [String: Any])
+
+        let edges = try XCTUnwrap(json["edges"] as? [[String: Any]])
+        let edgeSet = Set<String>(edges.compactMap { edge in
+            guard let s = edge["source"] as? String, let t = edge["target"] as? String else { return nil }
+            return "\(s)->\(t)"
+        })
+
+        XCTAssertTrue(edgeSet.contains("LocalPackagesProject/iOSTests->LocalPackagesProject/iOS"))
+    }
     
     // MARK: - Target Parsing Tests
     
@@ -213,6 +266,42 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertTrue(outputFiltered.contains("alamofire"), "Should still show explicit dep")
     }
     
+    func testWorkspaceIncludesReferencedProjectsOutsideScanRoot() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let workspaceRoot = tempDir.appendingPathComponent("WorkspaceRoot")
+        let workspace = workspaceRoot.appendingPathComponent("MyWorkspace.xcworkspace")
+        try FileManager.default.createDirectory(at: workspace, withIntermediateDirectories: true)
+
+        let externalProj = tempDir.appendingPathComponent("ExternalProject.xcodeproj")
+        try FileManager.default.createDirectory(at: externalProj, withIntermediateDirectories: true)
+
+        // Workspace references a project outside the scan root.
+        let workspaceXML = #"""
+        <?xml version="1.0" encoding="UTF-8"?>
+        <Workspace version="1.0">
+           <FileRef location="group:../ExternalProject.xcodeproj"></FileRef>
+        </Workspace>
+        """#
+        try workspaceXML.write(to: workspace.appendingPathComponent("contents.xcworkspacedata"), atomically: true, encoding: .utf8)
+
+        // Copy pbxproj fixture into the external project.
+        let sourcePBXProj = fixturesURL.appendingPathComponent("project.pbxproj")
+        try FileManager.default.copyItem(at: sourcePBXProj, to: externalProj.appendingPathComponent("project.pbxproj"))
+
+        let output = try runBinary(args: [workspaceRoot.path, "--format", "json", "--show-targets"])
+        let data = try XCTUnwrap(output.data(using: .utf8))
+        let jsonAny = try JSONSerialization.jsonObject(with: data)
+        let json = try XCTUnwrap(jsonAny as? [String: Any])
+
+        let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+        let nodeIDs = Set(nodes.compactMap { $0["id"] as? String })
+
+        XCTAssertTrue(nodeIDs.contains("ExternalProject"), "Should include workspace-referenced external project")
+        XCTAssertTrue(nodeIDs.contains("ExternalProject/MyApp"), "Should include targets from workspace-referenced project")
+    }
+
     // MARK: - Output Format Tests
     
     func testDotOutputFormat() async throws {
