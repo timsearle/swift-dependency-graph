@@ -20,7 +20,7 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 
 | Option | Description |
 |--------|-------------|
-| `--format <format>` | Output format: tree, graph, dot, html, or analyze (default: graph) |
+| `--format <format>` | Output format: tree, graph, dot, html, json, gexf, graphml, or analyze (default: graph) |
 | `--hide-transient` | Hide transient (non-explicit) dependencies |
 | `--show-targets` | Show Xcode build targets in the graph |
 | `--internal-only` | In analyze mode, only show internal modules (not external packages) |
@@ -34,7 +34,8 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 | `dot` | Graphviz DOT format |
 | `html` | **Interactive web visualization** |
 | `json` | JSON graph format (D3.js, Cytoscape.js, vis.js) |
-| `graphml` | GraphML format (yEd, Gephi, Cytoscape) |
+| `gexf` | GEXF format (Gephi) |
+| `graphml` | Legacy alias for `gexf` (currently outputs GEXF, not GraphML) |
 | `analyze` | **Pinch point analysis** for modularization |
 
 ### Examples
@@ -48,7 +49,8 @@ make html PROJECT=/path/to/ios-project
 
 # Export for external tools
 make json PROJECT=/path/to/ios-project      # For D3.js, web tools
-make graphml PROJECT=/path/to/ios-project   # For yEd, Gephi
+make gexf PROJECT=/path/to/ios-project      # For Gephi
+make graphml PROJECT=/path/to/ios-project   # Alias for make gexf
 
 # Show only explicit dependencies (hide transient)
 .build/release/DependencyGraph /path/to/ios-project --format html --hide-transient > graph.html

@@ -18,7 +18,7 @@ The graph must support:
 - Parses `Package.resolved` pins (no package→package edges available there).
 - Parses `project.pbxproj` via regex for repositoryURL and a simplified target packageProductDependencies.
 - Parses `Package.swift` via regex for `.package(...)` declarations.
-- Produces outputs: ASCII, DOT, HTML, JSON, and a `--format graphml` that currently emits **GEXF**.
+- Produces outputs: ASCII, DOT, HTML, JSON, and GEXF (`--format gexf`, with legacy alias `--format graphml`).
 
 Key risk: without authoritative dependency edges, pinch-point analysis can be misleading.
 
@@ -113,7 +113,8 @@ Tests:
 
 Work items:
 - Fix naming mismatch:
-  - Either implement actual GraphML, or rename to `--format gexf`.
+  - `--format gexf` is now supported; `--format graphml` remains as a legacy alias.
+  - Either implement actual GraphML output, or keep the alias but document it clearly.
 - Stabilize HTML UI stats (ensure nodeType values match).
 - Add optional outputs:
   - schema’d JSON (versioned)

@@ -1,4 +1,4 @@
-.PHONY: build release test clean html json graphml analyze analyze-internal help
+.PHONY: build release test clean html json gexf graphml analyze analyze-internal help
 
 # Default target
 help:
@@ -9,7 +9,8 @@ help:
 	@echo "  make clean            - Clean build artifacts"
 	@echo "  make html             - Generate HTML graph and open in browser"
 	@echo "  make json             - Export JSON graph format"
-	@echo "  make graphml          - Export GraphML format (for yEd, Gephi)"
+	@echo "  make gexf             - Export GEXF format (for Gephi)"
+	@echo "  make graphml          - Alias for make gexf (legacy name)"
 	@echo "  make analyze          - Run pinch point analysis"
 	@echo "  make analyze-internal - Run analysis for internal modules only"
 	@echo ""
@@ -43,9 +44,11 @@ json: release
 	.build/release/DependencyGraph "$(PROJECT)" --format json --show-targets > graph.json
 	@echo "Generated graph.json"
 
-graphml: release
-	.build/release/DependencyGraph "$(PROJECT)" --format graphml --show-targets > graph.gexf
+gexf: release
+	.build/release/DependencyGraph "$(PROJECT)" --format gexf --show-targets > graph.gexf
 	@echo "Generated graph.gexf (open with Gephi)"
+
+graphml: gexf
 
 # Analysis targets
 analyze: release

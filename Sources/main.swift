@@ -65,7 +65,8 @@ enum OutputFormat: String, ExpressibleByArgument, CaseIterable {
     case html
     case analyze
     case json      // JSON graph format for D3.js, Cytoscape, etc.
-    case graphml   // GraphML for yEd, Gephi, Cytoscape
+    case gexf      // GEXF for Gephi
+    case graphml   // Legacy alias for gexf (not GraphML)
 }
 
 // MARK: - Graph Data Structures
@@ -296,7 +297,7 @@ struct DependencyGraph: ParsableCommand {
             printPinchPointAnalysis(graph: graph, internalOnly: internalOnly)
         case .json:
             printJSONGraph(graph: graph)
-        case .graphml:
+        case .graphml, .gexf:
             printGraphMLGraph(graph: graph)
         }
     }
@@ -372,8 +373,11 @@ struct DependencyGraph: ParsableCommand {
             }
         }
         
+        let packageRefIdToIdentity = parsePackageReferenceIdentities(from: content)
+        let productDepIdToPackageIdentity = parseProductDependencyToPackageIdentity(from: content, packageRefIdToIdentity: packageRefIdToIdentity)
+
         // Parse PBXNativeTarget entries and their package dependencies
-        targets = parseTargets(from: content)
+        targets = parseTargets(from: content, productDependencyIdToPackageIdentity: productDepIdToPackageIdentity)
         
         guard !explicitPackages.isEmpty || !targets.isEmpty else { return nil }
         
@@ -463,28 +467,123 @@ struct DependencyGraph: ParsableCommand {
         }
         return name.lowercased()  // Package identities are lowercased
     }
-    
-    func parseTargets(from content: String) -> [TargetInfo] {
+
+    func parsePackageReferenceIdentities(from content: String) -> [String: String] {
+        var identities: [String: String] = [:]
+
+        func parseSection(begin: String, end: String, handleLine: (String, String) -> Void) {
+            guard let sectionStart = content.range(of: begin),
+                  let sectionEnd = content.range(of: end) else {
+                return
+            }
+
+            let section = String(content[sectionStart.upperBound..<sectionEnd.lowerBound])
+            let lines = section.components(separatedBy: "\n")
+
+            var currentId: String? = nil
+            for line in lines {
+                if currentId == nil, line.contains("= {") {
+                    currentId = line.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: " ").first.map(String.init)
+                }
+
+                if let id = currentId {
+                    handleLine(id, line)
+                    if line.contains("};") {
+                        currentId = nil
+                    }
+                }
+            }
+        }
+
+        parseSection(
+            begin: "/* Begin XCRemoteSwiftPackageReference section */",
+            end: "/* End XCRemoteSwiftPackageReference section */"
+        ) { id, line in
+            guard line.contains("repositoryURL") else { return }
+            guard let firstQuote = line.firstIndex(of: "\""), let lastQuote = line.lastIndex(of: "\""), firstQuote < lastQuote else { return }
+            let url = String(line[line.index(after: firstQuote)..<lastQuote])
+            identities[id] = extractPackageName(from: url)
+        }
+
+        parseSection(
+            begin: "/* Begin XCLocalSwiftPackageReference section */",
+            end: "/* End XCLocalSwiftPackageReference section */"
+        ) { id, line in
+            guard line.contains("relativePath") else { return }
+            guard let firstQuote = line.firstIndex(of: "\""), let lastQuote = line.lastIndex(of: "\""), firstQuote < lastQuote else { return }
+            let path = String(line[line.index(after: firstQuote)..<lastQuote])
+            identities[id] = URL(fileURLWithPath: path).lastPathComponent.lowercased()
+        }
+
+        return identities
+    }
+
+    func parseProductDependencyToPackageIdentity(from content: String, packageRefIdToIdentity: [String: String]) -> [String: String] {
+        var mapping: [String: String] = [:]
+
+        guard let sectionStart = content.range(of: "/* Begin XCSwiftPackageProductDependency section */"),
+              let sectionEnd = content.range(of: "/* End XCSwiftPackageProductDependency section */") else {
+            return mapping
+        }
+
+        let section = String(content[sectionStart.upperBound..<sectionEnd.lowerBound])
+        let lines = section.components(separatedBy: "\n")
+
+        var currentId: String? = nil
+        var isProductDep = false
+        var packageRefId: String? = nil
+
+        for line in lines {
+            if currentId == nil, line.contains("= {") {
+                currentId = line.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: " ").first.map(String.init)
+                isProductDep = false
+                packageRefId = nil
+                continue
+            }
+
+            guard let id = currentId else { continue }
+
+            if line.contains("isa = XCSwiftPackageProductDependency") {
+                isProductDep = true
+            }
+
+            if isProductDep, line.contains("package =") {
+                let tokens = line.replacingOccurrences(of: ";", with: "").split(whereSeparator: { $0 == " " || $0 == "\t" })
+                if let eqIndex = tokens.firstIndex(of: "="), eqIndex + 1 < tokens.count {
+                    packageRefId = String(tokens[eqIndex + 1])
+                }
+            }
+
+            if line.contains("};") {
+                if isProductDep, let pkgId = packageRefId, let identity = packageRefIdToIdentity[pkgId] {
+                    mapping[id] = identity
+                }
+                currentId = nil
+                isProductDep = false
+                packageRefId = nil
+            }
+        }
+
+        return mapping
+    }
+
+    func parseTargets(from content: String, productDependencyIdToPackageIdentity: [String: String]) -> [TargetInfo] {
         var targets: [TargetInfo] = []
-        
+
         // Find PBXNativeTarget section
         guard let sectionStart = content.range(of: "/* Begin PBXNativeTarget section */"),
               let sectionEnd = content.range(of: "/* End PBXNativeTarget section */") else {
             return targets
         }
-        
+
         let targetSection = String(content[sectionStart.upperBound..<sectionEnd.lowerBound])
-        
-        // Split by target entries - each starts with a hash and comment
-        // Pattern: HASH /* TargetName */ = { ... };
-        let targetBlockPattern = #"[A-F0-9]{24}\s*/\*\s*([^*]+)\s*\*/\s*=\s*\{[^{]*?isa\s*=\s*PBXNativeTarget[^}]*?(?:packageProductDependencies\s*=\s*\(\s*([^)]*)\s*\))?[^}]*?\};"#
-        
-        // Simpler approach: find each target name and its packageProductDependencies separately
+
+        // Find each target name and its packageProductDependencies
         let lines = targetSection.components(separatedBy: "\n")
         var currentTarget: String? = nil
         var inPackageDeps = false
         var currentDeps: [String] = []
-        
+
         for line in lines {
             // Check for target name: "name = TargetName;"
             if let nameMatch = line.range(of: #"^\s*name\s*=\s*([^;]+);"#, options: .regularExpression) {
@@ -494,14 +593,14 @@ struct DependencyGraph: ParsableCommand {
                     .trimmingCharacters(in: .whitespaces)
                 currentTarget = nameValue
             }
-            
+
             // Check for packageProductDependencies start
             if line.contains("packageProductDependencies = (") {
                 inPackageDeps = true
                 currentDeps = []
                 continue
             }
-            
+
             // Check for end of packageProductDependencies
             if inPackageDeps && line.contains(");") {
                 inPackageDeps = false
@@ -511,10 +610,14 @@ struct DependencyGraph: ParsableCommand {
                 }
                 continue
             }
-            
-            // Parse package dependency: HASH /* PackageName */,
+
+            // Parse package dependency: PRODUCT_DEP_ID /* ProductName */,
             if inPackageDeps {
-                if let depMatch = line.range(of: #"/\*\s*([^*]+)\s*\*/"#, options: .regularExpression) {
+                let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let depId = trimmed.split(separator: " ").first.map(String.init),
+                   let identity = productDependencyIdToPackageIdentity[depId] {
+                    currentDeps.append(identity)
+                } else if let depMatch = line.range(of: #"/\*\s*([^*]+)\s*\*/"#, options: .regularExpression) {
                     let depName = String(line[depMatch])
                         .replacingOccurrences(of: "/*", with: "")
                         .replacingOccurrences(of: "*/", with: "")
@@ -523,7 +626,7 @@ struct DependencyGraph: ParsableCommand {
                     currentDeps.append(depName)
                 }
             }
-            
+
             // End of target block
             if line.contains("};") && currentTarget != nil && !inPackageDeps {
                 // Target without packageProductDependencies
@@ -531,7 +634,7 @@ struct DependencyGraph: ParsableCommand {
                 currentTarget = nil
             }
         }
-        
+
         return targets
     }
     
@@ -1584,7 +1687,7 @@ struct DependencyGraph: ParsableCommand {
         }
     }
     
-    // MARK: - GraphML Output
+    // MARK: - GEXF Output
     
     func printGraphMLGraph(graph: Graph) {
         // GEXF format - Gephi's native format with proper label support
