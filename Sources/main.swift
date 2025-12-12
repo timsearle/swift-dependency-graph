@@ -403,7 +403,7 @@ struct DependencyGraph: ParsableCommand {
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         
         let projectPath = url.deletingLastPathComponent().path
-        let projectName = URL(fileURLWithPath: projectPath).lastPathComponent
+        let projectName = URL(fileURLWithPath: projectPath).lastPathComponent.lowercased()
         
         var dependencies: [String] = []
         var explicitPackages = Set<String>()
@@ -686,19 +686,31 @@ struct DependencyGraph: ParsableCommand {
             }
         }
 
+        let localPackageNodeNameByIdentity = Dictionary(
+            uniqueKeysWithValues: graph.nodes.values
+                .filter { $0.nodeType == .localPackage }
+                .map { ($0.name.lowercased(), $0.name) }
+        )
+
         func walk(parentNodeName: String, node: SwiftPMShowDependenciesNode) {
             for dep in node.dependencies ?? [] {
-                let depId = dep.identity.lowercased()
-                graph.addNode(depId, nodeType: .externalPackage, isTransient: true)
-                addEdgeUnique(from: parentNodeName, to: depId)
-                walk(parentNodeName: depId, node: dep)
+                let depIdentity = dep.identity.lowercased()
+                let depNodeName = localPackageNodeNameByIdentity[depIdentity] ?? depIdentity
+                let depNodeType: NodeType = localPackageNodeNameByIdentity[depIdentity] != nil ? .localPackage : .externalPackage
+                let isTransient = depNodeType == .externalPackage
+
+                graph.addNode(depNodeName, nodeType: depNodeType, isTransient: isTransient)
+                addEdgeUnique(from: parentNodeName, to: depNodeName)
+                walk(parentNodeName: depNodeName, node: dep)
             }
         }
 
         for pkg in packageRoots {
             let pkgRoot = URL(fileURLWithPath: pkg.projectPath)
             guard let rootNode = loadSwiftPMShowDependencies(packageRoot: pkgRoot) else { continue }
-            walk(parentNodeName: pkg.projectName, node: rootNode)
+            let rootIdentity = rootNode.identity.lowercased()
+            let rootNodeName = localPackageNodeNameByIdentity[rootIdentity] ?? pkg.projectName
+            walk(parentNodeName: rootNodeName, node: rootNode)
         }
     }
 
