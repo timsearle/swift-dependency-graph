@@ -967,11 +967,13 @@ struct DependencyGraph: ParsableCommand {
             }
         }
 
-        let localPackageNodeNameByIdentity = Dictionary(
-            uniqueKeysWithValues: graph.nodes.values
-                .filter { $0.nodeType == .localPackage }
-                .map { ($0.name.lowercased(), $0.name) }
-        )
+        var localPackageNodeNameByIdentity: [String: String] = [:]
+        for node in graph.nodes.values where node.nodeType == .localPackage {
+            let key = node.name.lowercased()
+            if localPackageNodeNameByIdentity[key] == nil {
+                localPackageNodeNameByIdentity[key] = node.name
+            }
+        }
 
         func walk(parentNodeName: String, node: SwiftPMShowDependenciesNode, depth: Int) {
             if hideTransient && depth >= 1 {
@@ -1088,23 +1090,33 @@ struct DependencyGraph: ParsableCommand {
             }
         }
         
+        let localPackageCanonicalNameByIdentity: [String: String] = {
+            var m: [String: String] = [:]
+            for info in dependencies where localPackageNames.contains(info.projectName.lowercased()) && info.targets.isEmpty {
+                let k = info.projectName.lowercased()
+                if m[k] == nil { m[k] = info.projectName }
+            }
+            return m
+        }()
+
         for info in dependencies {
             // Determine if this is a local package or Xcode project
             let isLocalPackage = localPackageNames.contains(info.projectName.lowercased()) && info.targets.isEmpty
             let nodeType: NodeType = isLocalPackage ? .localPackage : .project
             
-            graph.addNode(info.projectName, nodeType: nodeType, isTransient: false)
+            let projectNodeName = isLocalPackage ? (localPackageCanonicalNameByIdentity[info.projectName.lowercased()] ?? info.projectName) : info.projectName
+            graph.addNode(projectNodeName, nodeType: nodeType, isTransient: false)
             
             // Add targets if requested
             if showTargets {
                 for target in info.targets {
-                    let targetNodeName = "\(info.projectName)/\(target.name)"
+                    let targetNodeName = "\(projectNodeName)/\(target.name)"
                     graph.addNode(targetNodeName, nodeType: .target)
-                    graph.addEdge(from: info.projectName, to: targetNodeName)
+                    graph.addEdge(from: projectNodeName, to: targetNodeName)
 
                     // Connect target to other targets it depends on
                     for depTargetName in target.targetDependencies {
-                        let depTargetNodeName = "\(info.projectName)/\(depTargetName)"
+                        let depTargetNodeName = "\(projectNodeName)/\(depTargetName)"
                         graph.addNode(depTargetNodeName, nodeType: .target)
                         graph.addEdge(from: targetNodeName, to: depTargetNodeName)
                     }
@@ -1115,9 +1127,10 @@ struct DependencyGraph: ParsableCommand {
                         let isTransient = !allExplicitPackages.contains(depLower)
                         let isLocalDep = localPackageNames.contains(depLower)
                         let depNodeType: NodeType = isLocalDep ? .localPackage : .externalPackage
-                        
-                        graph.addNode(dep, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
-                        graph.addEdge(from: targetNodeName, to: dep)
+
+                        let depNodeName = isLocalDep ? (localPackageCanonicalNameByIdentity[depLower] ?? depLower) : depLower
+                        graph.addNode(depNodeName, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
+                        graph.addEdge(from: targetNodeName, to: depNodeName)
                     }
                 }
             }
@@ -1128,9 +1141,10 @@ struct DependencyGraph: ParsableCommand {
                 let isTransient = !allExplicitPackages.contains(depLower)
                 let isLocalDep = localPackageNames.contains(depLower)
                 let depNodeType: NodeType = isLocalDep ? .localPackage : .externalPackage
-                
-                graph.addNode(dep, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
-                graph.addEdge(from: info.projectName, to: dep)
+
+                let depNodeName = isLocalDep ? (localPackageCanonicalNameByIdentity[depLower] ?? depLower) : depLower
+                graph.addNode(depNodeName, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
+                graph.addEdge(from: projectNodeName, to: depNodeName)
             }
         }
         
