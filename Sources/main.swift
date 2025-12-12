@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import XcodeProj
 
 struct PackageResolved: Codable {
     let version: Int?
@@ -341,19 +342,72 @@ struct DependencyGraph: ParsableCommand {
     // MARK: - PBXProj Parsing
     
     func parsePBXProj(at url: URL) -> DependencyInfo? {
-        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
-        
-        // URL is .../SomeProject.xcodeproj/project.pbxproj
-        // Go up one level to get the xcodeproj, then extract its name
+        if let typed = parsePBXProjUsingXcodeProj(at: url) {
+            return typed
+        }
+        return parsePBXProjLegacy(at: url)
+    }
+
+    func parsePBXProjUsingXcodeProj(at url: URL) -> DependencyInfo? {
         let xcodeprojURL = url.deletingLastPathComponent()
         let projectName = xcodeprojURL.deletingPathExtension().lastPathComponent
         let projectPath = xcodeprojURL.deletingLastPathComponent().path
-        
+
+        guard let xcodeproj = try? XcodeProj(pathString: xcodeprojURL.path),
+              let project = xcodeproj.pbxproj.rootObject else {
+            return nil
+        }
+
+        var explicitPackages = Set<String>()
+
+        for remote in project.remotePackages {
+            if let repoURL = remote.repositoryURL {
+                explicitPackages.insert(extractPackageName(from: repoURL))
+            }
+        }
+
+        let localPackageIdentities = Set(project.localPackages.map {
+            URL(fileURLWithPath: $0.relativePath).lastPathComponent.lowercased()
+        })
+        explicitPackages.formUnion(localPackageIdentities)
+
+        var targets: [TargetInfo] = []
+        for target in xcodeproj.pbxproj.nativeTargets {
+            var deps: [String] = []
+            for product in target.packageProductDependencies ?? [] {
+                if let remote = product.package, let repoURL = remote.repositoryURL {
+                    deps.append(extractPackageName(from: repoURL))
+                } else {
+                    let productIdentity = product.productName.lowercased()
+                    deps.append(localPackageIdentities.contains(productIdentity) ? productIdentity : productIdentity)
+                }
+            }
+            targets.append(TargetInfo(name: target.name, packageDependencies: deps))
+        }
+
+        guard !explicitPackages.isEmpty || !targets.isEmpty else { return nil }
+
+        return DependencyInfo(
+            projectPath: projectPath,
+            projectName: projectName,
+            dependencies: [],
+            explicitPackages: explicitPackages,
+            targets: targets
+        )
+    }
+
+    func parsePBXProjLegacy(at url: URL) -> DependencyInfo? {
+        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+
+        let xcodeprojURL = url.deletingLastPathComponent()
+        let projectName = xcodeprojURL.deletingPathExtension().lastPathComponent
+        let projectPath = xcodeprojURL.deletingLastPathComponent().path
+
         var explicitPackages = Set<String>()
         var targets: [TargetInfo] = []
-        
+
         // Parse XCRemoteSwiftPackageReference entries - look for repositoryURL lines
-        let repoURLPattern = #"repositoryURL\s*=\s*"([^"]+)""#
+        let repoURLPattern = #"repositoryURL\s*=\s*\"([^\"]+)\""#
         if let regex = try? NSRegularExpression(pattern: repoURLPattern, options: []) {
             let range = NSRange(content.startIndex..., in: content)
             let matches = regex.matches(in: content, options: [], range: range)
@@ -365,9 +419,9 @@ struct DependencyGraph: ParsableCommand {
                 }
             }
         }
-        
+
         // Parse XCLocalSwiftPackageReference entries - look for relativePath lines in that section
-        let localPackagePattern = #"XCLocalSwiftPackageReference[^}]+relativePath\s*=\s*"([^"]+)""#
+        let localPackagePattern = #"XCLocalSwiftPackageReference[^}]+relativePath\s*=\s*\"([^\"]+)\""#
         if let regex = try? NSRegularExpression(pattern: localPackagePattern, options: [.dotMatchesLineSeparators]) {
             let range = NSRange(content.startIndex..., in: content)
             let matches = regex.matches(in: content, options: [], range: range)
@@ -379,15 +433,15 @@ struct DependencyGraph: ParsableCommand {
                 }
             }
         }
-        
+
         let packageRefIdToIdentity = parsePackageReferenceIdentities(from: content)
         let productDepIdToPackageIdentity = parseProductDependencyToPackageIdentity(from: content, packageRefIdToIdentity: packageRefIdToIdentity)
 
         // Parse PBXNativeTarget entries and their package dependencies
         targets = parseTargets(from: content, productDependencyIdToPackageIdentity: productDepIdToPackageIdentity)
-        
+
         guard !explicitPackages.isEmpty || !targets.isEmpty else { return nil }
-        
+
         return DependencyInfo(
             projectPath: projectPath,
             projectName: projectName,

@@ -97,6 +97,36 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertTrue(output.contains("alamofire"), "Should find alamofire")
         XCTAssertTrue(output.contains("swift-argument-parser"), "Should find swift-argument-parser")
     }
+
+    func testParsePBXProjLocalSwiftPackageReferences() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let xcodeproj = tempDir.appendingPathComponent("LocalPackagesProject.xcodeproj")
+        try FileManager.default.createDirectory(at: xcodeproj, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let sourceFile = fixturesURL.appendingPathComponent("project_with_local_packages.pbxproj")
+        let destFile = xcodeproj.appendingPathComponent("project.pbxproj")
+        try FileManager.default.copyItem(at: sourceFile, to: destFile)
+
+        let resolvedContent = """
+        {
+          "pins" : [
+            {
+              "identity" : "rxswift",
+              "kind" : "remoteSourceControl",
+              "location" : "https://github.com/ReactiveX/RxSwift.git",
+              "state" : { "version" : "6.0.0" }
+            }
+          ],
+          "version" : 2
+        }
+        """
+        try resolvedContent.write(to: tempDir.appendingPathComponent("Package.resolved"), atomically: true, encoding: .utf8)
+
+        let output = try runBinary(args: [tempDir.path, "--format", "dot", "--show-targets"])
+        XCTAssertTrue(output.contains("rxswift"), "Should find remote package")
+        XCTAssertTrue(output.contains("mylocalpackage"), "Should find local package identity")
+    }
     
     // MARK: - Target Parsing Tests
     
