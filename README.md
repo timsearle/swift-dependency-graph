@@ -12,17 +12,23 @@ Binary: `.build/release/DependencyGraph`
 
 ## Usage
 
+Recommended: use the **Makefile** (it encodes the common workflows + flags).
+
 Note: when run in an interactive terminal, the tool prints scan progress to stderr (so `--format html > graph.html` still works).
 
 ```bash
+# CLI (power users)
 DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targets]
+
+# Makefile (recommended)
+make html PROJECT=/path/to/root
 ```
 
 ### Options
 
 | Option | Description |
 |--------|-------------|
-| `--format <format>` | Output format: tree, graph, dot, html, json, gexf, graphml, or analyze (default: graph) |
+| `--format <format>` | Output format: html, json, dot, gexf, or analyze (legacy: tree, graph, graphml; default: graph) |
 | `--hide-transient` | Hide transient (non-explicit) dependencies |
 | `--show-targets` | Show Xcode build targets in the graph |
 | `--internal-only` | In analyze mode, only show internal modules (not external packages) |
@@ -41,6 +47,18 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 | `gexf` | GEXF format (Gephi) |
 | `graphml` | Legacy alias for `gexf` (currently outputs GEXF, not GraphML) |
 | `analyze` | **Pinch point analysis** for modularization |
+
+### Makefile interface
+
+The Makefile defaults to `SHOW_TARGETS=1` (the CLI defaults to *not* showing targets), so `make html` is the quickest way to get a useful graph.
+
+Variables:
+- `PROJECT` (default `.`)
+- `SHOW_TARGETS=1|0`
+- `HIDE_TRANSIENT=1|0`
+- `SPM_EDGES=1|0`
+- `SWIFTPM_JSON=1|0`
+- `EXTRA_ARGS=...` (passed through to the CLI)
 
 ### Examples
 

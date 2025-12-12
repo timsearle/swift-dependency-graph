@@ -227,13 +227,13 @@ struct DependencyGraph: ParsableCommand {
         FileHandle.standardError.write((message + "\n").data(using: .utf8)!)
     }
     static let configuration = CommandConfiguration(
-        abstract: "Scans directories for Package.resolved files and creates a dependency graph visualization"
+        abstract: "Builds a dependency graph for Xcode projects/workspaces and Swift packages"
     )
     
-    @Argument(help: "The directory to scan for Package.resolved files")
+    @Argument(help: "Project root directory (can contain an .xcodeproj/.xcworkspace and/or a root Package.swift)")
     var directory: String
     
-    @Option(name: .shortAndLong, help: "Output format: tree, graph, dot, html, json, gexf, graphml, or analyze")
+    @Option(name: .shortAndLong, help: "Output format: html, json, dot, gexf, or analyze (legacy: tree, graph, graphml)")
     var format: OutputFormat = .graph
     
     @Flag(name: .long, help: "Hide transient (non-explicit) dependencies")
@@ -248,7 +248,7 @@ struct DependencyGraph: ParsableCommand {
     @Flag(name: .long, help: "Include SwiftPM package-to-package edges (swift package show-dependencies)")
     var spmEdges: Bool = false
 
-    @Flag(name: .long, help: "Use SwiftPM JSON (show-dependencies) instead of regex parsing Package.swift")
+    @Flag(name: .long, help: "Use SwiftPM JSON (dump-package) instead of regex parsing Package.swift")
     var swiftpmJSON: Bool = false
     
     mutating func run() throws {
@@ -376,6 +376,18 @@ struct DependencyGraph: ParsableCommand {
         }
         
         graph.computeLayers()
+
+        // Legacy format notices (TTY-only) to help guide people to the modern UX.
+        switch format {
+        case .tree:
+            eprint("Note: --format tree is legacy; prefer --format html/json.")
+        case .graph:
+            eprint("Note: --format graph is legacy; prefer --format html/json.")
+        case .graphml:
+            eprint("Note: --format graphml is a legacy alias for --format gexf (not GraphML).")
+        default:
+            break
+        }
         
         switch format {
         case .tree:
