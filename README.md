@@ -73,6 +73,9 @@ make graphml PROJECT=/path/to/ios-project   # Alias for make gexf
 
 ## Graph Model (contract)
 
+Implementation notes:
+- PBXProj parsing uses Tuist `XcodeProj` (typed parser) with a legacy fallback.
+
 The tool emits a directed graph with these node types:
 - `project`: Xcode project/workspace root
 - `target`: Xcode build target node, identified as `ProjectName/TargetName`

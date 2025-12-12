@@ -21,6 +21,7 @@ If the tool is not correct, it is useless.
 - Work in small slices; each slice is independently valuable.
 - Commit early and often.
 - Each commit must be atomic: one concept, one reason.
+- Maintain `TICKETS.md` as the running handover/status doc.
 
 ### 2) No regressions
 - Never break existing behavior or output formats.

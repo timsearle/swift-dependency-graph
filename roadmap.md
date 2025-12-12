@@ -46,6 +46,8 @@ Tests:
 ## Phase 1 — Replace PBXProj regex parsing with a real parser (without breaking outputs)
 **Objective:** correct target/product/package mapping from Xcode projects.
 
+Status: in progress — now uses Tuist XcodeProj for typed parsing with a legacy regex fallback.
+
 Work items:
 - Introduce a pbxproj parser dependency (Swift library) and build a typed model.
 - Correctly map:
