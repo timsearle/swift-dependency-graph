@@ -64,6 +64,8 @@ enum OutputFormat: String, ExpressibleByArgument, CaseIterable {
     case dot
     case html
     case analyze
+    case json      // JSON graph format for D3.js, Cytoscape, etc.
+    case graphml   // GraphML for yEd, Gephi, Cytoscape
 }
 
 // MARK: - Graph Data Structures
@@ -292,6 +294,10 @@ struct DependencyGraph: ParsableCommand {
             printHTMLGraph(graph: graph)
         case .analyze:
             printPinchPointAnalysis(graph: graph, internalOnly: internalOnly)
+        case .json:
+            printJSONGraph(graph: graph)
+        case .graphml:
+            printGraphMLGraph(graph: graph)
         }
     }
     
@@ -1537,6 +1543,97 @@ struct DependencyGraph: ParsableCommand {
         print("Shared dependencies: \(sharedDeps)")
         print("Total edges: \(graph.edges.count)")
         print(String(repeating: "═", count: 70) + "\n")
+    }
+    
+    // MARK: - JSON Output
+    
+    func printJSONGraph(graph: Graph) {
+        // Standard JSON Graph Format compatible with D3.js, Cytoscape.js, vis.js
+        var nodes: [[String: Any]] = []
+        for (name, node) in graph.nodes {
+            nodes.append([
+                "id": name,
+                "label": name,
+                "type": node.nodeType.rawValue,
+                "isTransient": node.isTransient,
+                "isInternal": node.isInternal
+            ])
+        }
+        
+        var edges: [[String: Any]] = []
+        for edge in graph.edges {
+            edges.append([
+                "source": edge.from,
+                "target": edge.to
+            ])
+        }
+        
+        let graphData: [String: Any] = [
+            "nodes": nodes,
+            "edges": edges,
+            "metadata": [
+                "nodeCount": graph.nodes.count,
+                "edgeCount": graph.edges.count,
+                "format": "json-graph"
+            ]
+        ]
+        
+        if let jsonData = try? JSONSerialization.data(withJSONObject: graphData, options: .prettyPrinted),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print(jsonString)
+        }
+    }
+    
+    // MARK: - GraphML Output
+    
+    func printGraphMLGraph(graph: Graph) {
+        // GraphML format for yEd, Gephi, Cytoscape
+        print("""
+        <?xml version="1.0" encoding="UTF-8"?>
+        <graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+                 http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+          <key id="type" for="node" attr.name="type" attr.type="string"/>
+          <key id="isTransient" for="node" attr.name="isTransient" attr.type="boolean"/>
+          <key id="isInternal" for="node" attr.name="isInternal" attr.type="boolean"/>
+          <key id="label" for="node" attr.name="label" attr.type="string"/>
+          <graph id="dependencies" edgedefault="directed">
+        """)
+        
+        for (name, node) in graph.nodes {
+            let escapedName = escapeXML(name)
+            print("""
+                <node id="\(escapedName)">
+                  <data key="label">\(escapedName)</data>
+                  <data key="type">\(node.nodeType.rawValue)</data>
+                  <data key="isTransient">\(node.isTransient)</data>
+                  <data key="isInternal">\(node.isInternal)</data>
+                </node>
+            """)
+        }
+        
+        for (index, edge) in graph.edges.enumerated() {
+            let from = escapeXML(edge.from)
+            let to = escapeXML(edge.to)
+            print("""
+                <edge id="e\(index)" source="\(from)" target="\(to)"/>
+            """)
+        }
+        
+        print("""
+          </graph>
+        </graphml>
+        """)
+    }
+    
+    func escapeXML(_ string: String) -> String {
+        string
+            .replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+            .replacingOccurrences(of: "\"", with: "&quot;")
+            .replacingOccurrences(of: "'", with: "&apos;")
     }
     
     // MARK: - Pinch Point Analysis
