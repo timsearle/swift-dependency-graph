@@ -55,6 +55,59 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertEqual(rootNode?["type"] as? String, "localPackage")
     }
 
+    func testSwiftPMJSONDumpPackageParsesPathDepsWithWeirdSpacing() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let appPkg = tempDir.appendingPathComponent("AppPkg")
+        let depB = tempDir.appendingPathComponent("DepB")
+
+        try FileManager.default.createDirectory(at: appPkg, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: depB, withIntermediateDirectories: true)
+
+        try FileManager.default.createDirectory(at: appPkg.appendingPathComponent("Sources/AppPkg"), withIntermediateDirectories: true)
+        try "public struct AppPkg {}".write(to: appPkg.appendingPathComponent("Sources/AppPkg/AppPkg.swift"), atomically: true, encoding: .utf8)
+
+        try FileManager.default.createDirectory(at: depB.appendingPathComponent("Sources/DepB"), withIntermediateDirectories: true)
+        try "public struct DepB {}".write(to: depB.appendingPathComponent("Sources/DepB/DepB.swift"), atomically: true, encoding: .utf8)
+
+        try """
+        // swift-tools-version: 5.9
+        import PackageDescription
+        let package = Package(
+            name: "DepB",
+            products: [.library(name: "DepB", targets: ["DepB"])],
+            targets: [.target(name: "DepB")]
+        )
+        """.write(to: depB.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        // Intentionally use `path :` (space before colon) to defeat our regex parser.
+        try """
+        // swift-tools-version: 5.9
+        import PackageDescription
+        let package = Package(
+            name: "AppPkg",
+            dependencies: [
+                .package( path : "../DepB" )
+            ],
+            targets: [.target(name: "AppPkg")]
+        )
+        """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        let output = try runBinary(args: [tempDir.path, "--format", "json", "--swiftpm-json"])
+        let data = try XCTUnwrap(output.data(using: .utf8))
+        let jsonAny = try JSONSerialization.jsonObject(with: data)
+        let json = try XCTUnwrap(jsonAny as? [String: Any])
+
+        let edgesArray = try XCTUnwrap(json["edges"] as? [[String: Any]])
+        let edgeSet = Set<String>(edgesArray.compactMap { edge in
+            guard let s = edge["source"] as? String, let t = edge["target"] as? String else { return nil }
+            return "\(s)->\(t)"
+        })
+
+        XCTAssertTrue(edgeSet.contains("apppkg->depb"))
+    }
+
     func testParsePackageResolvedV2() async throws {
         // Create a temp directory with our test fixture
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

@@ -20,11 +20,13 @@ help:
 	@echo "  SHOW_TARGETS=1|0       (default: 1)"
 	@echo "  HIDE_TRANSIENT=1|0     (default: 0)"
 	@echo "  SPM_EDGES=1|0          (default: 0)"
+	@echo "  SWIFTPM_JSON=1|0       (default: 0)"
 	@echo "  EXTRA_ARGS=...         (appended to CLI)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make html PROJECT=/path/to/MyApp"
 	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"
+	@echo "  make html PROJECT=/path/to/MyApp SWIFTPM_JSON=1"
 	@echo "  make json PROJECT=/path/to/MyApp HIDE_TRANSIENT=1"
 
 # Build targets
@@ -48,6 +50,7 @@ PROJECT ?= .
 SHOW_TARGETS ?= 1
 HIDE_TRANSIENT ?= 0
 SPM_EDGES ?= 0
+SWIFTPM_JSON ?= 0
 EXTRA_ARGS ?=
 
 CLI_FLAGS :=
@@ -59,6 +62,9 @@ CLI_FLAGS += --hide-transient
 endif
 ifeq ($(SPM_EDGES),1)
 CLI_FLAGS += --spm-edges
+endif
+ifeq ($(SWIFTPM_JSON),1)
+CLI_FLAGS += --swiftpm-json
 endif
 
 # Output targets

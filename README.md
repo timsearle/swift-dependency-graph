@@ -27,7 +27,7 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 | `--show-targets` | Show Xcode build targets in the graph |
 | `--internal-only` | In analyze mode, only show internal modules (not external packages) |
 | `--spm-edges` | Add SwiftPM package→package edges using `swift package show-dependencies --format json` |
-| `--swiftpm-json` | Use SwiftPM JSON (show-dependencies) instead of regex parsing `Package.swift` for local package direct deps |
+| `--swiftpm-json` | Use SwiftPM JSON (dump-package) instead of regex parsing `Package.swift` for local package direct deps |
 
 ### Output Formats
 
@@ -52,7 +52,7 @@ make html PROJECT=/path/to/ios-project
 make html PROJECT=/path/to/ios-project SPM_EDGES=1
 
 # Use SwiftPM JSON to derive direct deps for local packages (instead of Package.swift regex)
-.build/release/DependencyGraph /path/to/ios-project --format html --swiftpm-json --show-targets > graph.html && open graph.html
+make html PROJECT=/path/to/ios-project SWIFTPM_JSON=1
 
 # Hide transient deps
 make html PROJECT=/path/to/ios-project HIDE_TRANSIENT=1

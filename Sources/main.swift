@@ -320,7 +320,7 @@ struct DependencyGraph: ParsableCommand {
                 }
             } else if fileURL.lastPathComponent == "Package.swift" {
                 foundPackageSwift += 1
-                if let info = parsePackageSwift(at: fileURL, useSwiftPMJSON: swiftpmJSON) {
+                if let info = parsePackageSwift(at: fileURL) {
                     localPackages.append(info)
                 }
             }
@@ -328,6 +328,11 @@ struct DependencyGraph: ParsableCommand {
 
         let scanElapsed = String(format: "%.1fs", Date().timeIntervalSince(scanStart))
         eprint("Scan complete: files=\(scannedFiles) pbxproj=\(foundPBXProj) resolved=\(foundResolved) packages=\(foundPackageSwift) workspaces=\(foundWorkspaces) elapsed=\(scanElapsed)")
+
+        // Resolve local Swift packages using SwiftPM JSON (faster + more correct than regex parsing).
+        if swiftpmJSON {
+            localPackages = enrichLocalPackagesWithSwiftPMDumpPackage(localPackages: localPackages, pbxprojInfos: pbxprojInfos)
+        }
 
         // Include workspace-referenced projects (may be outside scanned directory)
         for xcodeprojURL in referencedXcodeprojURLs {
@@ -595,7 +600,32 @@ struct DependencyGraph: ParsableCommand {
         return false
     }
 
-    func parsePackageSwift(at url: URL, useSwiftPMJSON: Bool) -> DependencyInfo? {
+    func enrichLocalPackagesWithSwiftPMDumpPackage(localPackages: [DependencyInfo], pbxprojInfos: [DependencyInfo]) -> [DependencyInfo] {
+        let localIdentities = Set(localPackages.map { $0.projectName.lowercased() })
+        let referencedLocalIdentities = Set(pbxprojInfos.flatMap { $0.explicitPackages }).intersection(localIdentities)
+        let identitiesToResolve = referencedLocalIdentities.isEmpty ? localIdentities : referencedLocalIdentities
+
+        return localPackages.map { pkg in
+            guard identitiesToResolve.contains(pkg.projectName.lowercased()) else { return pkg }
+            let root = URL(fileURLWithPath: pkg.projectPath)
+
+            if let direct = directDependencyIdentitiesFromSwiftPMDumpPackage(packageRoot: root) {
+                var explicit = Set(direct)
+                explicit.insert(pkg.projectName.lowercased())
+                return DependencyInfo(
+                    projectPath: pkg.projectPath,
+                    projectName: pkg.projectName,
+                    dependencies: direct,
+                    explicitPackages: explicit,
+                    targets: pkg.targets
+                )
+            }
+
+            return pkg
+        }
+    }
+
+    func parsePackageSwift(at url: URL) -> DependencyInfo? {
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         
         let projectPath = url.deletingLastPathComponent().path
@@ -604,24 +634,6 @@ struct DependencyGraph: ParsableCommand {
         var dependencies: [String] = []
         var explicitPackages = Set<String>()
 
-        if useSwiftPMJSON, swiftPMRootHasResolved(packageRoot: url.deletingLastPathComponent()) {
-            if let rootNode = loadSwiftPMShowDependencies(packageRoot: url.deletingLastPathComponent()) {
-                let direct = (rootNode.dependencies ?? []).map { $0.identity.lowercased() }
-                dependencies.append(contentsOf: direct)
-                explicitPackages.formUnion(direct)
-            }
-
-            explicitPackages.insert(projectName)
-
-            return DependencyInfo(
-                projectPath: projectPath,
-                projectName: projectName,
-                dependencies: dependencies,
-                explicitPackages: explicitPackages,
-                targets: []
-            )
-        }
-        
         // Parse .package(...) declarations to find dependencies
         // Matches: .package(url: "...", ...) and .package(name: "...", path: "...")
         
@@ -1002,7 +1014,15 @@ struct DependencyGraph: ParsableCommand {
         let dependencies: [SwiftPMShowDependenciesNode]?
     }
 
+    nonisolated(unsafe) static var swiftPMShowDependenciesCache: [String: SwiftPMShowDependenciesNode] = [:]
+    nonisolated(unsafe) static var swiftPMDumpPackageCache: [String: Data] = [:]
+
     func loadSwiftPMShowDependencies(packageRoot: URL) -> SwiftPMShowDependenciesNode? {
+        let cacheKey = packageRoot.standardizedFileURL.path
+        if let cached = DependencyGraph.swiftPMShowDependenciesCache[cacheKey] {
+            return cached
+        }
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
         process.arguments = ["swift", "package", "show-dependencies", "--format", "json"]
@@ -1023,7 +1043,80 @@ struct DependencyGraph: ParsableCommand {
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let decoder = JSONDecoder()
-        return try? decoder.decode(SwiftPMShowDependenciesNode.self, from: data)
+        let decoded = try? decoder.decode(SwiftPMShowDependenciesNode.self, from: data)
+        if let decoded {
+            DependencyGraph.swiftPMShowDependenciesCache[cacheKey] = decoded
+        }
+        return decoded
+    }
+
+    func loadSwiftPMDumpPackageData(packageRoot: URL) -> Data? {
+        let cacheKey = packageRoot.standardizedFileURL.path
+        if let cached = DependencyGraph.swiftPMDumpPackageCache[cacheKey] {
+            return cached
+        }
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        process.arguments = ["swift", "package", "dump-package"]
+        process.currentDirectoryURL = packageRoot
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+
+        do {
+            try process.run()
+        } catch {
+            return nil
+        }
+
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else { return nil }
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        DependencyGraph.swiftPMDumpPackageCache[cacheKey] = data
+        return data
+    }
+
+    func directDependencyIdentitiesFromSwiftPMDumpPackage(packageRoot: URL) -> [String]? {
+        guard let data = loadSwiftPMDumpPackageData(packageRoot: packageRoot) else { return nil }
+        guard let any = try? JSONSerialization.jsonObject(with: data),
+              let json = any as? [String: Any],
+              let deps = json["dependencies"] as? [[String: Any]] else {
+            return nil
+        }
+
+        func identityFromItem(_ item: [String: Any]) -> String? {
+            if let id = item["identity"] as? String { return id.lowercased() }
+            if let location = item["location"] as? String { return extractPackageName(from: location) }
+            if let url = item["url"] as? String { return extractPackageName(from: url) }
+            if let path = item["path"] as? String { return URL(fileURLWithPath: path).lastPathComponent.lowercased() }
+            if let name = item["name"] as? String { return name.lowercased() }
+            return nil
+        }
+
+        var results: [String] = []
+        for dep in deps {
+            // SwiftPM 5.9+ structure: { fileSystem: [ {identity, path, ...} ] } / { sourceControl: [ {identity, location, ...} ] }
+            if let fs = dep["fileSystem"] as? [[String: Any]] {
+                results.append(contentsOf: fs.compactMap(identityFromItem))
+                continue
+            }
+            if let sc = dep["sourceControl"] as? [[String: Any]] {
+                results.append(contentsOf: sc.compactMap(identityFromItem))
+                continue
+            }
+            if let reg = dep["registry"] as? [[String: Any]] {
+                results.append(contentsOf: reg.compactMap(identityFromItem))
+                continue
+            }
+            if let direct = identityFromItem(dep) {
+                results.append(direct)
+            }
+        }
+
+        return results
     }
 
     func augmentGraphWithSwiftPMEdges(graph: inout Graph, packageRoots: [DependencyInfo], hideTransient: Bool) {
