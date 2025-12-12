@@ -58,6 +58,10 @@ Repo (private): https://github.com/timsearle/dependency-graph
 - Add a `--profile` flag that prints phase timings (scan/parse/swiftpm/html) to stderr (TTY-only).
 - Use it to target the real bottleneck on large repos.
 
+### P6.1 — Package metadata enrichment (lower priority)
+- Attach URL/version/revision to external package nodes (from Package.resolved + Xcode package refs).
+- Likely requires schema bump or optional fields.
+
 ---
 
 ## Recent commits
