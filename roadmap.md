@@ -66,6 +66,8 @@ Tests:
 ## Phase 2 — Build a true SwiftPM dependency graph (package→package edges)
 **Objective:** stop inferring edges from `Package.resolved`.
 
+Status: initial implementation is available behind `--spm-edges`.
+
 Approach (preferred):
 - Use `swift package show-dependencies --format json` for each discovered Swift package root.
 - Parse that JSON and add package→package edges.

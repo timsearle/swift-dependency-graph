@@ -24,6 +24,7 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 | `--hide-transient` | Hide transient (non-explicit) dependencies |
 | `--show-targets` | Show Xcode build targets in the graph |
 | `--internal-only` | In analyze mode, only show internal modules (not external packages) |
+| `--spm-edges` | Add SwiftPM package→package edges using `swift package show-dependencies --format json` |
 
 ### Output Formats
 

@@ -220,6 +220,9 @@ struct DependencyGraph: ParsableCommand {
     
     @Flag(name: .long, help: "In analyze mode, only show internal modules (not external packages)")
     var internalOnly: Bool = false
+
+    @Flag(name: .long, help: "Include SwiftPM package-to-package edges (swift package show-dependencies)")
+    var spmEdges: Bool = false
     
     mutating func run() throws {
         let fileManager = FileManager.default
@@ -276,6 +279,10 @@ struct DependencyGraph: ParsableCommand {
         
         // Build graph structure
         var graph = buildGraph(from: allDependencies, showTargets: showTargets)
+
+        if spmEdges {
+            augmentGraphWithSwiftPMEdges(graph: &graph, packageRoots: localPackages)
+        }
         
         // Filter transient dependencies if requested
         if hideTransient {
@@ -640,6 +647,61 @@ struct DependencyGraph: ParsableCommand {
     
     // MARK: - Merge Dependencies
     
+    struct SwiftPMShowDependenciesNode: Codable {
+        let identity: String
+        let dependencies: [SwiftPMShowDependenciesNode]?
+    }
+
+    func loadSwiftPMShowDependencies(packageRoot: URL) -> SwiftPMShowDependenciesNode? {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        process.arguments = ["swift", "package", "show-dependencies", "--format", "json"]
+        process.currentDirectoryURL = packageRoot
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+
+        do {
+            try process.run()
+        } catch {
+            return nil
+        }
+
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else { return nil }
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let decoder = JSONDecoder()
+        return try? decoder.decode(SwiftPMShowDependenciesNode.self, from: data)
+    }
+
+    func augmentGraphWithSwiftPMEdges(graph: inout Graph, packageRoots: [DependencyInfo]) {
+        var existingEdges = Set(graph.edges.map { "\($0.from)->\($0.to)" })
+
+        func addEdgeUnique(from: String, to: String) {
+            let key = "\(from)->\(to)"
+            if existingEdges.insert(key).inserted {
+                graph.addEdge(from: from, to: to)
+            }
+        }
+
+        func walk(parentNodeName: String, node: SwiftPMShowDependenciesNode) {
+            for dep in node.dependencies ?? [] {
+                let depId = dep.identity.lowercased()
+                graph.addNode(depId, nodeType: .externalPackage, isTransient: true)
+                addEdgeUnique(from: parentNodeName, to: depId)
+                walk(parentNodeName: depId, node: dep)
+            }
+        }
+
+        for pkg in packageRoots {
+            let pkgRoot = URL(fileURLWithPath: pkg.projectPath)
+            guard let rootNode = loadSwiftPMShowDependencies(packageRoot: pkgRoot) else { continue }
+            walk(parentNodeName: pkg.projectName, node: rootNode)
+        }
+    }
+
     func mergeDependencyInfo(resolved: [DependencyInfo], pbxproj: [DependencyInfo], localPackages: [DependencyInfo]) -> [DependencyInfo] {
         var merged: [DependencyInfo] = []
         
