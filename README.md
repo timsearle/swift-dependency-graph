@@ -45,28 +45,24 @@ DependencyGraph <directory> [--format <format>] [--hide-transient] [--show-targe
 # Interactive HTML (recommended)
 make html PROJECT=/path/to/ios-project
 
-# Or directly:
-.build/release/DependencyGraph /path/to/ios-project --format html > graph.html && open graph.html
+# Include SwiftPM package→package edges
+make html PROJECT=/path/to/ios-project SPM_EDGES=1
+
+# Hide transient deps
+make html PROJECT=/path/to/ios-project HIDE_TRANSIENT=1
 
 # Export for external tools
 make json PROJECT=/path/to/ios-project      # For D3.js, web tools
 make gexf PROJECT=/path/to/ios-project      # For Gephi
+make dot PROJECT=/path/to/ios-project       # Graphviz
 make graphml PROJECT=/path/to/ios-project   # Alias for make gexf
 
-# Show only explicit dependencies (hide transient)
-.build/release/DependencyGraph /path/to/ios-project --format html --hide-transient > graph.html
+# Analyze pinch points
+make analyze PROJECT=/path/to/ios-project
+make analyze-internal PROJECT=/path/to/ios-project
 
-# Include Xcode targets in the graph
-.build/release/DependencyGraph /path/to/ios-project --format html --show-targets > graph.html
-
-# Analyze pinch points (all explicit dependencies)
-.build/release/DependencyGraph /path/to/ios-project --format analyze --show-targets
-
-# Analyze only internal modules you control
-.build/release/DependencyGraph /path/to/ios-project --format analyze --show-targets --internal-only
-
-# Graphviz
-.build/release/DependencyGraph . --format dot > graph.dot && dot -Tpng graph.dot -o graph.png
+# Or directly:
+.build/release/DependencyGraph /path/to/ios-project --format html --show-targets --spm-edges > graph.html && open graph.html
 ```
 
 ## Features
@@ -96,6 +92,7 @@ JSON schema:
 The tool scans for and merges dependencies from:
 - **Package.resolved** - Swift Package Manager resolved dependencies (v1 & v2 formats)
 - **project.pbxproj** - Xcode project files with Swift Package references and target definitions
+- **contents.xcworkspacedata** - Xcode workspaces (discovers referenced `.xcodeproj`, even outside the scan root)
 - **Package.swift** - Local Swift packages with their dependency declarations
 
 ### Explicit vs Transient Dependencies
@@ -109,6 +106,7 @@ Use `--hide-transient` to focus on your directly-added dependencies.
 
 With `--show-targets`, the graph includes Xcode build targets (apps, frameworks, tests) as nodes, showing:
 - Project → Target relationships
+- Target → Target dependency edges
 - Target → Package dependency edges
 - Which packages each target uses
 

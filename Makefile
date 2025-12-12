@@ -1,4 +1,4 @@
-.PHONY: build release test clean html json gexf graphml analyze analyze-internal help
+.PHONY: build release test clean html json dot gexf graphml analyze analyze-internal help
 
 # Default target
 help:
@@ -9,13 +9,23 @@ help:
 	@echo "  make clean            - Clean build artifacts"
 	@echo "  make html             - Generate HTML graph and open in browser"
 	@echo "  make json             - Export JSON graph format"
+	@echo "  make dot              - Export Graphviz DOT format"
 	@echo "  make gexf             - Export GEXF format (for Gephi)"
 	@echo "  make graphml          - Alias for make gexf (legacy name)"
 	@echo "  make analyze          - Run pinch point analysis"
 	@echo "  make analyze-internal - Run analysis for internal modules only"
 	@echo ""
-	@echo "Set PROJECT=/path/to/ios-project to analyze a specific project"
-	@echo "Example: make html PROJECT=/path/to/MyApp"
+	@echo "Variables:"
+	@echo "  PROJECT=/path/to/root  (default: .)"
+	@echo "  SHOW_TARGETS=1|0       (default: 1)"
+	@echo "  HIDE_TRANSIENT=1|0     (default: 0)"
+	@echo "  SPM_EDGES=1|0          (default: 0)"
+	@echo "  EXTRA_ARGS=...         (appended to CLI)"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make html PROJECT=/path/to/MyApp"
+	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"
+	@echo "  make json PROJECT=/path/to/MyApp HIDE_TRANSIENT=1"
 
 # Build targets
 build:
@@ -34,25 +44,46 @@ clean:
 # Default project path (override with PROJECT=...)
 PROJECT ?= .
 
+# Flags
+SHOW_TARGETS ?= 1
+HIDE_TRANSIENT ?= 0
+SPM_EDGES ?= 0
+EXTRA_ARGS ?=
+
+CLI_FLAGS :=
+ifeq ($(SHOW_TARGETS),1)
+CLI_FLAGS += --show-targets
+endif
+ifeq ($(HIDE_TRANSIENT),1)
+CLI_FLAGS += --hide-transient
+endif
+ifeq ($(SPM_EDGES),1)
+CLI_FLAGS += --spm-edges
+endif
+
 # Output targets
 html: release
-	.build/release/DependencyGraph "$(PROJECT)" --format html --show-targets > graph.html
+	.build/release/DependencyGraph "$(PROJECT)" --format html $(CLI_FLAGS) $(EXTRA_ARGS) > graph.html
 	@echo "Generated graph.html"
 	open graph.html
 
 json: release
-	.build/release/DependencyGraph "$(PROJECT)" --format json --show-targets > graph.json
+	.build/release/DependencyGraph "$(PROJECT)" --format json $(CLI_FLAGS) $(EXTRA_ARGS) > graph.json
 	@echo "Generated graph.json"
 
+dot: release
+	.build/release/DependencyGraph "$(PROJECT)" --format dot $(CLI_FLAGS) $(EXTRA_ARGS) > graph.dot
+	@echo "Generated graph.dot"
+
 gexf: release
-	.build/release/DependencyGraph "$(PROJECT)" --format gexf --show-targets > graph.gexf
+	.build/release/DependencyGraph "$(PROJECT)" --format gexf $(CLI_FLAGS) $(EXTRA_ARGS) > graph.gexf
 	@echo "Generated graph.gexf (open with Gephi)"
 
 graphml: gexf
 
 # Analysis targets
 analyze: release
-	.build/release/DependencyGraph "$(PROJECT)" --format analyze --show-targets
+	.build/release/DependencyGraph "$(PROJECT)" --format analyze $(CLI_FLAGS) $(EXTRA_ARGS)
 
 analyze-internal: release
-	.build/release/DependencyGraph "$(PROJECT)" --format analyze --show-targets --internal-only
+	.build/release/DependencyGraph "$(PROJECT)" --format analyze $(CLI_FLAGS) $(EXTRA_ARGS) --internal-only
