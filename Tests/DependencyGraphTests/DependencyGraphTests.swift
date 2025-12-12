@@ -618,6 +618,11 @@ final class DependencyGraphTests: XCTestCase {
         let (nodesWithFlag, edgesWithFlag) = try parseJSON(try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges"]))
         XCTAssertTrue(edgeSet(edgesWithFlag).contains("depb->depc"), "With --spm-edges, should include DepB->DepC transitive edge")
 
+        // With --hide-transient, direct deps from the SwiftPM graph should remain.
+        let (nodesHideTransient, edgesHideTransient) = try parseJSON(try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges", "--hide-transient"]))
+        XCTAssertNotNil(nodesHideTransient.first(where: { $0["id"] as? String == "depb" }), "Direct SwiftPM deps should not be treated as transient")
+        XCTAssertTrue(edgeSet(edgesHideTransient).contains("apppkg->depb"))
+
         let depcNodes = nodesWithFlag.filter { $0["id"] as? String == "depc" }
         XCTAssertEqual(depcNodes.count, 1, "Should not create duplicate nodes for the same package identity")
         XCTAssertEqual(depcNodes.first?["type"] as? String, "localPackage")

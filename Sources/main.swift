@@ -97,9 +97,23 @@ struct Graph {
     var edges: [(from: String, to: String)] = []
     
     mutating func addNode(_ name: String, nodeType: NodeType, isTransient: Bool = false) {
-        if nodes[name] == nil {
-            nodes[name] = GraphNode(name: name, nodeType: nodeType, isTransient: isTransient)
+        if let existing = nodes[name] {
+            // Allow upgrading node type (e.g. externalPackage -> localPackage) and clearing transient.
+            let upgradedType: NodeType
+            if existing.nodeType == .externalPackage && nodeType == .localPackage {
+                upgradedType = .localPackage
+            } else {
+                upgradedType = existing.nodeType
+            }
+
+            let upgradedTransient = existing.isTransient && !isTransient ? false : existing.isTransient
+            if upgradedType != existing.nodeType || upgradedTransient != existing.isTransient {
+                nodes[name] = GraphNode(name: name, nodeType: upgradedType, isTransient: upgradedTransient, layer: existing.layer)
+            }
+            return
         }
+
+        nodes[name] = GraphNode(name: name, nodeType: nodeType, isTransient: isTransient)
     }
     
     mutating func addEdge(from: String, to: String) {
@@ -952,16 +966,18 @@ struct DependencyGraph: ParsableCommand {
                 .map { ($0.name.lowercased(), $0.name) }
         )
 
-        func walk(parentNodeName: String, node: SwiftPMShowDependenciesNode) {
+        func walk(parentNodeName: String, node: SwiftPMShowDependenciesNode, depth: Int) {
             for dep in node.dependencies ?? [] {
                 let depIdentity = dep.identity.lowercased()
                 let depNodeName = localPackageNodeNameByIdentity[depIdentity] ?? depIdentity
                 let depNodeType: NodeType = localPackageNodeNameByIdentity[depIdentity] != nil ? .localPackage : .externalPackage
-                let isTransient = depNodeType == .externalPackage
+
+                // Depth 1 from a package root == explicit dependency; deeper == transient.
+                let isTransient = (depth + 1) > 1 && depNodeType == .externalPackage
 
                 graph.addNode(depNodeName, nodeType: depNodeType, isTransient: isTransient)
                 addEdgeUnique(from: parentNodeName, to: depNodeName)
-                walk(parentNodeName: depNodeName, node: dep)
+                walk(parentNodeName: depNodeName, node: dep, depth: depth + 1)
             }
         }
 
@@ -970,7 +986,7 @@ struct DependencyGraph: ParsableCommand {
             guard let rootNode = loadSwiftPMShowDependencies(packageRoot: pkgRoot) else { continue }
             let rootIdentity = rootNode.identity.lowercased()
             let rootNodeName = localPackageNodeNameByIdentity[rootIdentity] ?? pkg.projectName
-            walk(parentNodeName: rootNodeName, node: rootNode)
+            walk(parentNodeName: rootNodeName, node: rootNode, depth: 0)
         }
     }
 
