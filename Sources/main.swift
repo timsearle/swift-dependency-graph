@@ -209,7 +209,7 @@ struct DependencyGraph: ParsableCommand {
     @Argument(help: "The directory to scan for Package.resolved files")
     var directory: String
     
-    @Option(name: .shortAndLong, help: "Output format: tree, graph, dot, html, or analyze")
+    @Option(name: .shortAndLong, help: "Output format: tree, graph, dot, html, json, gexf, graphml, or analyze")
     var format: OutputFormat = .graph
     
     @Flag(name: .long, help: "Hide transient (non-explicit) dependencies")
@@ -1737,6 +1737,7 @@ struct DependencyGraph: ParsableCommand {
             "nodes": nodes,
             "edges": edges,
             "metadata": [
+                "schemaVersion": 1,
                 "nodeCount": graph.nodes.count,
                 "edgeCount": graph.edges.count,
                 "format": "json-graph"

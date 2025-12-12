@@ -216,6 +216,7 @@ final class DependencyGraphTests: XCTestCase {
 
         let metadata = try XCTUnwrap(json["metadata"] as? [String: Any])
         XCTAssertEqual(metadata["format"] as? String, "json-graph")
+        XCTAssertEqual(metadata["schemaVersion"] as? Int, 1)
 
         let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
         let edges = try XCTUnwrap(json["edges"] as? [[String: Any]])
