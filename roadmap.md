@@ -89,9 +89,9 @@ Tests:
 ## Phase 3 — Local packages (Package.swift) correctness
 **Objective:** stop regex parsing of `Package.swift`.
 
-Options:
-- Prefer SwiftPM JSON outputs (`dump-package`, `show-dependencies`) over parsing source.
-- If parsing is needed, use SwiftSyntax (heavier) and gate behind a feature flag.
+Status: effectively complete.
+- Default path uses SwiftPM JSON (`swift package dump-package`).
+- Regex parsing remains as a fallback via `--no-swiftpm-json` (**deprecated**).
 
 Tests:
 - Fixtures with multiline, conditional deps, variables, and `.package(path:)`.
@@ -122,7 +122,9 @@ Work items:
 - Output interoperability:
   - Ensure GraphML output is accepted by common tools (and include label/type metadata).
   - Add/grow output contract tests as formats evolve.
-- Stabilize HTML UI stats (ensure nodeType values match).
+- HTML UX:
+  - Node search/autocomplete + focus/highlight (done)
+  - Stabilize HTML UI stats (ensure nodeType values match)
 - Add optional outputs:
   - schema’d JSON (versioned)
   - subgraph export

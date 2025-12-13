@@ -193,6 +193,7 @@ Module                                    Direct  Transitive  Vuln Score
 
 - **Pan**: Drag to move the view
 - **Zoom**: Scroll to zoom in/out
+- **Search**: Type to autocomplete nodes; select one to highlight + focus/zoom
 - **Drag nodes**: Reposition nodes manually
 - **Click node**: Shows details in sidebar
 - **Double-click**: Navigate to dependencies subgraph
@@ -317,10 +318,7 @@ node test_script.js
 ## Future Improvements
 
 Potential enhancements:
-- Search/filter nodes
 - Export subgraph as standalone HTML
-- Dependency version display
-- Cycle detection highlighting
-- Package.swift parsing (not just Package.resolved)
+- Dependency version display (e.g. show Package.resolved version/revision in UI)
+- Cycle detection highlighting (HTML + analyze)
 - Compare two graphs (diff view)
-- Target-to-package dependency edges (when --show-targets is used)

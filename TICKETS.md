@@ -2,7 +2,24 @@
 
 Repo (private): https://github.com/timsearle/dependency-graph
 
-## Current state (2025-12-13T10:00Z)
+## Current state (2025-12-13T11:28Z)
+
+### What’s working well now
+- Works on **root SwiftPM-only** repos (no Xcode project needed).
+- Works on **Xcode project/workspace** repos (typed pbxproj parsing via Tuist XcodeProj).
+- HTML DX improvements:
+  - Scan progress printed to stderr (doesn’t break `> graph.html`).
+  - Node search/autocomplete + focus/highlight in HTML.
+- Performance tooling:
+  - `--profile` prints phase timings to stderr.
+  - `make html-profile` and `make html-profile-cold`.
+- Output correctness:
+  - GraphML output includes label/type metadata + contract tests.
+  - `--stable-ids` avoids node id collisions (JSON schemaVersion=2 when enabled).
+
+### WIP / still-risky areas
+- SwiftPM `--spm-edges` without `--hide-transient` can be expensive on large repos (it runs `swift package show-dependencies` for discovered roots).
+- GraphML viewer repo (`../graphml-viewer`) is Angular 8 and **requires Node 14.x** (cannot be made “just work” without a node version manager).
 
 ## Work selection gate (run before starting a new slice)
 At the start of each slice, decide whether we should do **new features** vs **cleanup/hardening** by checking:
@@ -14,9 +31,12 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 ## Cleanup / hardening backlog (keep tight)
 - Track anything confusing/legacy here and only remove once we have tests + docs updated.
 - Current cleanup candidates:
-  - Remove regex fallback (`--no-swiftpm-json`) once we add fixtures for multiline/conditional deps, variables, `.package(path:)`, and multiple products.
-  - Schema v2 for stable, collision-free node ids (fix node id collisions).
-  - Real GraphML interoperability: validate GraphML output against viewer tooling + add contract tests.
+  - **Remove legacy regex fallback** (`--no-swiftpm-json`) after more real-world acceptance runs (already deprecated).
+  - Decide whether to **flip `--stable-ids` on by default** (would be a schema bump / contract decision).
+  - Improve **full `--spm-edges` performance** (when not using `--hide-transient`), likely via:
+    - caching show-deps results per package root
+    - avoiding redundant invocations across overlapping roots
+    - optional depth limits / heuristics (must be correctness-safe)
 
 
 ### Phase 0 (contract) — DONE
@@ -84,10 +104,13 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 ---
 
 ## Recent commits
-- `2f5d525` Avoid duplicate local package identities
-- `1620bcb` Fix root Package.swift node type
-- `92e040c` Fix HTML legend and update roadmap
-- `9f3ca33` Improve spm-edges performance
-- `b4689ab` Fix spm-edges transient classification
-- `88abe93` Makefile: support flags and document
-- `e6d9bde` Complete phases 1.1-1.3
+- `b450eba` Docs: add roadmap-first workflow
+- `a29cc3e` HTML: add node search and focus
+- `179e5bf` Test: add GraphML interoperability contract
+- `505ab83` Make: add html-profile + html-profile-cold
+- `33e4681` Perf: skip spm-edges with --hide-transient
+- `89e0c29` Perf: skip Pods/Carthage/node_modules
+- `dbaab24` Tickets: update output follow-ups
+- `3c0e0b5` Tests: assert GraphML labels
+- `c655b14` Add --profile and --stable-ids
+- `e02c272` Deprecate --no-swiftpm-json
