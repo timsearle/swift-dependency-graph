@@ -23,6 +23,15 @@ If the tool is not correct, it is useless.
 - Each commit must be atomic: one concept, one reason.
 - Maintain `TICKETS.md` as the running handover/status doc.
 
+### 1a) Work selection gate (every slice)
+Before starting any new slice, explicitly decide between **new features** vs **cleanup/hardening**:
+- Correctness risk: do we have known gaps that could mislead users? If yes, harden first.
+- DX pain: is there a serious usability/perf issue blocking adoption? If yes, fix it first.
+- Surface area: will the change expand flags/formats/schemas? If yes, add tests + docs first.
+- Hygiene: can we remove/deprecate something instead of adding more?
+
+Keep a tight list of cleanup candidates in `TICKETS.md` ("Cleanup / hardening backlog") with clear removal criteria.
+
 ### 2) No regressions
 - Never break existing behavior or output formats.
 - If behavior must change, gate it behind flags or versioned schema.
