@@ -311,12 +311,15 @@ struct DependencyGraph: ParsableCommand {
 
             // Skip build directories, checkouts, and Xcode internal paths
             let pathString = fileURL.path
-            if pathString.contains("/.build/") || 
-               pathString.contains("/checkouts/") || 
+            if pathString.contains("/.build/") ||
+               pathString.contains("/checkouts/") ||
                pathString.contains("/DerivedData/") ||
                pathString.contains("/xcshareddata/swiftpm/") ||
                pathString.contains("/xcuserdata/") ||
-               pathString.contains("/SourcePackages/") {
+               pathString.contains("/SourcePackages/") ||
+               pathString.contains("/Pods/") ||
+               pathString.contains("/Carthage/") ||
+               pathString.contains("/node_modules/") {
                 continue
             }
             
