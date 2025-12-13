@@ -886,6 +886,9 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertTrue(output.contains("<!DOCTYPE html>"), "Should output HTML format")
         XCTAssertTrue(output.contains("vis-network"), "Should include vis-network library")
         XCTAssertTrue(output.contains("toggle-transient"), "Should include transient toggle")
+
+        let outputHidden = try runBinary(args: [tempDir.path, "--format", "html", "--hide-transient"])
+        XCTAssertFalse(outputHidden.contains("id=\"toggle-transient\""), "Should not include transient toggle control when transient deps are hidden")
     }
 
     func testGEXFOutputFormat() async throws {

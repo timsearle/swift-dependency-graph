@@ -96,6 +96,7 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 ### P5.1 — Output/UX follow-ups — IN PROGRESS
 - ✅ Real GraphML output (includes label/type metadata).
 - ✅ Collision-free ids available via `--stable-ids` (JSON schemaVersion=2).
+- ✅ HTML: only show transient toggle when graph contains transient nodes.
 - Next: decide if/when to bump defaults (schema v2 / stable ids on by default).
 
 ### P5.2 — Profiling/timings — DONE

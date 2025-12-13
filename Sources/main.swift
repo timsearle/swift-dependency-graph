@@ -1633,13 +1633,16 @@ struct DependencyGraph: ParsableCommand {
                 <div class="stat-label">Connections</div>
                 <div class="stat-value" id="stat-edges">\(graph.edges.count)</div>
             </div>
-            <div class="toggle-section">
+            
+            \(transientCount > 0 ? """
+            <div class=\"toggle-section\">
                 <h2>Display Options</h2>
-                <div class="toggle-item">
-                    <input type="checkbox" id="toggle-transient" checked>
-                    <label for="toggle-transient">Show transient dependencies</label>
+                <div class=\"toggle-item\">
+                    <input type=\"checkbox\" id=\"toggle-transient\" checked>
+                    <label for=\"toggle-transient\">Show transient dependencies</label>
                 </div>
             </div>
+            """ : "")
             <div class="legend">
                 <h2>Legend</h2>
                 <div class="legend-item">
@@ -2219,10 +2222,13 @@ struct DependencyGraph: ParsableCommand {
         }
         
         // Toggle transient dependencies
-        document.getElementById('toggle-transient').addEventListener('change', function(e) {
-            showTransient = e.target.checked;
-            refreshGraph();
-        });
+        const transientToggle = document.getElementById('toggle-transient');
+        if (transientToggle) {
+            transientToggle.addEventListener('change', function(e) {
+                showTransient = e.target.checked;
+                refreshGraph();
+            });
+        }
         
         function refreshGraph() {
             const visibleNodes = getVisibleNodes();
