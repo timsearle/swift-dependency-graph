@@ -1539,6 +1539,33 @@ struct DependencyGraph: ParsableCommand {
         .instructions { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 8px; }
         .instructions h3 { font-size: 13px; margin-bottom: 8px; }
         .instructions p { font-size: 12px; color: #666; margin: 4px 0; }
+        .search { margin: 10px 0 15px; position: relative; }
+        .search input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #fff;
+        }
+        .search input:focus { outline: none; border-color: #4a90d9; box-shadow: 0 0 0 2px rgba(74,144,217,0.15); }
+        .search-results {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 38px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 2000;
+            display: none;
+        }
+        .search-result { padding: 8px 10px; font-size: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .search-result:last-child { border-bottom: none; }
+        .search-result:hover { background: #f8f9fa; }
+        .search-result .muted { color: #777; }
         #breadcrumbs { 
             position: absolute; 
             top: 10px; 
@@ -1597,6 +1624,10 @@ struct DependencyGraph: ParsableCommand {
         </div>
         <div id="sidebar">
             <h1>📦 Dependency Graph</h1>
+            <div class="search">
+                <input id="node-search" placeholder="Search nodes…" autocomplete="off">
+                <div id="node-search-results" class="search-results"></div>
+            </div>
             <div class="stat">
                 <div class="stat-label">Projects</div>
                 <div class="stat-value" id="stat-projects">\(graph.nodes.values.filter { $0.isProject }.count)</div>
@@ -1658,6 +1689,7 @@ struct DependencyGraph: ParsableCommand {
                 <p>👆 Drag nodes to reposition</p>
                 <p>👆 Click node to see details</p>
                 <p>👆👆 Double-click to view subgraph</p>
+                <p>⌨️ Search to jump to a node</p>
             </div>
             <div id="node-info">
                 <div class="node-name" id="selected-node-name"></div>
@@ -1687,6 +1719,127 @@ struct DependencyGraph: ParsableCommand {
         let currentView = null;
         let currentViewType = null; // 'dependencies' or 'dependents'
         let selectedNode = null;
+
+        // Node search
+        const searchInput = document.getElementById('node-search');
+        const searchResults = document.getElementById('node-search-results');
+
+        function typeLabelForNode(node) {
+            switch (node.nodeType) {
+                case 'project': return 'Xcode Project';
+                case 'target': return 'Build Target';
+                case 'localPackage': return 'Internal Package';
+                case 'externalPackage': return node.isTransient ? 'Transient Package' : 'External Package';
+                default: return node.nodeType;
+            }
+        }
+
+        function focusAndSelectNode(nodeId) {
+            if (!nodeId) return;
+
+            // If we're in a subgraph view and the node isn't present, jump back to root first.
+            if (!nodes.get(nodeId) && currentView) {
+                navigateBack(-1);
+                setTimeout(() => focusAndSelectNode(nodeId), 50);
+                return;
+            }
+
+            // If transient nodes are hidden, but the searched node is transient, enable transient.
+            const nodeMeta = allNodes.find(n => n.id === nodeId);
+            if (!nodes.get(nodeId) && nodeMeta && nodeMeta.isTransient && !showTransient) {
+                const toggle = document.getElementById('toggle-transient');
+                if (toggle) toggle.checked = true;
+                showTransient = true;
+                refreshGraph();
+                setTimeout(() => focusAndSelectNode(nodeId), 50);
+                return;
+            }
+
+            if (!nodes.get(nodeId)) return;
+
+            network.selectNodes([nodeId]);
+            selectedNode = nodeId;
+            showNodeInfo(nodeId);
+
+            network.focus(nodeId, {
+                scale: 1.2,
+                animation: { duration: 500, easingFunction: 'easeInOutQuad' }
+            });
+        }
+
+        function hideSearchResults() {
+            if (!searchResults) return;
+            searchResults.style.display = 'none';
+            searchResults.innerHTML = '';
+        }
+
+        function renderSearchResults(query) {
+            if (!searchResults) return;
+            const q = (query || '').trim().toLowerCase();
+            if (q.length < 2) {
+                hideSearchResults();
+                return;
+            }
+
+            const matches = [];
+            for (const n of allNodes) {
+                if ((n.label || '').toLowerCase().includes(q)) {
+                    matches.push(n);
+                    if (matches.length >= 20) break;
+                }
+            }
+
+            if (matches.length === 0) {
+                hideSearchResults();
+                return;
+            }
+
+            searchResults.innerHTML = matches.map(n =>
+                `<div class=\"search-result\" data-node-id=\"${n.id}\">${n.label} <span class=\"muted\">(${typeLabelForNode(n)})</span></div>`
+            ).join('');
+            searchResults.style.display = 'block';
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                renderSearchResults(searchInput.value);
+            });
+
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideSearchResults();
+                }
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const first = searchResults && searchResults.querySelector('.search-result');
+                    if (first && first.dataset && first.dataset.nodeId) {
+                        focusAndSelectNode(first.dataset.nodeId);
+                        hideSearchResults();
+                    } else {
+                        const exact = allNodes.find(n => n.label === searchInput.value.trim());
+                        if (exact) focusAndSelectNode(exact.id);
+                        hideSearchResults();
+                    }
+                }
+            });
+        }
+
+        if (searchResults) {
+            searchResults.addEventListener('click', function(e) {
+                const el = e.target.closest('.search-result');
+                if (!el || !el.dataset || !el.dataset.nodeId) return;
+                focusAndSelectNode(el.dataset.nodeId);
+                hideSearchResults();
+            });
+        }
+
+        // Click anywhere else closes the results popup
+        document.addEventListener('click', function(e) {
+            if (!searchInput || !searchResults) return;
+            if (e.target === searchInput) return;
+            if (searchResults.contains(e.target)) return;
+            hideSearchResults();
+        });
         
         // Filter functions
         function getVisibleNodes() {
