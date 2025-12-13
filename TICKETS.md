@@ -1,4 +1,4 @@
-# Internal Tickets / Handover
+# Tickets / Handover
 
 Repo: https://github.com/timsearle/swift-dependency-graph
 
