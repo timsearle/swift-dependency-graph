@@ -519,6 +519,55 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertEqual(ids.count, 2, "Nodes should not collapse under stable ids")
     }
 
+    func testStableIDs_AreIndependentOfAbsolutePaths() async throws {
+        func makeFixture(at root: URL) throws {
+            let xcodeproj = root.appendingPathComponent("samename.xcodeproj")
+            try FileManager.default.createDirectory(at: xcodeproj, withIntermediateDirectories: true)
+
+            let sourcePBXProj = fixturesURL.appendingPathComponent("project.pbxproj")
+            try FileManager.default.copyItem(at: sourcePBXProj, to: xcodeproj.appendingPathComponent("project.pbxproj"))
+        }
+
+        func stableProjectAndTargetIDs(at root: URL) throws -> (projectID: String, targetIDs: [String]) {
+            let output = try runBinary(args: [root.path, "--format", "json", "--stable-ids", "--show-targets"])
+            let data = try XCTUnwrap(output.data(using: .utf8))
+            let jsonAny = try JSONSerialization.jsonObject(with: data)
+            let json = try XCTUnwrap(jsonAny as? [String: Any])
+            let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+
+            let projectNode = try XCTUnwrap(nodes.first(where: { ($0["label"] as? String) == "samename" && ($0["type"] as? String) == "project" }))
+            let projectID = try XCTUnwrap(projectNode["id"] as? String)
+
+            let targetIDs = nodes
+                .filter { ($0["type"] as? String) == "target" && (($0["label"] as? String) ?? "").hasPrefix("samename/") }
+                .compactMap { $0["id"] as? String }
+                .sorted()
+
+            return (projectID, targetIDs)
+        }
+
+        let tempA = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let tempB = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer {
+            try? FileManager.default.removeItem(at: tempA)
+            try? FileManager.default.removeItem(at: tempB)
+        }
+        try FileManager.default.createDirectory(at: tempA, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: tempB, withIntermediateDirectories: true)
+
+        try makeFixture(at: tempA)
+        try makeFixture(at: tempB)
+
+        let a = try stableProjectAndTargetIDs(at: tempA)
+        let b = try stableProjectAndTargetIDs(at: tempB)
+
+        XCTAssertEqual(a.projectID, b.projectID)
+        XCTAssertEqual(a.targetIDs, b.targetIDs)
+
+        XCTAssertFalse(a.projectID.contains(tempA.path), "Project stable id should not embed absolute paths")
+        XCTAssertFalse(a.projectID.contains(tempB.path), "Project stable id should not embed absolute paths")
+    }
+
     func testContract_TargetToTargetEdges() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let xcodeproj = tempDir.appendingPathComponent("LocalPackagesProject.xcodeproj")

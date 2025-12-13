@@ -1271,9 +1271,23 @@ struct DependencyGraph: ParsableCommand {
     func nodeID(label: String, nodeType: NodeType, projectPath: String? = nil, containerID: String? = nil) -> String {
         guard stableIDs else { return label }
 
+        func relativePath(from base: URL, to target: URL) -> String {
+            let baseComps = base.resolvingSymlinksInPath().standardizedFileURL.pathComponents
+            let targetComps = target.resolvingSymlinksInPath().standardizedFileURL.pathComponents
+
+            var i = 0
+            while i < min(baseComps.count, targetComps.count) && baseComps[i] == targetComps[i] { i += 1 }
+
+            let ups = Array(repeating: "..", count: max(0, baseComps.count - i))
+            let downs = Array(targetComps.dropFirst(i))
+            let rel = (ups + downs).joined(separator: "/")
+            return rel.isEmpty ? "." : rel
+        }
+
         switch nodeType {
         case .project:
-            let p = projectPath.map { URL(fileURLWithPath: $0).standardizedFileURL.path } ?? ""
+            let root = URL(fileURLWithPath: directory).resolvingSymlinksInPath().standardizedFileURL
+            let p = projectPath.map { relativePath(from: root, to: URL(fileURLWithPath: $0)) } ?? ""
             return "project:\(p)#\(label)"
         case .target:
             let container = containerID ?? ""

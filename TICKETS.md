@@ -75,12 +75,12 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 
 ## Next tickets (recommended ordering)
 
-### P7.1 — True stable IDs (repo-relative) — WIP
-- Problem: `--stable-ids` currently includes absolute paths for project/target nodes, so ids are not stable across checkouts/CI.
-- Goal: ids remain collision-free but become stable across machines, ideally by using repo-relative paths (or a user-provided base).
+### P7.1 — True stable IDs (repo-relative) — DONE
+- Problem: `--stable-ids` used to include absolute paths for project/target nodes, so ids were not stable across checkouts/CI.
+- Fix: project ids now include scan-root-relative paths (repo-relative in practice).
 - Acceptance:
-  - Add an integration test that runs the CLI twice on equivalent directories rooted at different temp paths and asserts JSON node ids match when `--stable-ids` is enabled.
-  - Keep schemaVersion semantics consistent (v1 when not using stable ids; v2 when using them).
+  - ✅ Integration test runs the CLI twice on equivalent directories rooted at different temp paths and asserts JSON node ids match when `--stable-ids` is enabled.
+  - ✅ schemaVersion semantics unchanged (v1 default; v2 with `--stable-ids`).
 
 ### P7.2 — Publish JSON schema v2 + contract tests — WIP
 - Problem: `--stable-ids` emits `schemaVersion=2` but we only ship a v1 schema.
