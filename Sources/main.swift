@@ -985,7 +985,6 @@ struct DependencyGraph: ParsableCommand {
     
     struct SwiftPMShowDependenciesNode: Codable {
         let identity: String
-        let path: String?
         let dependencies: [SwiftPMShowDependenciesNode]?
     }
 

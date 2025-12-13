@@ -85,7 +85,7 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - ✅ Cycle handling via SCC condensation so depth/impact metrics are well-defined.
 - ✅ Tests for cycles + shared subgraphs (deduped transitive closures).
 
-### P2.2 — SwiftPM edges performance hardening — WIP
+### P2.2 — SwiftPM edges performance hardening — DONE
 - Problem: `--spm-edges` can run `swift package show-dependencies` for many discovered local package roots.
 - Approach:
   - Order roots by local-package dependency graph (entrypoints first)
