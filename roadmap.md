@@ -15,13 +15,13 @@ The graph must support:
 ---
 
 ## Current State (as-is)
-- Parses `Package.resolved` pins (no package→package edges available there).
+- Parses `Package.resolved` pins (versions/revisions/URLs; not used as authoritative edges).
 - Parses `project.pbxproj` via Tuist `XcodeProj` (typed) with legacy fallback where needed.
 - Parses `.xcworkspace/contents.xcworkspacedata` to include referenced `.xcodeproj`.
 - Resolves local Swift package direct deps via SwiftPM JSON (`swift package dump-package`); regex fallback is deprecated.
 - Produces outputs: DOT, HTML, JSON, GEXF, GraphML, and Analyze.
 
-Key risk: without authoritative dependency edges, pinch-point analysis can be misleading.
+Key risk: large repos can make SwiftPM graph resolution (`--spm-edges`) expensive; identity correctness remains the biggest correctness trap.
 
 ---
 
@@ -110,7 +110,7 @@ Work items:
 - Clear definitions:
   - direct vs transitive dependents
   - “explicit” vs “transitive” classification derived from authoritative sources
-- Add per-node explanations in JSON (why node is considered explicit/transient).
+- (Future) Add per-node explanations in JSON (why a node is considered explicit/transient).
 
 Tests:
 - ✅ Graph fixtures/tests with cycles and shared subgraphs.

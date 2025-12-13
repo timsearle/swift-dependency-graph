@@ -2,6 +2,14 @@
 
 Date: 2025-12-13
 
+## Update (post-review)
+As of 2025-12-13T20:45Z, the repo has addressed several items called out below:
+- Stable IDs are now repo-relative (stable across machines).
+- JSON schema v2 is shipped and contract-tested.
+- `diff` subcommand exists with integration tests.
+- HTML has an offline mode + transient toggle is only shown when applicable.
+- Package metadata (URL/version/revision/branch) is included in JSON when available.
+
 ## Executive summary
 This repository provides a Swift CLI that builds a **declared dependency graph** for iOS/Xcode codebases by merging data from Xcode projects/workspaces and SwiftPM metadata, then exports multiple formats (HTML/JSON/DOT/GEXF/GraphML) and a pinch-point **analysis** mode. It’s already genuinely useful for platform engineering workflows (modularization discovery, build-graph navigation), and it demonstrates a strong correctness/testing mindset compared to typical internal “graph scripts.”
 

@@ -1,8 +1,8 @@
 # Internal Tickets / Handover
 
-Repo (private): https://github.com/timsearle/swift-dependency-graph
+Repo: https://github.com/timsearle/swift-dependency-graph
 
-## Current state (2025-12-13T19:46Z)
+## Current state (2025-12-13T20:45Z)
 
 ### What’s working well now
 - Works on **root SwiftPM-only** repos (no Xcode project needed).
@@ -19,7 +19,7 @@ Repo (private): https://github.com/timsearle/swift-dependency-graph
 
 ### WIP / still-risky areas
 - SwiftPM `--spm-edges` without `--hide-transient` can be expensive on large repos (it runs `swift package show-dependencies` for discovered roots).
-- GraphML viewer repo (`../graphml-viewer`) is Angular 8 and **requires Node 14.x** (cannot be made “just work” without a node version manager).
+- Some Xcode configurations can still be ambiguous when mapping **product** → **package identity** (particularly with multiple local packages and missing `.package` refs).
 
 ## Work selection gate (run before starting a new slice)
 At the start of each slice, decide whether we should do **new features** vs **cleanup/hardening** by checking:
