@@ -32,6 +32,12 @@ Before starting any new slice, explicitly decide between **new features** vs **c
 
 Keep a tight list of cleanup candidates in `TICKETS.md` ("Cleanup / hardening backlog") with clear removal criteria.
 
+### 1b) Always log new work first (tickets/roadmap)
+If a requested task is **not already** represented in `TICKETS.md` and/or `roadmap.md`, **update those docs before writing code**, even if you expect to finish the work in one go.
+- Add a ticket entry marked WIP (with context, scope, and acceptance criteria).
+- If it changes priorities or phases, reflect that in `roadmap.md`.
+- When done (or if interrupted), update the ticket status so we always have a reliable record.
+
 ### 2) No regressions
 - Never break existing behavior or output formats.
 - If behavior must change, gate it behind flags or versioned schema.
