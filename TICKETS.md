@@ -2,7 +2,22 @@
 
 Repo (private): https://github.com/timsearle/dependency-graph
 
-## Current state (2025-12-12T22:16Z)
+## Current state (2025-12-13T10:00Z)
+
+## Work selection gate (run before starting a new slice)
+At the start of each slice, decide whether we should do **new features** vs **cleanup/hardening** by checking:
+1) **Correctness risk**: are there known correctness gaps that could mislead users? If yes, prioritize hardening.
+2) **DX pain**: is there a serious usability/perf issue blocking adoption? If yes, prioritize fixing it.
+3) **Surface area**: will a new feature expand the contract/flags? If yes, confirm docs/tests are in place first.
+4) **Flag/format hygiene**: can we remove/deprecate something instead of adding more?
+
+## Cleanup / hardening backlog (keep tight)
+- Track anything confusing/legacy here and only remove once we have tests + docs updated.
+- Current cleanup candidates:
+  - Remove regex fallback (`--no-swiftpm-json`) once we add fixtures for multiline/conditional deps, variables, `.package(path:)`, and multiple products.
+  - Schema v2 for stable, collision-free node ids (fix node id collisions).
+  - Real GraphML interoperability: validate GraphML output against viewer tooling + add contract tests.
+
 
 ### Phase 0 (contract) — DONE
 - JSON graph output is versioned: `metadata.schemaVersion = 1`.
