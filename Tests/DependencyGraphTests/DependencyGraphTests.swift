@@ -258,6 +258,84 @@ final class DependencyGraphTests: XCTestCase {
         for e in notContains { XCTAssertFalse(edgeSet.contains(e), "Unexpected edge: \(e)") }
     }
 
+    private struct ParsedGraphML {
+        let keyAttrNameByID: [String: String]
+        let nodeDataByID: [String: [String: String]]
+        let edges: [(source: String, target: String)]
+    }
+
+    private final class GraphMLCollector: NSObject, XMLParserDelegate {
+        var keyAttrNameByID: [String: String] = [:]
+        var nodeDataByID: [String: [String: String]] = [:]
+        var edges: [(source: String, target: String)] = []
+
+        private var currentNodeID: String?
+        private var currentDataKey: String?
+        private var currentDataValue: String = ""
+
+        func parser(_ parser: XMLParser,
+                    didStartElement elementName: String,
+                    namespaceURI: String?,
+                    qualifiedName qName: String?,
+                    attributes attributeDict: [String : String] = [:]) {
+            switch elementName {
+            case "key":
+                if let id = attributeDict["id"], let attrName = attributeDict["attr.name"] {
+                    keyAttrNameByID[id] = attrName
+                }
+            case "node":
+                if let id = attributeDict["id"] {
+                    currentNodeID = id
+                    nodeDataByID[id] = [:]
+                }
+            case "data":
+                currentDataKey = attributeDict["key"]
+                currentDataValue = ""
+            case "edge":
+                if let s = attributeDict["source"], let t = attributeDict["target"] {
+                    edges.append((source: s, target: t))
+                }
+            default:
+                break
+            }
+        }
+
+        func parser(_ parser: XMLParser, foundCharacters string: String) {
+            guard currentDataKey != nil else { return }
+            currentDataValue += string
+        }
+
+        func parser(_ parser: XMLParser,
+                    didEndElement elementName: String,
+                    namespaceURI: String?,
+                    qualifiedName qName: String?) {
+            switch elementName {
+            case "data":
+                guard let nodeID = currentNodeID, let key = currentDataKey else { break }
+                nodeDataByID[nodeID]?[key] = currentDataValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                currentDataKey = nil
+                currentDataValue = ""
+            case "node":
+                currentNodeID = nil
+            default:
+                break
+            }
+        }
+    }
+
+    private func parseGraphML(_ xml: String) throws -> ParsedGraphML {
+        let data = try XCTUnwrap(xml.data(using: .utf8))
+        let parser = XMLParser(data: data)
+        let collector = GraphMLCollector()
+        parser.delegate = collector
+        XCTAssertTrue(parser.parse(), "GraphML should be valid XML")
+        return ParsedGraphML(
+            keyAttrNameByID: collector.keyAttrNameByID,
+            nodeDataByID: collector.nodeDataByID,
+            edges: collector.edges
+        )
+    }
+
     func testParsePackageResolvedV2() async throws {
         // Create a temp directory with our test fixture
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -824,11 +902,45 @@ final class DependencyGraphTests: XCTestCase {
 
         let outputGexf = try runBinary(args: [tempDir.path, "--format", "gexf"])
         XCTAssertTrue(outputGexf.contains("<gexf"), "Should output GEXF format")
+    }
 
-        let outputGraphml = try runBinary(args: [tempDir.path, "--format", "graphml"])
-        XCTAssertTrue(outputGraphml.contains("<graphml"), "Should output GraphML format")
-        XCTAssertTrue(outputGraphml.contains("attr.name=\"label\""), "GraphML should include label metadata")
-        XCTAssertTrue(outputGraphml.contains("<data key=\"d3\">"), "GraphML nodes should include label data")
+    func testGraphMLOutputContract() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let root = tempDir.appendingPathComponent("Root")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+
+        let sourceFile = fixturesURL.appendingPathComponent("Package.resolved.v2")
+        let destFile = root.appendingPathComponent("Package.resolved")
+        try FileManager.default.copyItem(at: sourceFile, to: destFile)
+
+        let outputGraphml = try runBinary(args: [root.path, "--format", "graphml"])
+        let parsed = try parseGraphML(outputGraphml)
+
+        // Keys we expect for interoperability
+        XCTAssertEqual(parsed.keyAttrNameByID["d0"], "type")
+        XCTAssertEqual(parsed.keyAttrNameByID["d1"], "isTransient")
+        XCTAssertEqual(parsed.keyAttrNameByID["d2"], "isInternal")
+        XCTAssertEqual(parsed.keyAttrNameByID["d3"], "label")
+
+        // Spot-check a couple of known nodes from the fixture
+        XCTAssertEqual(parsed.nodeDataByID["Root"]?["d0"], "project")
+        XCTAssertEqual(parsed.nodeDataByID["alamofire"]?["d0"], "externalPackage")
+
+        // Every node should have the required metadata keys.
+        for (id, data) in parsed.nodeDataByID {
+            XCTAssertNotNil(data["d0"], "Missing type for node: \(id)")
+            XCTAssertNotNil(data["d1"], "Missing isTransient for node: \(id)")
+            XCTAssertNotNil(data["d2"], "Missing isInternal for node: \(id)")
+            XCTAssertNotNil(data["d3"], "Missing label for node: \(id)")
+        }
+
+        // Edges should reference existing node ids.
+        for (s, t) in parsed.edges {
+            XCTAssertNotNil(parsed.nodeDataByID[s], "Edge source node missing: \(s)")
+            XCTAssertNotNil(parsed.nodeDataByID[t], "Edge target node missing: \(t)")
+        }
     }
 
     func testSwiftPMEdgesFlagAddsTransitiveEdges() async throws {
