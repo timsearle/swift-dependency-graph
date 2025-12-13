@@ -1,6 +1,6 @@
 # Internal Tickets / Handover
 
-Repo (private): https://github.com/timsearle/dependency-graph
+Repo (private): https://github.com/timsearle/swift-dependency-graph
 
 ## Current state (2025-12-13T11:28Z)
 

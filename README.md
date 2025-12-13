@@ -1,4 +1,4 @@
-# DependencyGraph
+# swift-dependency-graph
 
 A Swift CLI tool that scans directories for Swift Package Manager `Package.resolved` files and Xcode project files (`project.pbxproj`) to create interactive dependency graph visualizations.
 
