@@ -934,6 +934,7 @@ final class DependencyGraphTests: XCTestCase {
         
         XCTAssertTrue(output.contains("<!DOCTYPE html>"), "Should output HTML format")
         XCTAssertTrue(output.contains("vis-network"), "Should include vis-network library")
+        XCTAssertTrue(output.contains("id=\"reset-view\""), "Should include reset view button")
         XCTAssertTrue(output.contains("toggle-transient"), "Should include transient toggle")
 
         let outputHidden = try runBinary(args: [tempDir.path, "--format", "html", "--hide-transient"])
