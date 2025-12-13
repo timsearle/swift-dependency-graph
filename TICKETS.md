@@ -119,7 +119,8 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - ✅ Real GraphML output (includes label/type metadata).
 - ✅ Collision-free ids available via `--stable-ids` (JSON schemaVersion=2).
 - ✅ HTML: only show transient toggle when graph contains transient nodes.
-- ⏳ HTML: add a "Reset view" button to fit the whole graph on screen.
+- ✅ HTML: add a "Reset view" button to fit the whole graph on screen.
+- ✅ Docs: move long-form README content into `docs/` and keep README quickstart-focused.
 - Next: decide if/when to bump defaults (schema v2 / stable ids on by default).
 
 ### P5.2 — Profiling/timings — DONE
