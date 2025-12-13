@@ -73,6 +73,9 @@ Tests:
 
 Status: working behind `--spm-edges` (performance-tuned; correct transient classification; supports SwiftPM-only roots).
 
+Notes:
+- `--spm-edges` now de-dupes `swift package show-dependencies` invocations across overlapping roots (identity closure).
+
 Approach (preferred):
 - Use `swift package show-dependencies --format json` for each discovered Swift package root.
 - Parse that JSON and add package→package edges.
@@ -117,6 +120,19 @@ Tests:
 
 ## Phase 5 — Output interoperability and UX
 **Objective:** make outputs accurate, stable, and usable at scale.
+
+---
+
+## Phase 6 — Stable IDs + schema v2 (foundation for diff/automation)
+**Objective:** make graph IDs stable across machines and publish/test JSON schema v2.
+
+Status: next.
+
+Work items:
+- True stable ids (repo-relative; avoid absolute paths in ids).
+- Ship `Schemas/dependency-graph.json-graph.v2.schema.json`.
+- Expand contract tests for schemaVersion=2.
+- Decide whether stable ids become the default (contract decision).
 
 Work items:
 - Output interoperability:

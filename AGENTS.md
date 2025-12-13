@@ -38,6 +38,10 @@ If a requested task is **not already** represented in `TICKETS.md` and/or `roadm
 - If it changes priorities or phases, reflect that in `roadmap.md`.
 - When done (or if interrupted), update the ticket status so we always have a reliable record.
 
+### 1c) Keep docs/tickets in sync
+- When priorities change, **update `TICKETS.md` and `roadmap.md` first**, then do code.
+- When flags/schemas/outputs change, update the relevant docs in the same slice.
+
 ### 2) No regressions
 - Never break existing behavior or output formats.
 - If behavior must change, gate it behind flags or versioned schema.

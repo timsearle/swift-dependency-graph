@@ -2,7 +2,7 @@
 
 Repo (private): https://github.com/timsearle/swift-dependency-graph
 
-## Current state (2025-12-13T11:28Z)
+## Current state (2025-12-13T19:00Z)
 
 ### What’s working well now
 - Works on **root SwiftPM-only** repos (no Xcode project needed).
@@ -31,11 +31,12 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 ## Cleanup / hardening backlog (keep tight)
 - Track anything confusing/legacy here and only remove once we have tests + docs updated.
 - Current cleanup candidates:
-  - Decide whether to **flip `--stable-ids` on by default** (would be a schema bump / contract decision).
-  - Improve **full `--spm-edges` performance** (when not using `--hide-transient`), likely via:
-    - caching show-deps results per package root
-    - avoiding redundant invocations across overlapping roots
-    - optional depth limits / heuristics (must be correctness-safe)
+  - **True stable IDs**: make `--stable-ids` stable across machines (avoid absolute paths).
+  - **Schema v2**: ship + test `Schemas/...v2...` to match `schemaVersion=2` output.
+  - Decide whether to **flip `--stable-ids` on by default** (contract decision).
+  - **PBX target deps**: remove remaining legacy pbxproj text parsing for target→target edges.
+  - **Graph diff** command once stable IDs exist.
+  - Optional: bundle/offline HTML deps (corporate envs block unpkg).
 
 
 ### Phase 0 (contract) — DONE
@@ -73,6 +74,25 @@ At the start of each slice, decide whether we should do **new features** vs **cl
    - Mitigation: use `--stable-ids` (emits collision-free ids; JSON schemaVersion=2).
 
 ## Next tickets (recommended ordering)
+
+### P7.1 — True stable IDs (repo-relative) — WIP
+- Problem: `--stable-ids` currently includes absolute paths for project/target nodes, so ids are not stable across checkouts/CI.
+- Goal: ids remain collision-free but become stable across machines, ideally by using repo-relative paths (or a user-provided base).
+- Acceptance:
+  - Add an integration test that runs the CLI twice on equivalent directories rooted at different temp paths and asserts JSON node ids match when `--stable-ids` is enabled.
+  - Keep schemaVersion semantics consistent (v1 when not using stable ids; v2 when using them).
+
+### P7.2 — Publish JSON schema v2 + contract tests — WIP
+- Problem: `--stable-ids` emits `schemaVersion=2` but we only ship a v1 schema.
+- Acceptance:
+  - Add `Schemas/dependency-graph.json-graph.v2.schema.json`.
+  - Add contract tests to validate required v2 fields and stable-id semantics.
+
+### P7.3 — Graph diff (CLI) — TODO
+- Once stable IDs are truly stable, add a minimal `diff` command for node/edge changes.
+
+### P9.1 — Xcode target→target correctness (remove legacy text parsing) — TODO
+- Replace remaining pbxproj string parsing for target→target deps with typed `XcodeProj` model.
 
 ### P3.1 — Stop regex parsing of Package.swift — DONE
 - Default path uses SwiftPM JSON outputs over parsing source:
