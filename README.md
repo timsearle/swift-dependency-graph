@@ -45,6 +45,15 @@ make analyze PROJECT=/path/to/ios-project
 | `--spm-edges` | Add SwiftPM package→package edges via `swift package show-dependencies --format json` (skipped when `--hide-transient`) |
 | `--stable-ids` | Use stable, collision-free node ids (schema v2 when enabled) |
 
+## What it looks like
+
+![Interactive HTML graph](./docs/assets/swift-dependency-graph.png)
+
+Sample outputs for *this* repo:
+- HTML: [`docs/examples/swift-dependency-graph.html`](./docs/examples/swift-dependency-graph.html)
+- JSON: [`docs/examples/swift-dependency-graph.json`](./docs/examples/swift-dependency-graph.json)
+- Analyze: [`docs/examples/swift-dependency-graph.analyze.txt`](./docs/examples/swift-dependency-graph.analyze.txt)
+
 ## Documentation
 
 - [docs/README.md](./docs/README.md) (graph model, HTML UI, architecture, testing)

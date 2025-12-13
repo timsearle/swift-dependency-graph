@@ -1,0 +1,85 @@
+{
+  "nodes" : [
+    {
+      "id" : "target:project:Tests\/DependencyGraphTests#Fixtures#Fixtures\/MyApp",
+      "type" : "target",
+      "isTransient" : false,
+      "isInternal" : true,
+      "label" : "Fixtures\/MyApp"
+    },
+    {
+      "id" : "localPackage:swift-dependency-graph",
+      "isInternal" : true,
+      "label" : "swift-dependency-graph",
+      "type" : "localPackage",
+      "isTransient" : false
+    },
+    {
+      "id" : "target:project:Tests\/DependencyGraphTests#Fixtures#Fixtures\/MyAppTests",
+      "label" : "Fixtures\/MyAppTests",
+      "type" : "target",
+      "isTransient" : false,
+      "isInternal" : true
+    },
+    {
+      "id" : "externalPackage:swift-argument-parser",
+      "isTransient" : false,
+      "type" : "externalPackage",
+      "isInternal" : false,
+      "label" : "swift-argument-parser"
+    },
+    {
+      "label" : "xcodeproj",
+      "isTransient" : false,
+      "isInternal" : false,
+      "id" : "externalPackage:xcodeproj",
+      "type" : "externalPackage"
+    },
+    {
+      "isInternal" : false,
+      "type" : "externalPackage",
+      "isTransient" : false,
+      "id" : "externalPackage:alamofire",
+      "label" : "alamofire"
+    },
+    {
+      "isInternal" : true,
+      "isTransient" : false,
+      "id" : "project:Tests\/DependencyGraphTests#Fixtures",
+      "type" : "project",
+      "label" : "Fixtures"
+    }
+  ],
+  "edges" : [
+    {
+      "source" : "localPackage:swift-dependency-graph",
+      "target" : "externalPackage:swift-argument-parser"
+    },
+    {
+      "target" : "externalPackage:xcodeproj",
+      "source" : "localPackage:swift-dependency-graph"
+    },
+    {
+      "source" : "project:Tests\/DependencyGraphTests#Fixtures",
+      "target" : "target:project:Tests\/DependencyGraphTests#Fixtures#Fixtures\/MyApp"
+    },
+    {
+      "source" : "target:project:Tests\/DependencyGraphTests#Fixtures#Fixtures\/MyApp",
+      "target" : "externalPackage:alamofire"
+    },
+    {
+      "target" : "externalPackage:swift-argument-parser",
+      "source" : "target:project:Tests\/DependencyGraphTests#Fixtures#Fixtures\/MyApp"
+    },
+    {
+      "target" : "target:project:Tests\/DependencyGraphTests#Fixtures#Fixtures\/MyAppTests",
+      "source" : "project:Tests\/DependencyGraphTests#Fixtures"
+    }
+  ],
+  "metadata" : {
+    "schemaVersion" : 2,
+    "edgeCount" : 6,
+    "format" : "json-graph",
+    "nodeCount" : 7
+  }
+}
