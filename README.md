@@ -101,6 +101,10 @@ make dot PROJECT=/path/to/ios-project       # Graphviz
 make analyze PROJECT=/path/to/ios-project
 make analyze-internal PROJECT=/path/to/ios-project
 
+# Profile timings (tool-side; target-project SwiftPM/Xcode caches can still affect results)
+make html-profile PROJECT=/path/to/ios-project HIDE_TRANSIENT=1 SPM_EDGES=1
+make html-profile-cold PROJECT=/path/to/ios-project HIDE_TRANSIENT=1 SPM_EDGES=1
+
 # Or directly:
 .build/release/DependencyGraph /path/to/ios-project --format html --show-targets --spm-edges > graph.html && open graph.html
 ```

@@ -1,4 +1,4 @@
-.PHONY: build release test clean html html-fast html-full json dot gexf graphml analyze analyze-internal viewer-install viewer-start viewer help
+.PHONY: build release test clean html html-fast html-full html-profile html-profile-cold json dot gexf graphml analyze analyze-internal viewer-install viewer-start viewer help
 
 # Default target
 help:
@@ -10,6 +10,8 @@ help:
 	@echo "  make html             - Generate HTML graph and open in browser"
 	@echo "  make html-fast        - Recommended: targets + hide transient"
 	@echo "  make html-full        - Full: targets + SwiftPM JSON + spm-edges"
+	@echo "  make html-profile     - Like html, but prints timing breakdown (EXTRA_ARGS includes --profile)"
+	@echo "  make html-profile-cold- Like html-profile, but clears this repo's .build first (tool-only cold start)"
 	@echo "  make json             - Export JSON graph format"
 	@echo "  make dot              - Export Graphviz DOT format"
 	@echo "  make gexf             - Export GEXF format (for Gephi)"
@@ -85,6 +87,13 @@ html-fast: release
 
 html-full: release
 	HIDE_TRANSIENT=1 SHOW_TARGETS=1 SPM_EDGES=1 SWIFTPM_JSON=1 $(MAKE) --no-print-directory html PROJECT="$(PROJECT)" EXTRA_ARGS="$(EXTRA_ARGS)"
+
+html-profile: release
+	$(MAKE) --no-print-directory html PROJECT="$(PROJECT)" SHOW_TARGETS="$(SHOW_TARGETS)" HIDE_TRANSIENT="$(HIDE_TRANSIENT)" SPM_EDGES="$(SPM_EDGES)" SWIFTPM_JSON="$(SWIFTPM_JSON)" EXTRA_ARGS="--profile $(EXTRA_ARGS)"
+
+html-profile-cold: clean
+	rm -rf .build
+	$(MAKE) --no-print-directory html-profile PROJECT="$(PROJECT)" SHOW_TARGETS="$(SHOW_TARGETS)" HIDE_TRANSIENT="$(HIDE_TRANSIENT)" SPM_EDGES="$(SPM_EDGES)" SWIFTPM_JSON="$(SWIFTPM_JSON)" EXTRA_ARGS="$(EXTRA_ARGS)"
 
 json: release
 	.build/release/DependencyGraph "$(PROJECT)" --format json $(CLI_FLAGS) $(EXTRA_ARGS) > graph.json
