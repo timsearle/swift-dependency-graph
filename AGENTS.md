@@ -42,6 +42,14 @@ If a requested task is **not already** represented in `TICKETS.md` and/or `roadm
 - When priorities change, **update `TICKETS.md` and `roadmap.md` first**, then do code.
 - When flags/schemas/outputs change, update the relevant docs in the same slice.
 
+### 1d) Git safety (commit only your changes)
+- Before committing, run:
+  - `git status --porcelain`
+  - `git diff` and `git diff --staged`
+- **Never** commit unrelated/unexplained diffs (e.g. changes from another agent, generated files, or local environment drift).
+- Stage files explicitly (prefer `git add <paths>` or `git add -p`); avoid `git add -A` unless you are certain the working tree is clean.
+- If you find unexpected local changes, either revert them (`git restore …`) or ask for guidance before committing.
+
 ### 2) No regressions
 - Never break existing behavior or output formats.
 - If behavior must change, gate it behind flags or versioned schema.
