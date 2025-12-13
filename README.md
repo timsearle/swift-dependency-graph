@@ -60,3 +60,9 @@ Sample outputs for *this* repo:
 - [roadmap.md](./roadmap.md)
 - [TICKETS.md](./TICKETS.md)
 
+## Contributing / Security / License
+
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [SECURITY.md](./SECURITY.md)
+- [LICENSE](./LICENSE) (MIT)
+
