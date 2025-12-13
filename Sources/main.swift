@@ -1057,6 +1057,7 @@ struct DependencyGraph: ParsableCommand {
     
     struct SwiftPMShowDependenciesNode: Codable {
         let identity: String
+        let path: String?
         let dependencies: [SwiftPMShowDependenciesNode]?
     }
 
@@ -1064,7 +1065,7 @@ struct DependencyGraph: ParsableCommand {
     nonisolated(unsafe) static var swiftPMDumpPackageCache: [String: Data] = [:]
 
     func loadSwiftPMShowDependencies(packageRoot: URL) -> SwiftPMShowDependenciesNode? {
-        let cacheKey = packageRoot.standardizedFileURL.path
+        let cacheKey = packageRoot.resolvingSymlinksInPath().standardizedFileURL.path
         if let cached = DependencyGraph.swiftPMShowDependenciesCache[cacheKey] {
             return cached
         }
@@ -1097,7 +1098,7 @@ struct DependencyGraph: ParsableCommand {
     }
 
     func loadSwiftPMDumpPackageData(packageRoot: URL) -> Data? {
-        let cacheKey = packageRoot.standardizedFileURL.path
+        let cacheKey = packageRoot.resolvingSymlinksInPath().standardizedFileURL.path
         if let cached = DependencyGraph.swiftPMDumpPackageCache[cacheKey] {
             return cached
         }
@@ -1207,11 +1208,64 @@ struct DependencyGraph: ParsableCommand {
             }
         }
 
+        // De-dupe + order roots so we resolve likely entrypoints first.
+        // This lets us skip expensive show-deps invocations for packages already covered by a previously-resolved graph.
+        var rootByPath: [String: DependencyInfo] = [:]
+        func canonicalPath(_ url: URL) -> String {
+            url.resolvingSymlinksInPath().standardizedFileURL.path
+        }
+
         for pkg in packageRoots {
+            let p = canonicalPath(URL(fileURLWithPath: pkg.projectPath))
+            if rootByPath[p] == nil { rootByPath[p] = pkg }
+        }
+
+        let roots = Array(rootByPath.values)
+        let localIdentities = Set(roots.map { $0.projectName.lowercased() })
+
+        var dependedOnLocalIdentities = Set<String>()
+        for pkg in roots {
+            for dep in pkg.dependencies {
+                let depLower = dep.lowercased()
+                if localIdentities.contains(depLower) {
+                    dependedOnLocalIdentities.insert(depLower)
+                }
+            }
+        }
+
+        let orderedRoots = roots.sorted {
+            let aIsEntry = !dependedOnLocalIdentities.contains($0.projectName.lowercased())
+            let bIsEntry = !dependedOnLocalIdentities.contains($1.projectName.lowercased())
+            if aIsEntry != bIsEntry { return aIsEntry }
+
+            let ap = canonicalPath(URL(fileURLWithPath: $0.projectPath))
+            let bp = canonicalPath(URL(fileURLWithPath: $1.projectPath))
+            return ap < bp
+        }
+
+        func collectCoveredRootIdentities(node: SwiftPMShowDependenciesNode) -> Set<String> {
+            var result = Set<String>()
+
+            func walk(_ n: SwiftPMShowDependenciesNode) {
+                result.insert(n.identity.lowercased())
+                for d in n.dependencies ?? [] { walk(d) }
+            }
+
+            walk(node)
+            return result
+        }
+
+        var coveredRootIdentities = Set<String>()
+
+        for pkg in orderedRoots {
+            let pkgIdentity = pkg.projectName.lowercased()
+            if coveredRootIdentities.contains(pkgIdentity) { continue }
+
             let pkgRoot = URL(fileURLWithPath: pkg.projectPath)
             guard let rootNode = loadSwiftPMShowDependencies(packageRoot: pkgRoot) else { continue }
-            let rootIdentity = rootNode.identity.lowercased()
+            coveredRootIdentities.formUnion(collectCoveredRootIdentities(node: rootNode))
 
+            let rootIdentity = rootNode.identity.lowercased()
             let rootLabel = localPackageLabelByIdentity[rootIdentity] ?? pkg.projectName
             let rootID = localPackageNodeIDByIdentity[rootIdentity] ?? nodeID(label: rootLabel, nodeType: .localPackage)
 

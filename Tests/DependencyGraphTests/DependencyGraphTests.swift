@@ -1029,6 +1029,108 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertEqual(depcNodes.first?["type"] as? String, "localPackage")
         XCTAssertEqual(depcNodes.first?["isInternal"] as? Bool, true)
     }
+
+    func testSPMEdges_DeDupesShowDependenciesInvocationsAcrossRoots() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let appPkg = tempDir.appendingPathComponent("AppPkg")
+        let depB = tempDir.appendingPathComponent("DepB")
+        let depC = tempDir.appendingPathComponent("DepC")
+
+        try FileManager.default.createDirectory(at: appPkg, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: depB, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: depC, withIntermediateDirectories: true)
+
+        // AppPkg -> DepB -> DepC
+        try FileManager.default.createDirectory(at: appPkg.appendingPathComponent("Sources/AppPkg"), withIntermediateDirectories: true)
+        try "public struct AppPkg {}".write(to: appPkg.appendingPathComponent("Sources/AppPkg/AppPkg.swift"), atomically: true, encoding: .utf8)
+        try """
+        // swift-tools-version: 6.0
+        import PackageDescription
+        let package = Package(
+          name: \"AppPkg\",
+          products: [.library(name: \"AppPkg\", targets: [\"AppPkg\"])],
+          dependencies: [ .package(path: \"../DepB\") ],
+          targets: [ .target(name: \"AppPkg\", dependencies: [\"DepB\"]) ]
+        )
+        """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        try FileManager.default.createDirectory(at: depB.appendingPathComponent("Sources/DepB"), withIntermediateDirectories: true)
+        try "public struct DepB {}".write(to: depB.appendingPathComponent("Sources/DepB/DepB.swift"), atomically: true, encoding: .utf8)
+        try """
+        // swift-tools-version: 6.0
+        import PackageDescription
+        let package = Package(
+          name: \"DepB\",
+          products: [.library(name: \"DepB\", targets: [\"DepB\"])],
+          dependencies: [ .package(path: \"../DepC\") ],
+          targets: [ .target(name: \"DepB\", dependencies: [\"DepC\"]) ]
+        )
+        """.write(to: depB.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        try FileManager.default.createDirectory(at: depC.appendingPathComponent("Sources/DepC"), withIntermediateDirectories: true)
+        try "public struct DepC {}".write(to: depC.appendingPathComponent("Sources/DepC/DepC.swift"), atomically: true, encoding: .utf8)
+        try """
+        // swift-tools-version: 6.0
+        import PackageDescription
+        let package = Package(
+          name: \"DepC\",
+          products: [.library(name: \"DepC\", targets: [\"DepC\"])],
+          targets: [ .target(name: \"DepC\") ]
+        )
+        """.write(to: depC.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        // Stub `swift` so we can count `show-dependencies` invocations deterministically.
+        let binDir = tempDir.appendingPathComponent("bin")
+        try FileManager.default.createDirectory(at: binDir, withIntermediateDirectories: true)
+
+        let logFile = tempDir.appendingPathComponent("swift-invocations.log")
+        let swiftStub = binDir.appendingPathComponent("swift")
+
+        let stubText = """
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" == "package" && "${2:-}" == "show-dependencies" ]]; then
+  echo "show-deps $(pwd)" >> "${DG_SWIFT_LOG}"
+
+  root="$(basename "$(pwd)")"
+  base="$(cd .. && pwd)"
+
+  if [[ "$root" == "AppPkg" ]]; then
+    printf '%s\n' '{"identity":"apppkg","dependencies":[{"identity":"depb","dependencies":[{"identity":"depc","dependencies":[]}]}]}'
+    exit 0
+  fi
+
+  if [[ "$root" == "DepB" ]]; then
+    printf '%s\n' '{"identity":"depb","dependencies":[{"identity":"depc","dependencies":[]}]}'
+    exit 0
+  fi
+
+  if [[ "$root" == "DepC" ]]; then
+    printf '%s\n' '{"identity":"depc","dependencies":[]}'
+    exit 0
+  fi
+fi
+
+echo "unexpected swift args: $*" >&2
+exit 1
+"""
+        try stubText.write(to: swiftStub, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: swiftStub.path)
+
+        var env: [String: String] = [:]
+        env["DG_SWIFT_LOG"] = logFile.path
+        env["PATH"] = "\(binDir.path):\(ProcessInfo.processInfo.environment["PATH"] ?? "")"
+
+        let output = try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges", "--no-swiftpm-json"], environment: env)
+        try assertEdgeSet(output: output, contains: ["apppkg->depb", "depb->depc"])
+
+        let logText = (try? String(contentsOf: logFile, encoding: .utf8)) ?? ""
+        let invocations = logText.split(separator: "\n").count
+        XCTAssertEqual(invocations, 1, "Expected show-dependencies to run once; got invocations=\(invocations). Log:\n\(logText)")
+    }
     
     // MARK: - Helper Methods
     
@@ -1091,10 +1193,14 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertEqual(dInfo?.transitiveDependents, 3)
     }
 
-    func runBinary(args: [String]) throws -> String {
+    func runBinary(args: [String], environment: [String: String] = [:]) throws -> String {
         let process = Process()
         process.executableURL = binaryURL
         process.arguments = args
+
+        var env = ProcessInfo.processInfo.environment
+        for (k, v) in environment { env[k] = v }
+        process.environment = env
         
         let pipe = Pipe()
         process.standardOutput = pipe

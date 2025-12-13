@@ -88,6 +88,14 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - ✅ Cycle handling via SCC condensation so depth/impact metrics are well-defined.
 - ✅ Tests for cycles + shared subgraphs (deduped transitive closures).
 
+### P2.2 — SwiftPM edges performance hardening — WIP
+- Problem: `--spm-edges` can run `swift package show-dependencies` for many discovered local package roots.
+- Approach:
+  - Order roots by local-package dependency graph (entrypoints first)
+  - Skip roots covered by previously-resolved SwiftPM graphs (based on show-deps `path` fields)
+- Acceptance:
+  - Adds a test that stubs `swift` and asserts we de-dupe show-deps invocations (without changing graph output).
+
 ### P5.1 — Output/UX follow-ups — IN PROGRESS
 - ✅ Real GraphML output (includes label/type metadata).
 - ✅ Collision-free ids available via `--stable-ids` (JSON schemaVersion=2).
