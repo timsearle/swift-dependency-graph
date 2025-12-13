@@ -68,9 +68,10 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - Add cycle handling (SCC condensation) so depth/impact metrics are well-defined.
 - Add tests for cycles/shared subgraphs.
 
-### P5.1 — Output/UX follow-ups
-- Implement real GraphML or keep `graphml` as an explicit alias (documented).
-- Consider emitting stable, collision-free ids (schema bump).
+### P5.1 — Output/UX follow-ups — IN PROGRESS
+- ✅ Real GraphML output (includes label/type metadata).
+- ✅ Collision-free ids available via `--stable-ids` (JSON schemaVersion=2).
+- Next: decide if/when to bump defaults (schema v2 / stable ids on by default).
 
 ### P5.2 — Profiling/timings — DONE
 - `--profile` prints phase timings to stderr (scan/dump-package/spm-edges/hide-transient/total).
