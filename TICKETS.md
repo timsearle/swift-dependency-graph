@@ -2,7 +2,7 @@
 
 Repo (private): https://github.com/timsearle/swift-dependency-graph
 
-## Current state (2025-12-13T19:12Z)
+## Current state (2025-12-13T19:46Z)
 
 ### What’s working well now
 - Works on **root SwiftPM-only** repos (no Xcode project needed).
@@ -93,8 +93,9 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - Uses node ids + edge pairs (stable ids recommended).
 - ✅ Includes integration-style test coverage.
 
-### P9.1 — Xcode target→target correctness (remove legacy text parsing) — TODO
-- Replace remaining pbxproj string parsing for target→target deps with typed `XcodeProj` model.
+### P9.1 — Xcode target→target correctness (remove legacy text parsing) — DONE
+- Replaced remaining pbxproj string parsing for target→target deps in the typed parser with `XcodeProj`’s `PBXTarget.dependencies`.
+- Existing target→target contract test continues to pass.
 
 ### P3.1 — Stop regex parsing of Package.swift — DONE
 - Default path uses SwiftPM JSON outputs over parsing source:

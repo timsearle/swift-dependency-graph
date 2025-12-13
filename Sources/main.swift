@@ -647,11 +647,6 @@ struct GraphCommand: ParsableCommand {
         let localPackageIdentitySet = Set(localPackageIdentities)
         explicitPackages.formUnion(localPackageIdentitySet)
 
-        let legacyTargetDepsByName: [String: [String]] = {
-            guard let content = try? String(contentsOf: url, encoding: .utf8) else { return [:] }
-            return parseTargetDependenciesByTargetName(from: content)
-        }()
-
         var targets: [TargetInfo] = []
         for target in xcodeproj.pbxproj.nativeTargets {
             var packageDeps: [String] = []
@@ -670,7 +665,9 @@ struct GraphCommand: ParsableCommand {
                 }
             }
 
-            let targetDeps = legacyTargetDepsByName[target.name] ?? []
+            let targetDeps: [String] = target.dependencies.compactMap { dep in
+                dep.target?.name
+            }
             targets.append(TargetInfo(name: target.name, packageDependencies: packageDeps, targetDependencies: targetDeps))
         }
 
