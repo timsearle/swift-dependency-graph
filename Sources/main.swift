@@ -383,19 +383,26 @@ struct DependencyGraph: ParsableCommand {
         if spmEdges {
             let spmStart = Date()
 
-            // Performance: in Xcode project mode, only run SwiftPM graph resolution for local packages that are
-            // explicitly referenced by the Xcode project(s).
-            let localIdentities = Set(localPackages.map { $0.projectName.lowercased() })
-            let referencedLocalIdentities = Set(pbxprojInfos.flatMap { $0.explicitPackages }).intersection(localIdentities)
-            let spmRoots = referencedLocalIdentities.isEmpty ? localPackages : localPackages.filter { referencedLocalIdentities.contains($0.projectName.lowercased()) }
+            // If transient deps are being hidden, SwiftPM transitive edges are not shown anyway.
+            // Skipping avoids paying for dozens of expensive `swift package show-dependencies` invocations.
+            if hideTransient {
+                eprint("SwiftPM edges: skipped (hide-transient enabled)")
+                pprof(String(format: "PROFILE spm-edges=%.1fs", 0.0))
+            } else {
+                // Performance: in Xcode project mode, only run SwiftPM graph resolution for local packages that are
+                // explicitly referenced by the Xcode project(s).
+                let localIdentities = Set(localPackages.map { $0.projectName.lowercased() })
+                let referencedLocalIdentities = Set(pbxprojInfos.flatMap { $0.explicitPackages }).intersection(localIdentities)
+                let spmRoots = referencedLocalIdentities.isEmpty ? localPackages : localPackages.filter { referencedLocalIdentities.contains($0.projectName.lowercased()) }
 
-            // Avoid triggering slow dependency resolution/network fetches for packages that don't have an existing resolution.
-            // Only apply this heuristic in Xcode-project mode (where we can discover many Package.swift files that aren't
-            // meant to be resolved as standalone packages).
-            let spmRootsToResolve = pbxprojInfos.isEmpty ? spmRoots : spmRoots.filter { swiftPMRootHasResolved(packageRoot: URL(fileURLWithPath: $0.projectPath)) }
+                // Avoid triggering slow dependency resolution/network fetches for packages that don't have an existing resolution.
+                // Only apply this heuristic in Xcode-project mode (where we can discover many Package.swift files that aren't
+                // meant to be resolved as standalone packages).
+                let spmRootsToResolve = pbxprojInfos.isEmpty ? spmRoots : spmRoots.filter { swiftPMRootHasResolved(packageRoot: URL(fileURLWithPath: $0.projectPath)) }
 
-            augmentGraphWithSwiftPMEdges(graph: &graph, packageRoots: spmRootsToResolve, hideTransient: hideTransient)
-            pprof(String(format: "PROFILE spm-edges=%.1fs", Date().timeIntervalSince(spmStart)))
+                augmentGraphWithSwiftPMEdges(graph: &graph, packageRoots: spmRootsToResolve, hideTransient: hideTransient)
+                pprof(String(format: "PROFILE spm-edges=%.1fs", Date().timeIntervalSince(spmStart)))
+            }
         }
         
         // Filter transient dependencies if requested

@@ -32,7 +32,7 @@ make html PROJECT=/path/to/root
 | `--hide-transient` | Hide transient (non-explicit) dependencies |
 | `--show-targets` | Show Xcode build targets in the graph |
 | `--internal-only` | In analyze mode, only show internal modules (not external packages) |
-| `--spm-edges` | Add SwiftPM package→package edges using `swift package show-dependencies --format json` |
+| `--spm-edges` | Add SwiftPM package→package edges using `swift package show-dependencies --format json` (skipped when `--hide-transient` is enabled) |
 | `--profile` | Print phase timings to stderr (useful for diagnosing slow runs) |
 | `--stable-ids` | Use stable, collision-free node ids (JSON schema v2 when enabled) |
 | `--swiftpm-json` / `--no-swiftpm-json` | Resolve local package direct deps via `swift package dump-package` (default on). `--no-swiftpm-json` is **deprecated** (legacy regex fallback). |
