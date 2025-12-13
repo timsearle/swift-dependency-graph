@@ -270,8 +270,8 @@ struct GraphCommand: ParsableCommand {
     @Flag(name: .long, help: "Print phase timings to stderr")
     var profile: Bool = false
 
-    @Flag(name: .customLong("stable-ids"), help: "Use stable, collision-free node ids (JSON schema v2 when used)")
-    var stableIDs: Bool = false
+    @Flag(name: .customLong("stable-ids"), inversion: .prefixedNo, help: "Use stable, collision-free node ids (JSON schema v2). Default: on")
+    var stableIDs: Bool = true
 
     @Flag(name: .customLong("html-offline"), help: "In HTML output, inline vis-network from a local JS file (requires --vis-network-js)")
     var htmlOffline: Bool = false
@@ -302,8 +302,8 @@ struct GraphCommand: ParsableCommand {
         @Flag(name: .long, help: "Include SwiftPM package-to-package edges (swift package show-dependencies)")
         var spmEdges: Bool = false
 
-        @Flag(name: .customLong("stable-ids"), help: "Use stable ids when generating both graphs (recommended)")
-        var stableIDs: Bool = false
+        @Flag(name: .customLong("stable-ids"), inversion: .prefixedNo, help: "Use stable ids when generating both graphs. Default: on")
+        var stableIDs: Bool = true
 
         func run() throws {
             let a = try graphSets(for: from)
@@ -361,7 +361,7 @@ struct GraphCommand: ParsableCommand {
             if hideTransient { args.append("--hide-transient") }
             if showTargets { args.append("--show-targets") }
             if spmEdges { args.append("--spm-edges") }
-            if stableIDs { args.append("--stable-ids") }
+            if !stableIDs { args.append("--no-stable-ids") }
 
             let process = Process()
             process.executableURL = exe

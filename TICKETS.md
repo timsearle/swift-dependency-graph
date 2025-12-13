@@ -116,14 +116,13 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - Acceptance:
   - Adds a test that stubs `swift` and asserts we de-dupe show-deps invocations (without changing graph output).
 
-### P5.1 — Output/UX follow-ups — IN PROGRESS
-- ⏳ HTML: offline mode (no CDN) for vis-network (corporate environments)
+### P5.1 — Output/UX follow-ups — DONE
+- ✅ HTML: offline mode (no CDN) for vis-network (corporate environments)
+- ✅ Stable IDs default on (disable with `--no-stable-ids`; JSON schemaVersion=2 by default)
 - ✅ Real GraphML output (includes label/type metadata).
-- ✅ Collision-free ids available via `--stable-ids` (JSON schemaVersion=2).
 - ✅ HTML: only show transient toggle when graph contains transient nodes.
 - ✅ HTML: add a "Reset view" button to fit the whole graph on screen.
 - ✅ Docs: move long-form README content into `docs/` and keep README quickstart-focused.
-- Next: decide if/when to bump defaults (schema v2 / stable ids on by default).
 
 ### P5.2 — Profiling/timings — DONE
 - `--profile` prints phase timings to stderr (scan/dump-package/spm-edges/hide-transient/total).

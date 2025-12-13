@@ -19,8 +19,8 @@ Implementation notes:
 
 ## JSON schema
 
-- Default: `--format json` emits `metadata.schemaVersion = 1` and follows `Schemas/dependency-graph.json-graph.v1.schema.json`.
-- With `--stable-ids`: emits `metadata.schemaVersion = 2` and follows `Schemas/dependency-graph.json-graph.v2.schema.json`.
+- Default: `--format json` emits `metadata.schemaVersion = 2` and follows `Schemas/dependency-graph.json-graph.v2.schema.json`.
+- Compatibility: pass `--no-stable-ids` to emit `metadata.schemaVersion = 1` and follow `Schemas/dependency-graph.json-graph.v1.schema.json`.
 
 ## Dependency sources
 

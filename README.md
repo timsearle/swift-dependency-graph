@@ -43,7 +43,7 @@ make analyze PROJECT=/path/to/ios-project
 | `--hide-transient` | Hide transient (non-explicit) dependencies |
 | `--show-targets` | Include Xcode build targets |
 | `--spm-edges` | Add SwiftPM package→package edges via `swift package show-dependencies --format json` (skipped when `--hide-transient`) |
-| `--stable-ids` | Use stable, collision-free node ids (schema v2 when enabled) |
+| `--stable-ids` | Use stable, collision-free node ids (schema v2; default on, disable with `--no-stable-ids`) |
 
 ## What it looks like
 

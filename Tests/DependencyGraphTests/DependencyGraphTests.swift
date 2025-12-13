@@ -52,7 +52,7 @@ final class DependencyGraphTests: XCTestCase {
         let json = try XCTUnwrap(jsonAny as? [String: Any])
         let nodesArray = try XCTUnwrap(json["nodes"] as? [[String: Any]])
 
-        let rootNode = nodesArray.first(where: { $0["id"] as? String == "Swit" })
+        let rootNode = nodesArray.first(where: { $0["id"] as? String == "localPackage:swit" })
         XCTAssertEqual(rootNode?["type"] as? String, "localPackage")
     }
 
@@ -96,7 +96,7 @@ final class DependencyGraphTests: XCTestCase {
         """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
         // Default should use dump-package.
-        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
+        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["localPackage:apppkg->localPackage:depb"])
     }
 
     func testSwiftPMJSONDumpPackageHandlesVariableAndMultilineDependencies() async throws {
@@ -134,7 +134,7 @@ final class DependencyGraphTests: XCTestCase {
         )
         """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
-        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
+        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["localPackage:apppkg->localPackage:depb"])
     }
 
     func testSwiftPMJSONDumpPackageHandlesConditionalTargetDependencies() async throws {
@@ -176,7 +176,7 @@ final class DependencyGraphTests: XCTestCase {
         )
         """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
-        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
+        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["localPackage:apppkg->localPackage:depb"])
     }
 
     func testSwiftPMJSONDumpPackageHandlesMultipleProducts() async throws {
@@ -225,7 +225,7 @@ final class DependencyGraphTests: XCTestCase {
         )
         """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
-        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
+        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["localPackage:apppkg->localPackage:depb"])
     }
 
     private func depBPackageSwift() -> String {
@@ -333,6 +333,11 @@ final class DependencyGraphTests: XCTestCase {
         )
     }
 
+    private func nodeID(in nodes: [[String: Any]], label: String, type: String) throws -> String {
+        let node = try XCTUnwrap(nodes.first(where: { ($0["label"] as? String) == label && ($0["type"] as? String) == type }))
+        return try XCTUnwrap(node["id"] as? String)
+    }
+
     func testParsePackageResolvedV2() async throws {
         // Create a temp directory with our test fixture
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -351,9 +356,9 @@ final class DependencyGraphTests: XCTestCase {
         let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
         let nodeIDs = Set(nodes.compactMap { $0["id"] as? String })
 
-        XCTAssertTrue(nodeIDs.contains("swift-argument-parser"))
-        XCTAssertTrue(nodeIDs.contains("swift-collections"))
-        XCTAssertTrue(nodeIDs.contains("alamofire"))
+        XCTAssertTrue(nodeIDs.contains("externalPackage:swift-argument-parser"))
+        XCTAssertTrue(nodeIDs.contains("externalPackage:swift-collections"))
+        XCTAssertTrue(nodeIDs.contains("externalPackage:alamofire"))
     }
     
     func testParsePackageResolvedV1() async throws {
@@ -372,8 +377,8 @@ final class DependencyGraphTests: XCTestCase {
         let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
         let nodeIDs = Set(nodes.compactMap { $0["id"] as? String })
 
-        XCTAssertTrue(nodeIDs.contains("swift-argument-parser"))
-        XCTAssertTrue(nodeIDs.contains("alamofire"))
+        XCTAssertTrue(nodeIDs.contains("externalPackage:swift-argument-parser"))
+        XCTAssertTrue(nodeIDs.contains("externalPackage:alamofire"))
     }
     
     // MARK: - PBXProj Parsing Tests
@@ -467,14 +472,14 @@ final class DependencyGraphTests: XCTestCase {
         let edges = try XCTUnwrap(json["edges"] as? [[String: Any]])
 
         let nodeIDs = Set(nodes.compactMap { $0["id"] as? String })
-        XCTAssertTrue(nodeIDs.contains("localpkgdir"), "Should resolve local product dep to local package identity")
-        XCTAssertFalse(nodeIDs.contains("weirdproduct"), "Should not treat local product name as package identity")
+        XCTAssertTrue(nodeIDs.contains("externalPackage:localpkgdir"), "Should resolve local product dep to local package identity")
+        XCTAssertFalse(nodeIDs.contains("externalPackage:weirdproduct"), "Should not treat local product name as package identity")
 
         let edgeSet = Set<String>(edges.compactMap { edge in
             guard let s = edge["source"] as? String, let t = edge["target"] as? String else { return nil }
             return "\(s)->\(t)"
         })
-        XCTAssertTrue(edgeSet.contains("MismatchProject/iOS->localpkgdir"))
+        XCTAssertTrue(edgeSet.contains(where: { $0.hasSuffix("->externalPackage:localpkgdir") }))
     }
 
     func testStableIDsPreventProjectAndLocalPackageCollisions() async throws {
@@ -583,13 +588,18 @@ final class DependencyGraphTests: XCTestCase {
         let jsonAny = try JSONSerialization.jsonObject(with: data)
         let json = try XCTUnwrap(jsonAny as? [String: Any])
 
+        let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
         let edges = try XCTUnwrap(json["edges"] as? [[String: Any]])
+
+        let iosID = try nodeID(in: nodes, label: "LocalPackagesProject/iOS", type: "target")
+        let iosTestsID = try nodeID(in: nodes, label: "LocalPackagesProject/iOSTests", type: "target")
+
         let edgeSet = Set<String>(edges.compactMap { edge in
             guard let s = edge["source"] as? String, let t = edge["target"] as? String else { return nil }
             return "\(s)->\(t)"
         })
 
-        XCTAssertTrue(edgeSet.contains("LocalPackagesProject/iOSTests->LocalPackagesProject/iOS"))
+        XCTAssertTrue(edgeSet.contains("\(iosTestsID)->\(iosID)"))
     }
     
     // MARK: - Target Parsing Tests
@@ -707,10 +717,9 @@ final class DependencyGraphTests: XCTestCase {
         let json = try XCTUnwrap(jsonAny as? [String: Any])
 
         let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
-        let nodeIDs = Set(nodes.compactMap { $0["id"] as? String })
 
-        XCTAssertTrue(nodeIDs.contains("ExternalProject"), "Should include workspace-referenced external project")
-        XCTAssertTrue(nodeIDs.contains("ExternalProject/MyApp"), "Should include targets from workspace-referenced project")
+        _ = try nodeID(in: nodes, label: "ExternalProject", type: "project")
+        _ = try nodeID(in: nodes, label: "ExternalProject/MyApp", type: "target")
     }
 
     // MARK: - Output Format Tests
@@ -746,7 +755,14 @@ final class DependencyGraphTests: XCTestCase {
 
         let metadata = try XCTUnwrap(json["metadata"] as? [String: Any])
         XCTAssertEqual(metadata["format"] as? String, "json-graph")
-        XCTAssertEqual(metadata["schemaVersion"] as? Int, 1)
+        XCTAssertEqual(metadata["schemaVersion"] as? Int, 2)
+
+        let outputV1 = try runBinary(args: [tempDir.path, "--format", "json", "--no-stable-ids"])
+        let dataV1 = try XCTUnwrap(outputV1.data(using: .utf8))
+        let jsonAnyV1 = try JSONSerialization.jsonObject(with: dataV1)
+        let jsonV1 = try XCTUnwrap(jsonAnyV1 as? [String: Any])
+        let metadataV1 = try XCTUnwrap(jsonV1["metadata"] as? [String: Any])
+        XCTAssertEqual(metadataV1["schemaVersion"] as? Int, 1)
 
         let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
         let edges = try XCTUnwrap(json["edges"] as? [[String: Any]])
@@ -893,7 +909,7 @@ final class DependencyGraphTests: XCTestCase {
         let nodesArray = try XCTUnwrap(json["nodes"] as? [[String: Any]])
         let edgesArray = try XCTUnwrap(json["edges"] as? [[String: Any]])
 
-        func node(_ id: String) -> [String: Any]? {
+        func nodeByID(_ id: String) -> [String: Any]? {
             nodesArray.first(where: { $0["id"] as? String == id })
         }
 
@@ -902,16 +918,20 @@ final class DependencyGraphTests: XCTestCase {
             return "\(s)->\(t)"
         })
 
-        XCTAssertEqual(node("TestProject")?["type"] as? String, "project")
-        XCTAssertEqual(node("TestProject/MyApp")?["type"] as? String, "target")
-        XCTAssertTrue(edgeSet.contains("TestProject->TestProject/MyApp"))
-        XCTAssertTrue(edgeSet.contains("TestProject/MyApp->alamofire"))
-        XCTAssertTrue(edgeSet.contains("TestProject/MyApp->swift-argument-parser"))
-        XCTAssertNil(node("argumentparser"), "Target deps should resolve to package identity, not product name")
+        let projectID = try nodeID(in: nodesArray, label: "TestProject", type: "project")
+        let myAppID = try nodeID(in: nodesArray, label: "TestProject/MyApp", type: "target")
+
+        XCTAssertEqual(nodeByID(projectID)?["type"] as? String, "project")
+        XCTAssertEqual(nodeByID(myAppID)?["type"] as? String, "target")
+
+        XCTAssertTrue(edgeSet.contains("\(projectID)->\(myAppID)"))
+        XCTAssertTrue(edgeSet.contains("\(myAppID)->externalPackage:alamofire"))
+        XCTAssertTrue(edgeSet.contains("\(myAppID)->externalPackage:swift-argument-parser"))
+        XCTAssertNil(nodeByID("externalPackage:argumentparser"), "Target deps should resolve to package identity, not product name")
 
         // swift-collections is not explicit in pbxproj, so should be transient
-        XCTAssertEqual(node("swift-collections")?["isTransient"] as? Bool, true)
-        XCTAssertTrue(edgeSet.contains("TestProject->swift-collections"))
+        XCTAssertEqual(nodeByID("externalPackage:swift-collections")?["isTransient"] as? Bool, true)
+        XCTAssertTrue(edgeSet.contains("\(projectID)->externalPackage:swift-collections"))
     }
 
     func testContract_JSONHideTransient_RemovesTransientNodes() async throws {
@@ -962,9 +982,11 @@ final class DependencyGraphTests: XCTestCase {
             return "\(s)->\(t)"
         })
 
-        XCTAssertNotNil(node("alamofire"), "Explicit deps should remain")
-        XCTAssertNil(node("swift-collections"), "Transient deps should be removed")
-        XCTAssertFalse(edgeSet.contains("TestProject->swift-collections"))
+        let projectID = try nodeID(in: nodesArray, label: "TestProject", type: "project")
+
+        XCTAssertNotNil(node("externalPackage:alamofire"), "Explicit deps should remain")
+        XCTAssertNil(node("externalPackage:swift-collections"), "Transient deps should be removed")
+        XCTAssertFalse(edgeSet.contains("\(projectID)->externalPackage:swift-collections"))
     }
 
     func testContract_JSONTargetsAreInternal() async throws {
@@ -1002,8 +1024,10 @@ final class DependencyGraphTests: XCTestCase {
             nodesArray.first(where: { $0["id"] as? String == id })
         }
 
-        XCTAssertEqual(node("TestProject/MyApp")?["isInternal"] as? Bool, true)
-        XCTAssertEqual(node("alamofire")?["isInternal"] as? Bool, false)
+        let myAppID = try nodeID(in: nodesArray, label: "TestProject/MyApp", type: "target")
+
+        XCTAssertEqual(node(myAppID)?["isInternal"] as? Bool, true)
+        XCTAssertEqual(node("externalPackage:alamofire")?["isInternal"] as? Bool, false)
     }
     
     func testHTMLOutputFormat() async throws {
@@ -1065,8 +1089,8 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertEqual(parsed.keyAttrNameByID["d3"], "label")
 
         // Spot-check a couple of known nodes from the fixture
-        XCTAssertEqual(parsed.nodeDataByID["Root"]?["d0"], "project")
-        XCTAssertEqual(parsed.nodeDataByID["alamofire"]?["d0"], "externalPackage")
+        XCTAssertEqual(parsed.nodeDataByID["project:.#Root"]?["d0"], "project")
+        XCTAssertEqual(parsed.nodeDataByID["externalPackage:alamofire"]?["d0"], "externalPackage")
 
         // Every node should have the required metadata keys.
         for (id, data) in parsed.nodeDataByID {
@@ -1153,18 +1177,18 @@ final class DependencyGraphTests: XCTestCase {
         }
 
         let (nodesNoFlag, edgesNoFlag) = try parseJSON(try runBinary(args: [tempDir.path, "--format", "json"]))
-        XCTAssertNotNil(nodesNoFlag.first(where: { $0["id"] as? String == "depc" }))
-        XCTAssertFalse(edgeSet(edgesNoFlag).contains("depb->depc"), "Without --spm-edges, should not invent DepB->DepC edge")
+        XCTAssertNotNil(nodesNoFlag.first(where: { $0["id"] as? String == "localPackage:depc" }))
+        XCTAssertFalse(edgeSet(edgesNoFlag).contains("externalPackage:depb->localPackage:depc"), "Without --spm-edges, should not invent DepB->DepC edge")
 
         let (nodesWithFlag, edgesWithFlag) = try parseJSON(try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges"]))
-        XCTAssertTrue(edgeSet(edgesWithFlag).contains("depb->depc"), "With --spm-edges, should include DepB->DepC transitive edge")
+        XCTAssertTrue(edgeSet(edgesWithFlag).contains("externalPackage:depb->localPackage:depc"), "With --spm-edges, should include DepB->DepC transitive edge")
 
         // With --hide-transient, direct deps from the SwiftPM graph should remain.
         let (nodesHideTransient, edgesHideTransient) = try parseJSON(try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges", "--hide-transient"]))
-        XCTAssertNotNil(nodesHideTransient.first(where: { $0["id"] as? String == "depb" }), "Direct SwiftPM deps should not be treated as transient")
-        XCTAssertTrue(edgeSet(edgesHideTransient).contains("apppkg->depb"))
+        XCTAssertNotNil(nodesHideTransient.first(where: { $0["id"] as? String == "externalPackage:depb" }), "Direct SwiftPM deps should not be treated as transient")
+        XCTAssertTrue(edgeSet(edgesHideTransient).contains("localPackage:apppkg->externalPackage:depb"))
 
-        let depcNodes = nodesWithFlag.filter { $0["id"] as? String == "depc" }
+        let depcNodes = nodesWithFlag.filter { $0["id"] as? String == "localPackage:depc" }
         XCTAssertEqual(depcNodes.count, 1, "Should not create duplicate nodes for the same package identity")
         XCTAssertEqual(depcNodes.first?["type"] as? String, "localPackage")
         XCTAssertEqual(depcNodes.first?["isInternal"] as? Bool, true)
@@ -1265,7 +1289,7 @@ exit 1
         env["PATH"] = "\(binDir.path):\(ProcessInfo.processInfo.environment["PATH"] ?? "")"
 
         let output = try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges"], environment: env)
-        try assertEdgeSet(output: output, contains: ["apppkg->depb", "depb->depc"])
+        try assertEdgeSet(output: output, contains: ["localPackage:apppkg->localPackage:depb", "localPackage:depb->localPackage:depc"])
 
         let logText = (try? String(contentsOf: logFile, encoding: .utf8)) ?? ""
         let invocations = logText.split(separator: "\n").count

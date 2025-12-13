@@ -126,7 +126,7 @@ Tests:
 ## Phase 6 — Stable IDs + schema v2 (foundation for diff/automation)
 **Objective:** make graph IDs stable across machines and publish/test JSON schema v2.
 
-Status: next.
+Status: done.
 
 Work items:
 - True stable ids (repo-relative; avoid absolute paths in ids).
