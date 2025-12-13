@@ -96,7 +96,59 @@ final class DependencyGraphTests: XCTestCase {
         """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
         // Default should use dump-package (even without passing --swiftpm-json)
-        let output = try runBinary(args: [tempDir.path, "--format", "json"])
+        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
+
+        // And the regex fallback should *not* be able to parse this weird spacing.
+        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json", "--no-swiftpm-json"]), notContains: ["apppkg->depb"])
+    }
+
+    func testSwiftPMJSONDumpPackageHandlesVariableAndMultilineDependencies() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let appPkg = tempDir.appendingPathComponent("AppPkg")
+        let depB = tempDir.appendingPathComponent("DepB")
+        try FileManager.default.createDirectory(at: appPkg, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: depB, withIntermediateDirectories: true)
+
+        try FileManager.default.createDirectory(at: appPkg.appendingPathComponent("Sources/AppPkg"), withIntermediateDirectories: true)
+        try "public struct AppPkg {}".write(to: appPkg.appendingPathComponent("Sources/AppPkg/AppPkg.swift"), atomically: true, encoding: .utf8)
+
+        try FileManager.default.createDirectory(at: depB.appendingPathComponent("Sources/DepB"), withIntermediateDirectories: true)
+        try "public struct DepB {}".write(to: depB.appendingPathComponent("Sources/DepB/DepB.swift"), atomically: true, encoding: .utf8)
+
+        try """
+        // swift-tools-version: 5.9
+        import PackageDescription
+        let package = Package(
+            name: "DepB",
+            products: [.library(name: "DepB", targets: ["DepB"])],
+            targets: [.target(name: "DepB")]
+        )
+        """.write(to: depB.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        // Use a variable for the path + spread the dependency across multiple lines.
+        try """
+        // swift-tools-version: 5.9
+        import PackageDescription
+
+        let depPath = "../DepB"
+
+        let package = Package(
+            name: "AppPkg",
+            dependencies: [
+                .package(
+                    path: depPath
+                ),
+            ],
+            targets: [.target(name: "AppPkg")]
+        )
+        """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
+    }
+
+    private func assertEdgeSet(output: String, contains: [String] = [], notContains: [String] = []) throws {
         let data = try XCTUnwrap(output.data(using: .utf8))
         let jsonAny = try JSONSerialization.jsonObject(with: data)
         let json = try XCTUnwrap(jsonAny as? [String: Any])
@@ -107,19 +159,8 @@ final class DependencyGraphTests: XCTestCase {
             return "\(s)->\(t)"
         })
 
-        XCTAssertTrue(edgeSet.contains("apppkg->depb"))
-
-        // And the regex fallback should *not* be able to parse this weird spacing.
-        let outputRegex = try runBinary(args: [tempDir.path, "--format", "json", "--no-swiftpm-json"])
-        let dataRegex = try XCTUnwrap(outputRegex.data(using: .utf8))
-        let jsonAnyRegex = try JSONSerialization.jsonObject(with: dataRegex)
-        let jsonRegex = try XCTUnwrap(jsonAnyRegex as? [String: Any])
-        let edgesArrayRegex = try XCTUnwrap(jsonRegex["edges"] as? [[String: Any]])
-        let edgeSetRegex = Set<String>(edgesArrayRegex.compactMap { edge in
-            guard let s = edge["source"] as? String, let t = edge["target"] as? String else { return nil }
-            return "\(s)->\(t)"
-        })
-        XCTAssertFalse(edgeSetRegex.contains("apppkg->depb"))
+        for e in contains { XCTAssertTrue(edgeSet.contains(e), "Missing edge: \(e)") }
+        for e in notContains { XCTAssertFalse(edgeSet.contains(e), "Unexpected edge: \(e)") }
     }
 
     func testParsePackageResolvedV2() async throws {
