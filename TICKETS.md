@@ -82,11 +82,11 @@ At the start of each slice, decide whether we should do **new features** vs **cl
   - ✅ Integration test runs the CLI twice on equivalent directories rooted at different temp paths and asserts JSON node ids match when `--stable-ids` is enabled.
   - ✅ schemaVersion semantics unchanged (v1 default; v2 with `--stable-ids`).
 
-### P7.2 — Publish JSON schema v2 + contract tests — WIP
-- Problem: `--stable-ids` emits `schemaVersion=2` but we only ship a v1 schema.
+### P7.2 — Publish JSON schema v2 + contract tests — DONE
+- Problem: downstream tooling needs a published schema for `schemaVersion=2`.
 - Acceptance:
-  - Add `Schemas/dependency-graph.json-graph.v2.schema.json`.
-  - Add contract tests to validate required v2 fields and stable-id semantics.
+  - ✅ Added `Schemas/dependency-graph.json-graph.v2.schema.json`.
+  - ✅ Added contract test asserting shipped schema versions match `metadata.schemaVersion` constants.
 
 ### P7.3 — Graph diff (CLI) — TODO
 - Once stable IDs are truly stable, add a minimal `diff` command for node/edge changes.

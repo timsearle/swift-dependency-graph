@@ -761,6 +761,34 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertNotNil(firstNode["isInternal"], "Nodes should have isInternal")
     }
 
+    func testJSONSchemaFilesExistAndMatchVersions() throws {
+        func loadSchema(_ name: String) throws -> [String: Any] {
+            let repoRoot = URL(fileURLWithPath: #filePath)
+                .deletingLastPathComponent() // DependencyGraphTests/
+                .deletingLastPathComponent() // Tests/
+                .deletingLastPathComponent() // repo root
+
+            let url = repoRoot.appendingPathComponent("Schemas").appendingPathComponent(name)
+            let data = try Data(contentsOf: url)
+            let any = try JSONSerialization.jsonObject(with: data)
+            return try XCTUnwrap(any as? [String: Any])
+        }
+
+        func schemaVersionConst(_ schema: [String: Any]) throws -> Int {
+            let props = try XCTUnwrap(schema["properties"] as? [String: Any])
+            let metadata = try XCTUnwrap(props["metadata"] as? [String: Any])
+            let metadataProps = try XCTUnwrap(metadata["properties"] as? [String: Any])
+            let schemaVersion = try XCTUnwrap(metadataProps["schemaVersion"] as? [String: Any])
+            return try XCTUnwrap(schemaVersion["const"] as? Int)
+        }
+
+        let v1 = try loadSchema("dependency-graph.json-graph.v1.schema.json")
+        XCTAssertEqual(try schemaVersionConst(v1), 1)
+
+        let v2 = try loadSchema("dependency-graph.json-graph.v2.schema.json")
+        XCTAssertEqual(try schemaVersionConst(v2), 2)
+    }
+
     func testContract_JSONTargetsAndTransientFlags() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let xcodeproj = tempDir.appendingPathComponent("TestProject.xcodeproj")
