@@ -95,7 +95,8 @@ final class DependencyGraphTests: XCTestCase {
         )
         """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
-        let output = try runBinary(args: [tempDir.path, "--format", "json", "--swiftpm-json"])
+        // Default should use dump-package (even without passing --swiftpm-json)
+        let output = try runBinary(args: [tempDir.path, "--format", "json"])
         let data = try XCTUnwrap(output.data(using: .utf8))
         let jsonAny = try JSONSerialization.jsonObject(with: data)
         let json = try XCTUnwrap(jsonAny as? [String: Any])
@@ -107,6 +108,18 @@ final class DependencyGraphTests: XCTestCase {
         })
 
         XCTAssertTrue(edgeSet.contains("apppkg->depb"))
+
+        // And the regex fallback should *not* be able to parse this weird spacing.
+        let outputRegex = try runBinary(args: [tempDir.path, "--format", "json", "--no-swiftpm-json"])
+        let dataRegex = try XCTUnwrap(outputRegex.data(using: .utf8))
+        let jsonAnyRegex = try JSONSerialization.jsonObject(with: dataRegex)
+        let jsonRegex = try XCTUnwrap(jsonAnyRegex as? [String: Any])
+        let edgesArrayRegex = try XCTUnwrap(jsonRegex["edges"] as? [[String: Any]])
+        let edgeSetRegex = Set<String>(edgesArrayRegex.compactMap { edge in
+            guard let s = edge["source"] as? String, let t = edge["target"] as? String else { return nil }
+            return "\(s)->\(t)"
+        })
+        XCTAssertFalse(edgeSetRegex.contains("apppkg->depb"))
     }
 
     func testParsePackageResolvedV2() async throws {

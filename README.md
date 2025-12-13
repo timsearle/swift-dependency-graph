@@ -33,7 +33,7 @@ make html PROJECT=/path/to/root
 | `--show-targets` | Show Xcode build targets in the graph |
 | `--internal-only` | In analyze mode, only show internal modules (not external packages) |
 | `--spm-edges` | Add SwiftPM package→package edges using `swift package show-dependencies --format json` |
-| `--swiftpm-json` | Use SwiftPM JSON (dump-package) instead of regex parsing `Package.swift` for local package direct deps |
+| `--swiftpm-json` / `--no-swiftpm-json` | Resolve local package direct deps via `swift package dump-package` (default on; `--no-swiftpm-json` uses regex fallback) |
 
 ### Output Formats
 
@@ -83,8 +83,8 @@ make html-full PROJECT=/path/to/ios-project
 # Include SwiftPM package→package edges (manual)
 make html PROJECT=/path/to/ios-project SPM_EDGES=1
 
-# Use SwiftPM JSON to derive direct deps for local packages (instead of Package.swift regex)
-make html PROJECT=/path/to/ios-project SWIFTPM_JSON=1
+# Use regex fallback parsing for Package.swift (not recommended)
+make html PROJECT=/path/to/ios-project SWIFTPM_JSON=0
 
 # Hide transient deps
 make html PROJECT=/path/to/ios-project HIDE_TRANSIENT=1

@@ -246,8 +246,8 @@ struct DependencyGraph: ParsableCommand {
     @Flag(name: .long, help: "Include SwiftPM package-to-package edges (swift package show-dependencies)")
     var spmEdges: Bool = false
 
-    @Flag(name: .long, help: "Use SwiftPM JSON (dump-package) instead of regex parsing Package.swift")
-    var swiftpmJSON: Bool = false
+    @Flag(inversion: .prefixedNo, help: "Use SwiftPM JSON (dump-package) to resolve local package direct dependencies (disable with --no-swiftpm-json for regex fallback)")
+    var swiftpmJSON: Bool = true
     
     mutating func run() throws {
         let fileManager = FileManager.default
@@ -318,7 +318,7 @@ struct DependencyGraph: ParsableCommand {
                 }
             } else if fileURL.lastPathComponent == "Package.swift" {
                 foundPackageSwift += 1
-                if let info = parsePackageSwift(at: fileURL) {
+                if let info = swiftpmJSON ? parsePackageSwiftShallow(at: fileURL) : parsePackageSwiftRegex(at: fileURL) {
                     localPackages.append(info)
                 }
             }
@@ -621,20 +621,31 @@ struct DependencyGraph: ParsableCommand {
         }
     }
 
-    func parsePackageSwift(at url: URL) -> DependencyInfo? {
-        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
-        
+    func parsePackageSwiftShallow(at url: URL) -> DependencyInfo? {
         let projectPath = url.deletingLastPathComponent().path
         let projectName = URL(fileURLWithPath: projectPath).lastPathComponent.lowercased()
-        
+
+        // A local package is always explicit, even if we haven't resolved its deps yet.
+        return DependencyInfo(
+            projectPath: projectPath,
+            projectName: projectName,
+            dependencies: [],
+            explicitPackages: [projectName],
+            targets: []
+        )
+    }
+
+    func parsePackageSwiftRegex(at url: URL) -> DependencyInfo? {
+        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+
+        let projectPath = url.deletingLastPathComponent().path
+        let projectName = URL(fileURLWithPath: projectPath).lastPathComponent.lowercased()
+
         var dependencies: [String] = []
         var explicitPackages = Set<String>()
 
-        // Parse .package(...) declarations to find dependencies
-        // Matches: .package(url: "...", ...) and .package(name: "...", path: "...")
-        
         // Remote packages: .package(url: "https://...", ...)
-        let remotePattern = #"\.package\s*\(\s*url:\s*"([^"]+)""#
+        let remotePattern = #"\.package\s*\(\s*url:\s*\"([^\"]+)\""#
         if let regex = try? NSRegularExpression(pattern: remotePattern, options: []) {
             let range = NSRange(content.startIndex..., in: content)
             let matches = regex.matches(in: content, options: [], range: range)
@@ -647,9 +658,9 @@ struct DependencyGraph: ParsableCommand {
                 }
             }
         }
-        
-        // Local packages: .package(name: "...", path: "...") or .package(path: "...")
-        let localNamePattern = #"\.package\s*\(\s*name:\s*"([^"]+)"\s*,\s*path:"#
+
+        // Local packages: .package(name: "...", path: "...")
+        let localNamePattern = #"\.package\s*\(\s*name:\s*\"([^\"]+)\"\s*,\s*path:"#
         if let regex = try? NSRegularExpression(pattern: localNamePattern, options: []) {
             let range = NSRange(content.startIndex..., in: content)
             let matches = regex.matches(in: content, options: [], range: range)
@@ -661,9 +672,9 @@ struct DependencyGraph: ParsableCommand {
                 }
             }
         }
-        
+
         // Local packages without name: .package(path: "...")
-        let localPathPattern = #"\.package\s*\(\s*path:\s*"([^"]+)"\s*\)"#
+        let localPathPattern = #"\.package\s*\(\s*path:\s*\"([^\"]+)\"\s*\)"#
         if let regex = try? NSRegularExpression(pattern: localPathPattern, options: []) {
             let range = NSRange(content.startIndex..., in: content)
             let matches = regex.matches(in: content, options: [], range: range)
@@ -677,7 +688,6 @@ struct DependencyGraph: ParsableCommand {
             }
         }
 
-        // A local package is always explicit, even if it has no dependencies.
         explicitPackages.insert(projectName)
 
         return DependencyInfo(

@@ -25,14 +25,14 @@ help:
 	@echo "  SHOW_TARGETS=1|0       (default: 1)"
 	@echo "  HIDE_TRANSIENT=1|0     (default: 0)"
 	@echo "  SPM_EDGES=1|0          (default: 0)"
-	@echo "  SWIFTPM_JSON=1|0       (default: 0)"
+	@echo "  SWIFTPM_JSON=1|0       (default: 1)"
 	@echo "  EXTRA_ARGS=...         (passed through to CLI)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make html-fast PROJECT=/path/to/MyApp"
 	@echo "  make html-full PROJECT=/path/to/MyApp"
 	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"
-	@echo "  make html PROJECT=/path/to/MyApp SWIFTPM_JSON=1"
+	@echo "  make html PROJECT=/path/to/MyApp SWIFTPM_JSON=0    # regex fallback (legacy)"
 	@echo "  make json PROJECT=/path/to/MyApp HIDE_TRANSIENT=1"
 
 # Build targets
@@ -56,7 +56,7 @@ PROJECT ?= .
 SHOW_TARGETS ?= 1
 HIDE_TRANSIENT ?= 0
 SPM_EDGES ?= 0
-SWIFTPM_JSON ?= 0
+SWIFTPM_JSON ?= 1
 EXTRA_ARGS ?=
 
 CLI_FLAGS :=
@@ -69,8 +69,8 @@ endif
 ifeq ($(SPM_EDGES),1)
 CLI_FLAGS += --spm-edges
 endif
-ifeq ($(SWIFTPM_JSON),1)
-CLI_FLAGS += --swiftpm-json
+ifeq ($(SWIFTPM_JSON),0)
+CLI_FLAGS += --no-swiftpm-json
 endif
 
 # Output targets
@@ -81,7 +81,7 @@ html: release
 
 # Opinionated HTML journeys
 html-fast: release
-	HIDE_TRANSIENT=1 SHOW_TARGETS=1 SPM_EDGES=0 SWIFTPM_JSON=0 $(MAKE) --no-print-directory html PROJECT="$(PROJECT)" EXTRA_ARGS="$(EXTRA_ARGS)"
+	HIDE_TRANSIENT=1 SHOW_TARGETS=1 SPM_EDGES=0 SWIFTPM_JSON=1 $(MAKE) --no-print-directory html PROJECT="$(PROJECT)" EXTRA_ARGS="$(EXTRA_ARGS)"
 
 html-full: release
 	HIDE_TRANSIENT=1 SHOW_TARGETS=1 SPM_EDGES=1 SWIFTPM_JSON=1 $(MAKE) --no-print-directory html PROJECT="$(PROJECT)" EXTRA_ARGS="$(EXTRA_ARGS)"

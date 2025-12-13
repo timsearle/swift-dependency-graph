@@ -32,19 +32,19 @@ Repo (private): https://github.com/timsearle/dependency-graph
    - If a project has multiple local package references and a local `XCSwiftPackageProductDependency` has no `.package` ref, mapping can still be ambiguous.
 
 2) **Package.swift correctness**
-   - Still regex-based; roadmap Phase 3 is to move to SwiftPM JSON outputs.
+   - Default path uses SwiftPM JSON (`swift package dump-package`); regex remains as a fallback (`--no-swiftpm-json`).
 
 3) **Node identifier collisions**
    - If an Xcode project and a local package share the same id, the graph may collapse them into one node (schema v1 limitation).
 
 ## Next tickets (recommended ordering)
 
-### P3.1 — Stop regex parsing of Package.swift
-- Prefer SwiftPM JSON outputs over parsing source:
-  - `swift package dump-package` for package name/targets/products and declared dependencies
-  - `swift package show-dependencies --format json` for package→package edges
-- Gate behind a flag first to avoid regressions, then make it the default once coverage is good.
-- Add fixtures for multiline/conditional deps, variables, `.package(path:)`, and multiple products.
+### P3.1 — Stop regex parsing of Package.swift — DONE
+- Default path uses SwiftPM JSON outputs over parsing source:
+  - `swift package dump-package` for declared dependencies
+  - `swift package show-dependencies --format json` for package→package edges (when `--spm-edges`)
+- Regex parsing remains available as a fallback via `--no-swiftpm-json`.
+- Remaining hardening: fixtures for multiline/conditional deps, variables, `.package(path:)`, and multiple products.
 
 ### P4.1 — Analysis correctness hardening
 - Add cycle handling (SCC condensation) so depth/impact metrics are well-defined.
