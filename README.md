@@ -35,7 +35,6 @@ make html PROJECT=/path/to/root
 | `--spm-edges` | Add SwiftPM package→package edges using `swift package show-dependencies --format json` (skipped when `--hide-transient` is enabled) |
 | `--profile` | Print phase timings to stderr (useful for diagnosing slow runs) |
 | `--stable-ids` | Use stable, collision-free node ids (JSON schema v2 when enabled) |
-| `--swiftpm-json` / `--no-swiftpm-json` | Resolve local package direct deps via `swift package dump-package` (default on). `--no-swiftpm-json` is **deprecated** (legacy regex fallback). |
 
 ### Output Formats
 
@@ -57,7 +56,6 @@ Variables:
 - `SHOW_TARGETS=1|0`
 - `HIDE_TRANSIENT=1|0`
 - `SPM_EDGES=1|0`
-- `SWIFTPM_JSON=1|0`
 - `EXTRA_ARGS=...` (passed through to the CLI)
 
 ### GraphML viewer (local)
@@ -85,8 +83,6 @@ make html-full PROJECT=/path/to/ios-project
 # Include SwiftPM package→package edges (manual)
 make html PROJECT=/path/to/ios-project SPM_EDGES=1
 
-# Use regex fallback parsing for Package.swift (not recommended)
-make html PROJECT=/path/to/ios-project SWIFTPM_JSON=0
 
 # Hide transient deps
 make html PROJECT=/path/to/ios-project HIDE_TRANSIENT=1

@@ -31,7 +31,6 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 ## Cleanup / hardening backlog (keep tight)
 - Track anything confusing/legacy here and only remove once we have tests + docs updated.
 - Current cleanup candidates:
-  - **Remove legacy regex fallback** (`--no-swiftpm-json`) after more real-world acceptance runs (already deprecated).
   - Decide whether to **flip `--stable-ids` on by default** (would be a schema bump / contract decision).
   - Improve **full `--spm-edges` performance** (when not using `--hide-transient`), likely via:
     - caching show-deps results per package root
@@ -67,7 +66,7 @@ At the start of each slice, decide whether we should do **new features** vs **cl
    - If a project has multiple local package references and a local `XCSwiftPackageProductDependency` has no `.package` ref, mapping can still be ambiguous.
 
 2) **Package.swift correctness**
-   - Default path uses SwiftPM JSON (`swift package dump-package`); regex remains as a fallback (`--no-swiftpm-json`).
+   - Default path uses SwiftPM JSON (`swift package dump-package`).
 
 3) **Node identifier collisions**
    - Schema v1 can still collapse nodes if ids collide.
@@ -79,10 +78,8 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - Default path uses SwiftPM JSON outputs over parsing source:
   - `swift package dump-package` for declared dependencies
   - `swift package show-dependencies --format json` for package→package edges (when `--spm-edges`)
-- Regex parsing remains available as a fallback via `--no-swiftpm-json`.
+- ✅ Deprecated `--no-swiftpm-json` fallback removed.
 - Remaining hardening: ✅ covered by integration tests (weird spacing, multiline/variables, conditional target deps, multiple products).
-- Next: start deprecating/removing `--no-swiftpm-json` once we’re comfortable with real-world coverage.
-  - 2025-12-13: **Deprecated** (warn + docs). Remove once you’ve done a couple more real-world acceptance runs.
 
 ### P4.1 — Analysis correctness hardening — DONE
 - ✅ Cycle handling via SCC condensation so depth/impact metrics are well-defined.
@@ -92,7 +89,7 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - Problem: `--spm-edges` can run `swift package show-dependencies` for many discovered local package roots.
 - Approach:
   - Order roots by local-package dependency graph (entrypoints first)
-  - Skip roots covered by previously-resolved SwiftPM graphs (based on show-deps `path` fields)
+  - Skip roots covered by previously-resolved SwiftPM graphs (identity closure)
 - Acceptance:
   - Adds a test that stubs `swift` and asserts we de-dupe show-deps invocations (without changing graph output).
 

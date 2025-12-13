@@ -256,9 +256,6 @@ struct DependencyGraph: ParsableCommand {
     @Flag(name: .long, help: "Include SwiftPM package-to-package edges (swift package show-dependencies)")
     var spmEdges: Bool = false
 
-    @Flag(inversion: .prefixedNo, help: "Use SwiftPM JSON (dump-package) to resolve local package direct dependencies. The regex fallback (--no-swiftpm-json) is deprecated and will be removed.")
-    var swiftpmJSON: Bool = true
-
     @Flag(name: .long, help: "Print phase timings to stderr")
     var profile: Bool = false
 
@@ -270,10 +267,6 @@ struct DependencyGraph: ParsableCommand {
         let directoryURL = URL(fileURLWithPath: directory)
         let overallStart = Date()
 
-        if !swiftpmJSON {
-            eprint("WARNING: --no-swiftpm-json is deprecated and will be removed; it exists only for debugging legacy regex parsing.")
-        }
-        
         guard fileManager.fileExists(atPath: directory) else {
             throw ValidationError("Directory does not exist: \(directory)")
         }
@@ -342,7 +335,7 @@ struct DependencyGraph: ParsableCommand {
                 }
             } else if fileURL.lastPathComponent == "Package.swift" {
                 foundPackageSwift += 1
-                if let info = swiftpmJSON ? parsePackageSwiftShallow(at: fileURL) : parsePackageSwiftRegex(at: fileURL) {
+                if let info = parsePackageSwiftShallow(at: fileURL) {
                     localPackages.append(info)
                 }
             }
@@ -352,12 +345,10 @@ struct DependencyGraph: ParsableCommand {
         eprint("Scan complete: files=\(scannedFiles) pbxproj=\(foundPBXProj) resolved=\(foundResolved) packages=\(foundPackageSwift) workspaces=\(foundWorkspaces) elapsed=\(scanElapsed)")
         pprof("PROFILE scan=\(scanElapsed)")
 
-        // Resolve local Swift packages using SwiftPM JSON (faster + more correct than regex parsing).
-        if swiftpmJSON {
-            let dumpStart = Date()
-            localPackages = enrichLocalPackagesWithSwiftPMDumpPackage(localPackages: localPackages, pbxprojInfos: pbxprojInfos)
-            pprof(String(format: "PROFILE dump-package=%.1fs", Date().timeIntervalSince(dumpStart)))
-        }
+        // Resolve local Swift packages using SwiftPM JSON (faster + more correct than parsing source).
+        let dumpStart = Date()
+        localPackages = enrichLocalPackagesWithSwiftPMDumpPackage(localPackages: localPackages, pbxprojInfos: pbxprojInfos)
+        pprof(String(format: "PROFILE dump-package=%.1fs", Date().timeIntervalSince(dumpStart)))
 
         // Include workspace-referenced projects (may be outside scanned directory)
         for xcodeprojURL in referencedXcodeprojURLs {
@@ -675,69 +666,6 @@ struct DependencyGraph: ParsableCommand {
         )
     }
 
-    func parsePackageSwiftRegex(at url: URL) -> DependencyInfo? {
-        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
-
-        let projectPath = url.deletingLastPathComponent().path
-        let projectName = URL(fileURLWithPath: projectPath).lastPathComponent.lowercased()
-
-        var dependencies: [String] = []
-        var explicitPackages = Set<String>()
-
-        // Remote packages: .package(url: "https://...", ...)
-        let remotePattern = #"\.package\s*\(\s*url:\s*\"([^\"]+)\""#
-        if let regex = try? NSRegularExpression(pattern: remotePattern, options: []) {
-            let range = NSRange(content.startIndex..., in: content)
-            let matches = regex.matches(in: content, options: [], range: range)
-            for match in matches {
-                if let urlRange = Range(match.range(at: 1), in: content) {
-                    let repoURL = String(content[urlRange])
-                    let packageName = extractPackageName(from: repoURL)
-                    dependencies.append(packageName)
-                    explicitPackages.insert(packageName)
-                }
-            }
-        }
-
-        // Local packages: .package(name: "...", path: "...")
-        let localNamePattern = #"\.package\s*\(\s*name:\s*\"([^\"]+)\"\s*,\s*path:"#
-        if let regex = try? NSRegularExpression(pattern: localNamePattern, options: []) {
-            let range = NSRange(content.startIndex..., in: content)
-            let matches = regex.matches(in: content, options: [], range: range)
-            for match in matches {
-                if let nameRange = Range(match.range(at: 1), in: content) {
-                    let packageName = String(content[nameRange]).lowercased()
-                    dependencies.append(packageName)
-                    explicitPackages.insert(packageName)
-                }
-            }
-        }
-
-        // Local packages without name: .package(path: "...")
-        let localPathPattern = #"\.package\s*\(\s*path:\s*\"([^\"]+)\"\s*\)"#
-        if let regex = try? NSRegularExpression(pattern: localPathPattern, options: []) {
-            let range = NSRange(content.startIndex..., in: content)
-            let matches = regex.matches(in: content, options: [], range: range)
-            for match in matches {
-                if let pathRange = Range(match.range(at: 1), in: content) {
-                    let path = String(content[pathRange])
-                    let packageName = URL(fileURLWithPath: path).lastPathComponent.lowercased()
-                    dependencies.append(packageName)
-                    explicitPackages.insert(packageName)
-                }
-            }
-        }
-
-        explicitPackages.insert(projectName)
-
-        return DependencyInfo(
-            projectPath: projectPath,
-            projectName: projectName,
-            dependencies: dependencies,
-            explicitPackages: explicitPackages,
-            targets: []
-        )
-    }
     
     func extractPackageName(from url: String) -> String {
         // Extract package name from git URL like https://github.com/owner/PackageName.git

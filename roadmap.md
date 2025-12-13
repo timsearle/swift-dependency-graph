@@ -91,7 +91,6 @@ Tests:
 
 Status: effectively complete.
 - Default path uses SwiftPM JSON (`swift package dump-package`).
-- Regex parsing remains as a fallback via `--no-swiftpm-json` (**deprecated**).
 
 Tests:
 - Fixtures with multiline, conditional deps, variables, and `.package(path:)`.

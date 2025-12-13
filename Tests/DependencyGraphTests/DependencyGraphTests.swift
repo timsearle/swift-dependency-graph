@@ -95,11 +95,8 @@ final class DependencyGraphTests: XCTestCase {
         )
         """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
-        // Default should use dump-package (even without passing --swiftpm-json)
+        // Default should use dump-package.
         try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
-
-        // And the regex fallback should *not* be able to parse this weird spacing.
-        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json", "--no-swiftpm-json"]), notContains: ["apppkg->depb"])
     }
 
     func testSwiftPMJSONDumpPackageHandlesVariableAndMultilineDependencies() async throws {
@@ -1124,7 +1121,7 @@ exit 1
         env["DG_SWIFT_LOG"] = logFile.path
         env["PATH"] = "\(binDir.path):\(ProcessInfo.processInfo.environment["PATH"] ?? "")"
 
-        let output = try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges", "--no-swiftpm-json"], environment: env)
+        let output = try runBinary(args: [tempDir.path, "--format", "json", "--spm-edges"], environment: env)
         try assertEdgeSet(output: output, contains: ["apppkg->depb", "depb->depc"])
 
         let logText = (try? String(contentsOf: logFile, encoding: .utf8)) ?? ""
