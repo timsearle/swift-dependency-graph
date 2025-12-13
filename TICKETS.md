@@ -84,9 +84,9 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - Next: start deprecating/removing `--no-swiftpm-json` once we’re comfortable with real-world coverage.
   - 2025-12-13: **Deprecated** (warn + docs). Remove once you’ve done a couple more real-world acceptance runs.
 
-### P4.1 — Analysis correctness hardening
-- Add cycle handling (SCC condensation) so depth/impact metrics are well-defined.
-- Add tests for cycles/shared subgraphs.
+### P4.1 — Analysis correctness hardening — DONE
+- ✅ Cycle handling via SCC condensation so depth/impact metrics are well-defined.
+- ✅ Tests for cycles + shared subgraphs (deduped transitive closures).
 
 ### P5.1 — Output/UX follow-ups — IN PROGRESS
 - ✅ Real GraphML output (includes label/type metadata).

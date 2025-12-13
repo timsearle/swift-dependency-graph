@@ -1064,6 +1064,33 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertEqual(cInfo?.directDependencies, 2)
     }
 
+    func testAnalyze_SharedSubgraph_DoesNotDoubleCountTransitives() throws {
+        var g = Graph()
+        g.addNode("root", nodeType: .localPackage)
+        g.addNode("b", nodeType: .localPackage)
+        g.addNode("c", nodeType: .localPackage)
+        g.addNode("d", nodeType: .localPackage)
+
+        // Diamond: root -> b -> d, and root -> c -> d
+        g.addEdge(from: "root", to: "b")
+        g.addEdge(from: "root", to: "c")
+        g.addEdge(from: "b", to: "d")
+        g.addEdge(from: "c", to: "d")
+
+        let (points, maxDepth) = DependencyGraph.computePinchPoints(graph: g, internalOnly: true)
+        XCTAssertEqual(maxDepth, 2)
+
+        let rootInfo = points.first(where: { $0.name == "root" })
+        let dInfo = points.first(where: { $0.name == "d" })
+
+        // Transitives should be de-duped: {b, c, d} not {b, c, d, d}
+        XCTAssertEqual(rootInfo?.directDependencies, 2)
+        XCTAssertEqual(rootInfo?.transitiveDependencies, 3)
+
+        XCTAssertEqual(dInfo?.directDependents, 2)
+        XCTAssertEqual(dInfo?.transitiveDependents, 3)
+    }
+
     func runBinary(args: [String]) throws -> String {
         let process = Process()
         process.executableURL = binaryURL

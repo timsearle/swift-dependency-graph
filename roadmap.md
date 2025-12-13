@@ -101,16 +101,17 @@ Tests:
 ## Phase 4 — Analysis correctness + graph theory hardening
 **Objective:** ensure pinch-point metrics are correct and stable.
 
+Status: cycle-safe analysis is in place (SCC condensation + tests).
+
 Work items:
-- Proper cycle handling:
-  - SCC condensation graph for depth and impact metrics
+- ✅ Proper cycle handling (SCC condensation graph for depth and impact metrics)
 - Clear definitions:
   - direct vs transitive dependents
   - “explicit” vs “transitive” classification derived from authoritative sources
 - Add per-node explanations in JSON (why node is considered explicit/transient).
 
 Tests:
-- Graph fixtures with cycles and shared subgraphs.
+- ✅ Graph fixtures/tests with cycles and shared subgraphs.
 - Assertions on computed metrics.
 
 ---
