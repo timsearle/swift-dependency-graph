@@ -238,6 +238,9 @@ struct DependencyGraph: ParsableCommand {
 struct GraphCommand: ParsableCommand {
     static let configuration = CommandConfiguration(commandName: "graph")
 
+    // Populated while scanning Package.resolved files; keyed by SwiftPM package identity.
+    var packagePinsByIdentity: [String: PackageResolved.Pin] = [:]
+
     func eprint(_ message: String) {
         // Only emit progress to an interactive terminal; keep stdout/stderr clean for piping and tests.
         guard isatty(STDERR_FILENO) != 0 else { return }
@@ -464,8 +467,12 @@ struct GraphCommand: ParsableCommand {
 
             if fileURL.lastPathComponent == "Package.resolved" {
                 foundResolved += 1
-                if let info = parsePackageResolved(at: fileURL) {
+                if let (info, pinsByIdentity) = parsePackageResolved(at: fileURL) {
                     allDependencies.append(info)
+                    for (k, v) in pinsByIdentity {
+                        // Prefer the first-seen pin for an identity; it should be stable across resolved files.
+                        if packagePinsByIdentity[k] == nil { packagePinsByIdentity[k] = v }
+                    }
                 }
             } else if fileURL.lastPathComponent == "project.pbxproj" {
                 foundPBXProj += 1
@@ -591,16 +598,16 @@ struct GraphCommand: ParsableCommand {
         return results.filter { $0.pathExtension == "xcodeproj" }
     }
 
-    func parsePackageResolved(at url: URL) -> DependencyInfo? {
+    func parsePackageResolved(at url: URL) -> (DependencyInfo, [String: PackageResolved.Pin])? {
         guard let data = try? Data(contentsOf: url) else { return nil }
-        
+
         let decoder = JSONDecoder()
         guard let resolved = try? decoder.decode(PackageResolved.self, from: data) else {
             return nil
         }
-        
+
         let projectPath = url.deletingLastPathComponent().path
-        
+
         // Determine project name - look for xcodeproj in path
         var projectName = URL(fileURLWithPath: projectPath).lastPathComponent
         let pathComponents = url.pathComponents
@@ -610,13 +617,24 @@ struct GraphCommand: ParsableCommand {
                 break
             }
         }
-        
-        let deps = resolved.allPins.map { $0.name }
-        
-        return DependencyInfo(
-            projectPath: projectPath,
-            projectName: projectName,
-            dependencies: deps
+
+        let pins = resolved.allPins
+        let deps = pins.map { $0.name }
+
+        var pinsByIdentity: [String: PackageResolved.Pin] = [:]
+        for pin in pins {
+            let identity = pin.name.lowercased()
+            // Prefer the first-seen pin for this identity.
+            if pinsByIdentity[identity] == nil { pinsByIdentity[identity] = pin }
+        }
+
+        return (
+            DependencyInfo(
+                projectPath: projectPath,
+                projectName: projectName,
+                dependencies: deps
+            ),
+            pinsByIdentity
         )
     }
     
@@ -2469,13 +2487,29 @@ struct GraphCommand: ParsableCommand {
         // Standard JSON Graph Format compatible with D3.js, Cytoscape.js, vis.js
         var nodes: [[String: Any]] = []
         for (id, node) in graph.nodes {
-            nodes.append([
+            var nodeJSON: [String: Any] = [
                 "id": id,
                 "label": node.label,
                 "type": node.nodeType.rawValue,
                 "isTransient": node.isTransient,
                 "isInternal": node.isInternal
-            ])
+            ]
+
+            if node.nodeType == .localPackage || node.nodeType == .externalPackage {
+                let identity = node.label.lowercased()
+                if let pin = packagePinsByIdentity[identity] {
+                    var packageJSON: [String: Any] = [
+                        "identity": identity,
+                        "url": pin.url
+                    ]
+                    if let v = pin.state?.version { packageJSON["version"] = v }
+                    if let r = pin.state?.revision { packageJSON["revision"] = r }
+                    if let b = pin.state?.branch { packageJSON["branch"] = b }
+                    nodeJSON["package"] = packageJSON
+                }
+            }
+
+            nodes.append(nodeJSON)
         }
         
         var edges: [[String: Any]] = []

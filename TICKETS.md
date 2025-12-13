@@ -128,9 +128,10 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - `--profile` prints phase timings to stderr (scan/dump-package/spm-edges/hide-transient/total).
 - Use it to target the real bottleneck on large repos.
 
-### P6.1 — Package metadata enrichment (lower priority)
-- Attach URL/version/revision to external package nodes (from Package.resolved + Xcode package refs).
-- Likely requires schema bump or optional fields.
+### P6.1 — Package metadata enrichment (lower priority) — DONE
+- ✅ Attach URL/version/revision/branch to package nodes when available (from `Package.resolved`).
+- ✅ Updated JSON schema v2 to document optional `node.package` metadata.
+- ✅ Added integration test coverage.
 
 ---
 

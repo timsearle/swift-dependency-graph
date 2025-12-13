@@ -54,6 +54,11 @@ final class DependencyGraphTests: XCTestCase {
 
         let rootNode = nodesArray.first(where: { $0["id"] as? String == "localPackage:swit" })
         XCTAssertEqual(rootNode?["type"] as? String, "localPackage")
+
+        let alamofire = nodesArray.first(where: { $0["id"] as? String == "externalPackage:alamofire" })
+        let pkg = alamofire?["package"] as? [String: Any]
+        XCTAssertEqual(pkg?["url"] as? String, "https://github.com/Alamofire/Alamofire.git")
+        XCTAssertEqual(pkg?["version"] as? String, "5.8.1")
     }
 
     func testSwiftPMJSONDumpPackageParsesPathDepsWithWeirdSpacing() async throws {

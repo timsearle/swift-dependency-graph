@@ -29,7 +29,18 @@
             "enum": ["project", "target", "localPackage", "externalPackage"]
           },
           "isTransient": { "type": "boolean" },
-          "isInternal": { "type": "boolean" }
+          "isInternal": { "type": "boolean" },
+          "package": {
+            "type": "object",
+            "properties": {
+              "identity": { "type": "string" },
+              "url": { "type": "string" },
+              "version": { "type": "string" },
+              "revision": { "type": "string" },
+              "branch": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
         },
         "additionalProperties": true
       }
