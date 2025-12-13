@@ -827,6 +827,8 @@ final class DependencyGraphTests: XCTestCase {
 
         let outputGraphml = try runBinary(args: [tempDir.path, "--format", "graphml"])
         XCTAssertTrue(outputGraphml.contains("<graphml"), "Should output GraphML format")
+        XCTAssertTrue(outputGraphml.contains("attr.name=\"label\""), "GraphML should include label metadata")
+        XCTAssertTrue(outputGraphml.contains("<data key=\"d3\">"), "GraphML nodes should include label data")
     }
 
     func testSwiftPMEdgesFlagAddsTransitiveEdges() async throws {
