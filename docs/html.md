@@ -1,5 +1,17 @@
 # HTML UI guide
 
+## Offline mode (no CDN)
+
+By default the HTML output loads `vis-network` from a CDN.
+
+To generate HTML that does **not** reference a CDN, provide a local copy of `vis-network.min.js`:
+
+```bash
+.build/release/DependencyGraph graph /path/to/root --format html \
+  --html-offline --vis-network-js /path/to/vis-network.min.js \
+  > graph.html
+```
+
 ## Interactions
 
 - **Pan**: drag to move the view

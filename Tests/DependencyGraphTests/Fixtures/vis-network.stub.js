@@ -1,0 +1,1 @@
+/* test stub for offline HTML mode */

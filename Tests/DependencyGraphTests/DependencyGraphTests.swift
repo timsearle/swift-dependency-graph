@@ -1010,13 +1010,13 @@ final class DependencyGraphTests: XCTestCase {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
-        
+
         let sourceFile = fixturesURL.appendingPathComponent("Package.resolved.v2")
         let destFile = tempDir.appendingPathComponent("Package.resolved")
         try FileManager.default.copyItem(at: sourceFile, to: destFile)
-        
+
         let output = try runBinary(args: [tempDir.path, "--format", "html"])
-        
+
         XCTAssertTrue(output.contains("<!DOCTYPE html>"), "Should output HTML format")
         XCTAssertTrue(output.contains("vis-network"), "Should include vis-network library")
         XCTAssertTrue(output.contains("id=\"reset-view\""), "Should include reset view button")
@@ -1024,6 +1024,11 @@ final class DependencyGraphTests: XCTestCase {
 
         let outputHidden = try runBinary(args: [tempDir.path, "--format", "html", "--hide-transient"])
         XCTAssertFalse(outputHidden.contains("id=\"toggle-transient\""), "Should not include transient toggle control when transient deps are hidden")
+
+        let visStub = fixturesURL.appendingPathComponent("vis-network.stub.js").path
+        let outputOffline = try runBinary(args: [tempDir.path, "--format", "html", "--html-offline", "--vis-network-js", visStub])
+        XCTAssertFalse(outputOffline.contains("unpkg.com/vis-network"), "Offline HTML should not depend on CDN")
+        XCTAssertTrue(outputOffline.contains("test stub for offline HTML mode"))
     }
 
     func testGEXFOutputFormat() async throws {

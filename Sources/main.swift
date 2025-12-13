@@ -273,6 +273,12 @@ struct GraphCommand: ParsableCommand {
     @Flag(name: .customLong("stable-ids"), help: "Use stable, collision-free node ids (JSON schema v2 when used)")
     var stableIDs: Bool = false
 
+    @Flag(name: .customLong("html-offline"), help: "In HTML output, inline vis-network from a local JS file (requires --vis-network-js)")
+    var htmlOffline: Bool = false
+
+    @Option(name: .customLong("vis-network-js"), help: "Path to vis-network.min.js to inline when using --html-offline")
+    var visNetworkJS: String?
+
     struct Diff: ParsableCommand {
         static let configuration = CommandConfiguration(
             abstract: "Diff two dependency graphs (nodes + edges)"
@@ -544,7 +550,7 @@ struct GraphCommand: ParsableCommand {
         case .dot:
             printDotGraph(graph: graph)
         case .html:
-            printHTMLGraph(graph: graph)
+            try printHTMLGraph(graph: graph, htmlOffline: htmlOffline, visNetworkJS: visNetworkJS)
         case .analyze:
             printPinchPointAnalysis(graph: graph, internalOnly: internalOnly)
         case .json:
@@ -1592,7 +1598,7 @@ struct GraphCommand: ParsableCommand {
     
     // MARK: - Interactive HTML Output
     
-    func printHTMLGraph(graph: Graph) {
+    func printHTMLGraph(graph: Graph, htmlOffline: Bool, visNetworkJS: String?) throws {
         // Build nodes JSON with type information
         var nodesJSON: [String] = []
         for (id, node) in graph.nodes {
@@ -1635,13 +1641,25 @@ struct GraphCommand: ParsableCommand {
         let externalPackageCount = graph.nodes.values.filter { $0.nodeType == .externalPackage }.count
         let transientCount = graph.nodes.values.filter { $0.isTransient }.count
         
+        let visNetworkScriptTag: String
+        if htmlOffline {
+            guard let visNetworkJS else {
+                throw ValidationError("--html-offline requires --vis-network-js /path/to/vis-network.min.js")
+            }
+            let data = try Data(contentsOf: URL(fileURLWithPath: visNetworkJS))
+            let js = String(decoding: data, as: UTF8.self)
+            visNetworkScriptTag = "<script>\n" + js + "\n</script>"
+        } else {
+            visNetworkScriptTag = "<script src=\"https://unpkg.com/vis-network/standalone/umd/vis-network.min.js\"></script>"
+        }
+
         let html = """
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Dependency Graph</title>
-    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    \(visNetworkScriptTag)
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
