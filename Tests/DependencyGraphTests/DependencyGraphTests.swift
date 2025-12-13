@@ -402,6 +402,48 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertTrue(edgeSet.contains("MismatchProject/iOS->localpkgdir"))
     }
 
+    func testStableIDsPreventProjectAndLocalPackageCollisions() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        // Xcode project named "samename" and local package identity "samename" (directory name lowercased) would collide in schema v1.
+        let xcodeproj = tempDir.appendingPathComponent("samename.xcodeproj")
+        try FileManager.default.createDirectory(at: xcodeproj, withIntermediateDirectories: true)
+
+        let sourcePBXProj = fixturesURL.appendingPathComponent("project.pbxproj")
+        try FileManager.default.copyItem(at: sourcePBXProj, to: xcodeproj.appendingPathComponent("project.pbxproj"))
+
+        let localPkg = tempDir.appendingPathComponent("samename")
+        try FileManager.default.createDirectory(at: localPkg.appendingPathComponent("Sources/samename"), withIntermediateDirectories: true)
+        try "public struct Samename {}".write(to: localPkg.appendingPathComponent("Sources/samename/Samename.swift"), atomically: true, encoding: .utf8)
+        try """
+        // swift-tools-version: 5.9
+        import PackageDescription
+        let package = Package(
+            name: "samename",
+            targets: [.target(name: "samename")]
+        )
+        """.write(to: localPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        let output = try runBinary(args: [tempDir.path, "--format", "json", "--stable-ids"])
+        let data = try XCTUnwrap(output.data(using: .utf8))
+        let jsonAny = try JSONSerialization.jsonObject(with: data)
+        let json = try XCTUnwrap(jsonAny as? [String: Any])
+
+        let metadata = try XCTUnwrap(json["metadata"] as? [String: Any])
+        XCTAssertEqual(metadata["schemaVersion"] as? Int, 2)
+
+        let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+        let sameNameNodes = nodes.filter { ($0["label"] as? String) == "samename" }
+
+        let types = Set(sameNameNodes.compactMap { $0["type"] as? String })
+        XCTAssertTrue(types.contains("project"), "Should include the Xcode project node")
+        XCTAssertTrue(types.contains("localPackage"), "Should include the local package node")
+
+        let ids = Set(sameNameNodes.compactMap { $0["id"] as? String })
+        XCTAssertEqual(ids.count, 2, "Nodes should not collapse under stable ids")
+    }
+
     func testContract_TargetToTargetEdges() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let xcodeproj = tempDir.appendingPathComponent("LocalPackagesProject.xcodeproj")

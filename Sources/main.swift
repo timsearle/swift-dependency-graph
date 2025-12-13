@@ -80,11 +80,11 @@ enum NodeType: String {
 }
 
 struct GraphNode {
-    let name: String
+    let label: String
     let nodeType: NodeType
     let isTransient: Bool  // True if dependency was not explicitly added
     var layer: Int = 0
-    
+
     var isProject: Bool { nodeType == .project }
     var isTarget: Bool { nodeType == .target }
     var isInternal: Bool { nodeType == .project || nodeType == .target || nodeType == .localPackage }
@@ -92,11 +92,14 @@ struct GraphNode {
 }
 
 struct Graph {
+    // Key is the stable node id; GraphNode.label is the human-friendly display name.
     var nodes: [String: GraphNode] = [:]
     var edges: [(from: String, to: String)] = []
-    
-    mutating func addNode(_ name: String, nodeType: NodeType, isTransient: Bool = false) {
-        if let existing = nodes[name] {
+
+    mutating func addNode(_ id: String, label: String? = nil, nodeType: NodeType, isTransient: Bool = false) {
+        let nodeLabel = label ?? id
+
+        if let existing = nodes[id] {
             // Allow upgrading node type (e.g. externalPackage -> localPackage) and clearing transient.
             // Prefer localPackage over project if both are discovered for the same id.
             let upgradedType: NodeType
@@ -108,13 +111,14 @@ struct Graph {
             }
 
             let upgradedTransient = existing.isTransient && !isTransient ? false : existing.isTransient
-            if upgradedType != existing.nodeType || upgradedTransient != existing.isTransient {
-                nodes[name] = GraphNode(name: name, nodeType: upgradedType, isTransient: upgradedTransient, layer: existing.layer)
+            let upgradedLabel = existing.label == id ? nodeLabel : existing.label
+            if upgradedType != existing.nodeType || upgradedTransient != existing.isTransient || upgradedLabel != existing.label {
+                nodes[id] = GraphNode(label: upgradedLabel, nodeType: upgradedType, isTransient: upgradedTransient, layer: existing.layer)
             }
             return
         }
 
-        nodes[name] = GraphNode(name: name, nodeType: nodeType, isTransient: isTransient)
+        nodes[id] = GraphNode(label: nodeLabel, nodeType: nodeType, isTransient: isTransient)
     }
     
     mutating func addEdge(from: String, to: String) {
@@ -224,6 +228,12 @@ struct DependencyGraph: ParsableCommand {
         guard isatty(STDERR_FILENO) != 0 else { return }
         FileHandle.standardError.write((message + "\n").data(using: .utf8)!)
     }
+
+    func pprof(_ message: String) {
+        guard profile else { return }
+        FileHandle.standardError.write((message + "\n").data(using: .utf8)!)
+    }
+
     static let configuration = CommandConfiguration(
         abstract: "Builds a dependency graph for Xcode projects/workspaces and Swift packages"
     )
@@ -248,10 +258,17 @@ struct DependencyGraph: ParsableCommand {
 
     @Flag(inversion: .prefixedNo, help: "Use SwiftPM JSON (dump-package) to resolve local package direct dependencies. The regex fallback (--no-swiftpm-json) is deprecated and will be removed.")
     var swiftpmJSON: Bool = true
+
+    @Flag(name: .long, help: "Print phase timings to stderr")
+    var profile: Bool = false
+
+    @Flag(name: .customLong("stable-ids"), help: "Use stable, collision-free node ids (JSON schema v2 when used)")
+    var stableIDs: Bool = false
     
     mutating func run() throws {
         let fileManager = FileManager.default
         let directoryURL = URL(fileURLWithPath: directory)
+        let overallStart = Date()
 
         if !swiftpmJSON {
             eprint("WARNING: --no-swiftpm-json is deprecated and will be removed; it exists only for debugging legacy regex parsing.")
@@ -330,10 +347,13 @@ struct DependencyGraph: ParsableCommand {
 
         let scanElapsed = String(format: "%.1fs", Date().timeIntervalSince(scanStart))
         eprint("Scan complete: files=\(scannedFiles) pbxproj=\(foundPBXProj) resolved=\(foundResolved) packages=\(foundPackageSwift) workspaces=\(foundWorkspaces) elapsed=\(scanElapsed)")
+        pprof("PROFILE scan=\(scanElapsed)")
 
         // Resolve local Swift packages using SwiftPM JSON (faster + more correct than regex parsing).
         if swiftpmJSON {
+            let dumpStart = Date()
             localPackages = enrichLocalPackagesWithSwiftPMDumpPackage(localPackages: localPackages, pbxprojInfos: pbxprojInfos)
+            pprof(String(format: "PROFILE dump-package=%.1fs", Date().timeIntervalSince(dumpStart)))
         }
 
         // Include workspace-referenced projects (may be outside scanned directory)
@@ -358,6 +378,8 @@ struct DependencyGraph: ParsableCommand {
         var graph = buildGraph(from: allDependencies, showTargets: showTargets)
 
         if spmEdges {
+            let spmStart = Date()
+
             // Performance: in Xcode project mode, only run SwiftPM graph resolution for local packages that are
             // explicitly referenced by the Xcode project(s).
             let localIdentities = Set(localPackages.map { $0.projectName.lowercased() })
@@ -370,14 +392,18 @@ struct DependencyGraph: ParsableCommand {
             let spmRootsToResolve = pbxprojInfos.isEmpty ? spmRoots : spmRoots.filter { swiftPMRootHasResolved(packageRoot: URL(fileURLWithPath: $0.projectPath)) }
 
             augmentGraphWithSwiftPMEdges(graph: &graph, packageRoots: spmRootsToResolve, hideTransient: hideTransient)
+            pprof(String(format: "PROFILE spm-edges=%.1fs", Date().timeIntervalSince(spmStart)))
         }
         
         // Filter transient dependencies if requested
         if hideTransient {
+            let filterStart = Date()
             graph = filterTransientDependencies(graph: graph)
+            pprof(String(format: "PROFILE hide-transient=%.1fs", Date().timeIntervalSince(filterStart)))
         }
-        
+
         graph.computeLayers()
+        pprof(String(format: "PROFILE total=%.1fs", Date().timeIntervalSince(overallStart)))
 
         switch format {
         case .dot:
@@ -1139,30 +1165,35 @@ struct DependencyGraph: ParsableCommand {
             }
         }
 
-        var localPackageNodeNameByIdentity: [String: String] = [:]
-        for node in graph.nodes.values where node.nodeType == .localPackage {
-            let key = node.name.lowercased()
-            if localPackageNodeNameByIdentity[key] == nil {
-                localPackageNodeNameByIdentity[key] = node.name
+        var localPackageNodeIDByIdentity: [String: String] = [:]
+        var localPackageLabelByIdentity: [String: String] = [:]
+        for (id, node) in graph.nodes where node.nodeType == .localPackage {
+            let key = node.label.lowercased()
+            if localPackageNodeIDByIdentity[key] == nil {
+                localPackageNodeIDByIdentity[key] = id
+                localPackageLabelByIdentity[key] = node.label
             }
         }
 
-        func walk(parentNodeName: String, node: SwiftPMShowDependenciesNode, depth: Int) {
+        func walk(parentNodeID: String, node: SwiftPMShowDependenciesNode, depth: Int) {
             if hideTransient && depth >= 1 {
                 return
             }
 
             for dep in node.dependencies ?? [] {
                 let depIdentity = dep.identity.lowercased()
-                let depNodeName = localPackageNodeNameByIdentity[depIdentity] ?? depIdentity
-                let depNodeType: NodeType = localPackageNodeNameByIdentity[depIdentity] != nil ? .localPackage : .externalPackage
+                let isLocalDep = localPackageNodeIDByIdentity[depIdentity] != nil
+                let depNodeType: NodeType = isLocalDep ? .localPackage : .externalPackage
+
+                let depLabel = localPackageLabelByIdentity[depIdentity] ?? depIdentity
+                let depID = localPackageNodeIDByIdentity[depIdentity] ?? nodeID(label: depLabel, nodeType: depNodeType)
 
                 // Depth 1 from a package root == explicit dependency; deeper == transient.
                 let isTransient = (depth + 1) > 1 && depNodeType == .externalPackage
 
-                graph.addNode(depNodeName, nodeType: depNodeType, isTransient: isTransient)
-                addEdgeUnique(from: parentNodeName, to: depNodeName)
-                walk(parentNodeName: depNodeName, node: dep, depth: depth + 1)
+                graph.addNode(depID, label: depLabel, nodeType: depNodeType, isTransient: isTransient)
+                addEdgeUnique(from: parentNodeID, to: depID)
+                walk(parentNodeID: depID, node: dep, depth: depth + 1)
             }
         }
 
@@ -1170,8 +1201,11 @@ struct DependencyGraph: ParsableCommand {
             let pkgRoot = URL(fileURLWithPath: pkg.projectPath)
             guard let rootNode = loadSwiftPMShowDependencies(packageRoot: pkgRoot) else { continue }
             let rootIdentity = rootNode.identity.lowercased()
-            let rootNodeName = localPackageNodeNameByIdentity[rootIdentity] ?? pkg.projectName
-            walk(parentNodeName: rootNodeName, node: rootNode, depth: 0)
+
+            let rootLabel = localPackageLabelByIdentity[rootIdentity] ?? pkg.projectName
+            let rootID = localPackageNodeIDByIdentity[rootIdentity] ?? nodeID(label: rootLabel, nodeType: .localPackage)
+
+            walk(parentNodeID: rootID, node: rootNode, depth: 0)
         }
     }
 
@@ -1231,8 +1265,9 @@ struct DependencyGraph: ParsableCommand {
         
         // Add local packages (Package.swift) as separate entries
         for (_, info) in localPackageMap {
-            // Check if not already added via resolved
-            if !merged.contains(where: { $0.projectName.lowercased() == info.projectName.lowercased() }) {
+            // Local packages can legitimately have the same name/identity as an Xcode project.
+            // Only dedupe when both name AND path match.
+            if !merged.contains(where: { $0.projectName.lowercased() == info.projectName.lowercased() && $0.projectPath == info.projectPath }) {
                 merged.append(info)
             }
         }
@@ -1241,7 +1276,24 @@ struct DependencyGraph: ParsableCommand {
     }
     
     // MARK: - Graph Building
-    
+
+    func nodeID(label: String, nodeType: NodeType, projectPath: String? = nil, containerID: String? = nil) -> String {
+        guard stableIDs else { return label }
+
+        switch nodeType {
+        case .project:
+            let p = projectPath.map { URL(fileURLWithPath: $0).standardizedFileURL.path } ?? ""
+            return "project:\(p)#\(label)"
+        case .target:
+            let container = containerID ?? ""
+            return "target:\(container)#\(label)"
+        case .localPackage:
+            return "localPackage:\(label.lowercased())"
+        case .externalPackage:
+            return "externalPackage:\(label.lowercased())"
+        }
+    }
+
     func buildGraph(from dependencies: [DependencyInfo], showTargets: Bool) -> Graph {
         var graph = Graph()
         
@@ -1275,24 +1327,27 @@ struct DependencyGraph: ParsableCommand {
             // Determine if this is a local package or Xcode project
             let isLocalPackage = localPackageNames.contains(info.projectName.lowercased()) && info.targets.isEmpty
             let nodeType: NodeType = isLocalPackage ? .localPackage : .project
-            
-            let projectNodeName = isLocalPackage ? (localPackageCanonicalNameByIdentity[info.projectName.lowercased()] ?? info.projectName) : info.projectName
-            graph.addNode(projectNodeName, nodeType: nodeType, isTransient: false)
-            
+
+            let projectLabel = isLocalPackage ? (localPackageCanonicalNameByIdentity[info.projectName.lowercased()] ?? info.projectName) : info.projectName
+            let projectID = nodeID(label: projectLabel, nodeType: nodeType, projectPath: info.projectPath)
+            graph.addNode(projectID, label: projectLabel, nodeType: nodeType, isTransient: false)
+
             // Add targets if requested
             if showTargets {
                 for target in info.targets {
-                    let targetNodeName = "\(projectNodeName)/\(target.name)"
-                    graph.addNode(targetNodeName, nodeType: .target)
-                    graph.addEdge(from: projectNodeName, to: targetNodeName)
+                    let targetLabel = "\(projectLabel)/\(target.name)"
+                    let targetID = nodeID(label: targetLabel, nodeType: .target, containerID: projectID)
+                    graph.addNode(targetID, label: targetLabel, nodeType: .target)
+                    graph.addEdge(from: projectID, to: targetID)
 
                     // Connect target to other targets it depends on
                     for depTargetName in target.targetDependencies {
-                        let depTargetNodeName = "\(projectNodeName)/\(depTargetName)"
-                        graph.addNode(depTargetNodeName, nodeType: .target)
-                        graph.addEdge(from: targetNodeName, to: depTargetNodeName)
+                        let depTargetLabel = "\(projectLabel)/\(depTargetName)"
+                        let depTargetID = nodeID(label: depTargetLabel, nodeType: .target, containerID: projectID)
+                        graph.addNode(depTargetID, label: depTargetLabel, nodeType: .target)
+                        graph.addEdge(from: targetID, to: depTargetID)
                     }
-                    
+
                     // Connect target to its package dependencies directly
                     for dep in target.packageDependencies {
                         let depLower = dep.lowercased()
@@ -1300,13 +1355,14 @@ struct DependencyGraph: ParsableCommand {
                         let isLocalDep = localPackageNames.contains(depLower)
                         let depNodeType: NodeType = isLocalDep ? .localPackage : .externalPackage
 
-                        let depNodeName = isLocalDep ? (localPackageCanonicalNameByIdentity[depLower] ?? depLower) : depLower
-                        graph.addNode(depNodeName, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
-                        graph.addEdge(from: targetNodeName, to: depNodeName)
+                        let depLabel = isLocalDep ? (localPackageCanonicalNameByIdentity[depLower] ?? depLower) : depLower
+                        let depID = nodeID(label: depLabel, nodeType: depNodeType)
+                        graph.addNode(depID, label: depLabel, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
+                        graph.addEdge(from: targetID, to: depID)
                     }
                 }
             }
-            
+
             // Add dependencies (project/package level)
             for dep in info.dependencies {
                 let depLower = dep.lowercased()
@@ -1314,9 +1370,10 @@ struct DependencyGraph: ParsableCommand {
                 let isLocalDep = localPackageNames.contains(depLower)
                 let depNodeType: NodeType = isLocalDep ? .localPackage : .externalPackage
 
-                let depNodeName = isLocalDep ? (localPackageCanonicalNameByIdentity[depLower] ?? depLower) : depLower
-                graph.addNode(depNodeName, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
-                graph.addEdge(from: projectNodeName, to: depNodeName)
+                let depLabel = isLocalDep ? (localPackageCanonicalNameByIdentity[depLower] ?? depLower) : depLower
+                let depID = nodeID(label: depLabel, nodeType: depNodeType)
+                graph.addNode(depID, label: depLabel, nodeType: depNodeType, isTransient: isTransient && !isLocalDep)
+                graph.addEdge(from: projectID, to: depID)
             }
         }
         
@@ -1327,9 +1384,9 @@ struct DependencyGraph: ParsableCommand {
         var filtered = Graph()
         
         // Add non-transient nodes (keep all internal, filter transient external)
-        for (name, node) in graph.nodes {
+        for (id, node) in graph.nodes {
             if !node.isTransient || node.isInternal {
-                filtered.addNode(name, nodeType: node.nodeType, isTransient: node.isTransient)
+                filtered.addNode(id, label: node.label, nodeType: node.nodeType, isTransient: node.isTransient)
             }
         }
         
@@ -1358,20 +1415,21 @@ struct DependencyGraph: ParsableCommand {
         print("")
         
         // Style nodes based on type
-        for (name, node) in graph.nodes {
-            let escapedName = escapeDotIdentifier(name)
+        for (id, node) in graph.nodes {
+            let escapedID = escapeDotIdentifier(id)
+            let escapedLabel = escapeDotIdentifier(node.label)
             switch node.nodeType {
             case .project:
-                print("  \(escapedName) [style=\"rounded,filled\", fillcolor=\"lightblue\"];")
+                print("  \(escapedID) [label=\(escapedLabel), style=\"rounded,filled\", fillcolor=\"lightblue\"];")
             case .target:
-                print("  \(escapedName) [style=\"rounded,filled\", fillcolor=\"lightgreen\"];")
+                print("  \(escapedID) [label=\(escapedLabel), style=\"rounded,filled\", fillcolor=\"lightgreen\"];")
             case .localPackage:
-                print("  \(escapedName) [style=\"rounded,filled\", fillcolor=\"lightyellow\"];")
+                print("  \(escapedID) [label=\(escapedLabel), style=\"rounded,filled\", fillcolor=\"lightyellow\"];")
             case .externalPackage:
                 if node.isTransient {
-                    print("  \(escapedName) [style=\"rounded,dashed\", color=\"gray\"];")
+                    print("  \(escapedID) [label=\(escapedLabel), style=\"rounded,dashed\", color=\"gray\"];")
                 } else {
-                    print("  \(escapedName);")
+                    print("  \(escapedID) [label=\(escapedLabel)];")
                 }
             }
         }
@@ -1401,7 +1459,7 @@ struct DependencyGraph: ParsableCommand {
     func printHTMLGraph(graph: Graph) {
         // Build nodes JSON with type information
         var nodesJSON: [String] = []
-        for (name, node) in graph.nodes {
+        for (id, node) in graph.nodes {
             let color: String
             let size: Int
             switch node.nodeType {
@@ -1421,7 +1479,7 @@ struct DependencyGraph: ParsableCommand {
             let nodeType = node.nodeType.rawValue
             let isInternal = node.isInternal
             nodesJSON.append("""
-                { "id": "\(escapeJSON(name))", "label": "\(escapeJSON(name))", "color": "\(color)", "size": \(size), "nodeType": "\(nodeType)", "isTransient": \(node.isTransient), "isInternal": \(isInternal) }
+                { "id": "\(escapeJSON(id))", "label": "\(escapeJSON(node.label))", "color": "\(color)", "size": \(size), "nodeType": "\(nodeType)", "isTransient": \(node.isTransient), "isInternal": \(isInternal) }
             """)
         }
         
@@ -2083,10 +2141,10 @@ struct DependencyGraph: ParsableCommand {
     func printJSONGraph(graph: Graph) {
         // Standard JSON Graph Format compatible with D3.js, Cytoscape.js, vis.js
         var nodes: [[String: Any]] = []
-        for (name, node) in graph.nodes {
+        for (id, node) in graph.nodes {
             nodes.append([
-                "id": name,
-                "label": name,
+                "id": id,
+                "label": node.label,
                 "type": node.nodeType.rawValue,
                 "isTransient": node.isTransient,
                 "isInternal": node.isInternal
@@ -2105,7 +2163,7 @@ struct DependencyGraph: ParsableCommand {
             "nodes": nodes,
             "edges": edges,
             "metadata": [
-                "schemaVersion": 1,
+                "schemaVersion": stableIDs ? 2 : 1,
                 "nodeCount": graph.nodes.count,
                 "edgeCount": graph.edges.count,
                 "format": "json-graph"
@@ -2141,10 +2199,11 @@ struct DependencyGraph: ParsableCommand {
             <nodes>
         """)
 
-        for (name, node) in graph.nodes {
-            let escapedName = escapeXML(name)
+        for (id, node) in graph.nodes {
+            let escapedID = escapeXML(id)
+            let escapedLabel = escapeXML(node.label)
             print("""
-              <node id="\(escapedName)" label="\(escapedName)">
+              <node id="\(escapedID)" label="\(escapedLabel)">
                 <attvalues>
                   <attvalue for="0" value="\(node.nodeType.rawValue)"/>
                   <attvalue for="1" value="\(node.isTransient)"/>
@@ -2184,16 +2243,18 @@ struct DependencyGraph: ParsableCommand {
           <key id="d0" for="node" attr.name="type" attr.type="string"/>
           <key id="d1" for="node" attr.name="isTransient" attr.type="boolean"/>
           <key id="d2" for="node" attr.name="isInternal" attr.type="boolean"/>
+          <key id="d3" for="node" attr.name="label" attr.type="string"/>
           <graph id="G" edgedefault="directed">
         """)
 
-        for (name, node) in graph.nodes {
-            let id = escapeXML(name)
+        for (nodeID, node) in graph.nodes {
+            let id = escapeXML(nodeID)
             print("""
             <node id="\(id)">
               <data key="d0">\(escapeXML(node.nodeType.rawValue))</data>
               <data key="d1">\(node.isTransient)</data>
               <data key="d2">\(node.isInternal)</data>
+              <data key="d3">\(escapeXML(node.label))</data>
             </node>
             """)
         }
@@ -2390,7 +2451,7 @@ struct DependencyGraph: ParsableCommand {
             let vulnerabilityScore = Double(transitiveDependencies)
 
             pinchPoints.append(PinchPointInfo(
-                name: name,
+                name: node.label,
                 nodeType: node.nodeType,
                 directDependents: directDependents,
                 transitiveDependents: transitiveDependents,

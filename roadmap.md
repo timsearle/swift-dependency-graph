@@ -16,10 +16,10 @@ The graph must support:
 
 ## Current State (as-is)
 - Parses `Package.resolved` pins (no package→package edges available there).
-- Parses `project.pbxproj` via Tuist `XcodeProj` (typed) with legacy regex fallback.
+- Parses `project.pbxproj` via Tuist `XcodeProj` (typed) with legacy fallback where needed.
 - Parses `.xcworkspace/contents.xcworkspacedata` to include referenced `.xcodeproj`.
-- Parses `Package.swift` via regex for `.package(...)` declarations.
-- Produces outputs: ASCII, DOT, HTML, JSON, and GEXF (`--format gexf`, with legacy alias `--format graphml`).
+- Resolves local Swift package direct deps via SwiftPM JSON (`swift package dump-package`); regex fallback is deprecated.
+- Produces outputs: DOT, HTML, JSON, GEXF, GraphML, and Analyze.
 
 Key risk: without authoritative dependency edges, pinch-point analysis can be misleading.
 
@@ -119,9 +119,9 @@ Tests:
 **Objective:** make outputs accurate, stable, and usable at scale.
 
 Work items:
-- Fix naming mismatch:
-  - `--format gexf` is now supported; `--format graphml` remains as a legacy alias.
-  - Either implement actual GraphML output, or keep the alias but document it clearly.
+- Output interoperability:
+  - Ensure GraphML output is accepted by common tools (and include label/type metadata).
+  - Add/grow output contract tests as formats evolve.
 - Stabilize HTML UI stats (ensure nodeType values match).
 - Add optional outputs:
   - schema’d JSON (versioned)

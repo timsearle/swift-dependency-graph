@@ -50,7 +50,8 @@ At the start of each slice, decide whether we should do **new features** vs **cl
    - Default path uses SwiftPM JSON (`swift package dump-package`); regex remains as a fallback (`--no-swiftpm-json`).
 
 3) **Node identifier collisions**
-   - If an Xcode project and a local package share the same id, the graph may collapse them into one node (schema v1 limitation).
+   - Schema v1 can still collapse nodes if ids collide.
+   - Mitigation: use `--stable-ids` (emits collision-free ids; JSON schemaVersion=2).
 
 ## Next tickets (recommended ordering)
 
@@ -71,8 +72,8 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - Implement real GraphML or keep `graphml` as an explicit alias (documented).
 - Consider emitting stable, collision-free ids (schema bump).
 
-### P5.2 — Profiling/timings
-- Add a `--profile` flag that prints phase timings (scan/parse/swiftpm/html) to stderr (TTY-only).
+### P5.2 — Profiling/timings — DONE
+- `--profile` prints phase timings to stderr (scan/dump-package/spm-edges/hide-transient/total).
 - Use it to target the real bottleneck on large repos.
 
 ### P6.1 — Package metadata enrichment (lower priority)
