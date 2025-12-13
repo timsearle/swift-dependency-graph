@@ -36,6 +36,12 @@ make html PROJECT=/path/to/root
 | `--profile` | Print phase timings to stderr (useful for diagnosing slow runs) |
 | `--stable-ids` | Use stable, collision-free node ids (JSON schema v2 when enabled) |
 
+### Diff
+
+```bash
+.build/release/DependencyGraph diff /path/to/old /path/to/new --format json --stable-ids
+```
+
 ### Output Formats
 
 | Format | Description |

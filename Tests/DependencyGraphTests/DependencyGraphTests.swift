@@ -789,6 +789,63 @@ final class DependencyGraphTests: XCTestCase {
         XCTAssertEqual(try schemaVersionConst(v2), 2)
     }
 
+    func testDiffCommandReportsAddedNodesAndEdges() async throws {
+        let tempA = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let tempB = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer {
+            try? FileManager.default.removeItem(at: tempA)
+            try? FileManager.default.removeItem(at: tempB)
+        }
+
+        func writeFixture(to root: URL, resolved: String) throws {
+            let xcodeproj = root.appendingPathComponent("TestProject.xcodeproj")
+            try FileManager.default.createDirectory(at: xcodeproj, withIntermediateDirectories: true)
+
+            let sourcePBXProj = fixturesURL.appendingPathComponent("project.pbxproj")
+            try FileManager.default.copyItem(at: sourcePBXProj, to: xcodeproj.appendingPathComponent("project.pbxproj"))
+
+            try resolved.write(to: xcodeproj.appendingPathComponent("Package.resolved"), atomically: true, encoding: .utf8)
+        }
+
+        let resolvedA = """
+        {
+          \"pins\" : [
+            {
+              \"identity\" : \"swift-argument-parser\",
+              \"kind\" : \"remoteSourceControl\",
+              \"location\" : \"https://github.com/apple/swift-argument-parser.git\",
+              \"state\" : { \"version\" : \"1.3.0\" }
+            },
+            {
+              \"identity\" : \"alamofire\",
+              \"kind\" : \"remoteSourceControl\",
+              \"location\" : \"https://github.com/Alamofire/Alamofire.git\",
+              \"state\" : { \"version\" : \"5.8.1\" }
+            }
+          ],
+          \"version\" : 2
+        }
+        """
+
+        let resolvedB = try String(contentsOf: fixturesURL.appendingPathComponent("Package.resolved.v2"), encoding: .utf8)
+
+        try FileManager.default.createDirectory(at: tempA, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: tempB, withIntermediateDirectories: true)
+        try writeFixture(to: tempA, resolved: resolvedA)
+        try writeFixture(to: tempB, resolved: resolvedB)
+
+        let output = try runBinary(args: ["diff", tempA.path, tempB.path, "--format", "json", "--stable-ids"])
+        let data = try XCTUnwrap(output.data(using: .utf8))
+        let jsonAny = try JSONSerialization.jsonObject(with: data)
+        let json = try XCTUnwrap(jsonAny as? [String: Any])
+
+        let addedNodes = Set(try XCTUnwrap(json["addedNodes"] as? [String]))
+        let addedEdges = Set(try XCTUnwrap(json["addedEdges"] as? [String]))
+
+        XCTAssertTrue(addedNodes.contains("externalPackage:swift-collections"))
+        XCTAssertTrue(addedEdges.contains(where: { $0.hasSuffix("->externalPackage:swift-collections") }))
+    }
+
     func testContract_JSONTargetsAndTransientFlags() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let xcodeproj = tempDir.appendingPathComponent("TestProject.xcodeproj")
@@ -1223,7 +1280,7 @@ exit 1
         g.addEdge(from: "b", to: "a")
         g.addEdge(from: "c", to: "a")
 
-        let (points, maxDepth) = DependencyGraph.computePinchPoints(graph: g, internalOnly: true)
+        let (points, maxDepth) = GraphCommand.computePinchPoints(graph: g, internalOnly: true)
         XCTAssertEqual(maxDepth, 1)
 
         let aInfo = points.first(where: { $0.name == "a" })
@@ -1257,7 +1314,7 @@ exit 1
         g.addEdge(from: "b", to: "d")
         g.addEdge(from: "c", to: "d")
 
-        let (points, maxDepth) = DependencyGraph.computePinchPoints(graph: g, internalOnly: true)
+        let (points, maxDepth) = GraphCommand.computePinchPoints(graph: g, internalOnly: true)
         XCTAssertEqual(maxDepth, 2)
 
         let rootInfo = points.first(where: { $0.name == "root" })

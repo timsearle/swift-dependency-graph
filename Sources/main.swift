@@ -70,6 +70,11 @@ enum OutputFormat: String, ExpressibleByArgument, CaseIterable {
     case analyze
 }
 
+enum DiffOutputFormat: String, ExpressibleByArgument, CaseIterable {
+    case json
+    case text
+}
+
 // MARK: - Graph Data Structures
 
 enum NodeType: String {
@@ -223,6 +228,16 @@ struct ASCIICanvas {
 
 @main
 struct DependencyGraph: ParsableCommand {
+    static let configuration = CommandConfiguration(
+        abstract: "Builds a dependency graph for Xcode projects/workspaces and Swift packages",
+        subcommands: [GraphCommand.self, GraphCommand.Diff.self],
+        defaultSubcommand: GraphCommand.self
+    )
+}
+
+struct GraphCommand: ParsableCommand {
+    static let configuration = CommandConfiguration(commandName: "graph")
+
     func eprint(_ message: String) {
         // Only emit progress to an interactive terminal; keep stdout/stderr clean for piping and tests.
         guard isatty(STDERR_FILENO) != 0 else { return }
@@ -234,10 +249,6 @@ struct DependencyGraph: ParsableCommand {
         FileHandle.standardError.write((message + "\n").data(using: .utf8)!)
     }
 
-    static let configuration = CommandConfiguration(
-        abstract: "Builds a dependency graph for Xcode projects/workspaces and Swift packages"
-    )
-    
     @Argument(help: "Project root directory (can contain an .xcodeproj/.xcworkspace and/or a root Package.swift)")
     var directory: String
     
@@ -261,6 +272,129 @@ struct DependencyGraph: ParsableCommand {
 
     @Flag(name: .customLong("stable-ids"), help: "Use stable, collision-free node ids (JSON schema v2 when used)")
     var stableIDs: Bool = false
+
+    struct Diff: ParsableCommand {
+        static let configuration = CommandConfiguration(
+            abstract: "Diff two dependency graphs (nodes + edges)"
+        )
+
+        @Argument(help: "Directory A (baseline)")
+        var from: String
+
+        @Argument(help: "Directory B (comparison)")
+        var to: String
+
+        @Option(name: .shortAndLong, help: "Output format: json or text")
+        var format: DiffOutputFormat = .json
+
+        @Flag(name: .long, help: "Hide transient (non-explicit) dependencies")
+        var hideTransient: Bool = false
+
+        @Flag(name: .long, help: "Show Xcode build targets in the graph")
+        var showTargets: Bool = false
+
+        @Flag(name: .long, help: "Include SwiftPM package-to-package edges (swift package show-dependencies)")
+        var spmEdges: Bool = false
+
+        @Flag(name: .customLong("stable-ids"), help: "Use stable ids when generating both graphs (recommended)")
+        var stableIDs: Bool = false
+
+        func run() throws {
+            let a = try graphSets(for: from)
+            let b = try graphSets(for: to)
+
+            let addedNodes = Array(b.nodes.subtracting(a.nodes)).sorted()
+            let removedNodes = Array(a.nodes.subtracting(b.nodes)).sorted()
+            let addedEdges = Array(b.edges.subtracting(a.edges)).sorted()
+            let removedEdges = Array(a.edges.subtracting(b.edges)).sorted()
+
+            switch format {
+            case .json:
+                let obj: [String: Any] = [
+                    "metadata": [
+                        "format": "diff",
+                        "from": from,
+                        "to": to,
+                        "addedNodeCount": addedNodes.count,
+                        "removedNodeCount": removedNodes.count,
+                        "addedEdgeCount": addedEdges.count,
+                        "removedEdgeCount": removedEdges.count
+                    ],
+                    "addedNodes": addedNodes,
+                    "removedNodes": removedNodes,
+                    "addedEdges": addedEdges,
+                    "removedEdges": removedEdges
+                ]
+                let data = try JSONSerialization.data(withJSONObject: obj, options: [.prettyPrinted, .sortedKeys])
+                print(String(decoding: data, as: UTF8.self))
+
+            case .text:
+                print("addedNodes=\(addedNodes.count) removedNodes=\(removedNodes.count) addedEdges=\(addedEdges.count) removedEdges=\(removedEdges.count)")
+                if !addedNodes.isEmpty {
+                    print("\nAdded nodes:")
+                    addedNodes.forEach { print("+ \($0)") }
+                }
+                if !removedNodes.isEmpty {
+                    print("\nRemoved nodes:")
+                    removedNodes.forEach { print("- \($0)") }
+                }
+                if !addedEdges.isEmpty {
+                    print("\nAdded edges:")
+                    addedEdges.forEach { print("+ \($0)") }
+                }
+                if !removedEdges.isEmpty {
+                    print("\nRemoved edges:")
+                    removedEdges.forEach { print("- \($0)") }
+                }
+            }
+        }
+
+        private func graphSets(for directory: String) throws -> (nodes: Set<String>, edges: Set<String>) {
+            let exe = URL(fileURLWithPath: CommandLine.arguments[0])
+            var args: [String] = ["graph", directory, "--format", "json"]
+            if hideTransient { args.append("--hide-transient") }
+            if showTargets { args.append("--show-targets") }
+            if spmEdges { args.append("--spm-edges") }
+            if stableIDs { args.append("--stable-ids") }
+
+            let process = Process()
+            process.executableURL = exe
+            process.arguments = args
+
+            let out = Pipe()
+            let err = Pipe()
+            process.standardOutput = out
+            process.standardError = err
+
+            try process.run()
+            process.waitUntilExit()
+
+            let stdout = out.fileHandleForReading.readDataToEndOfFile()
+            let stderr = err.fileHandleForReading.readDataToEndOfFile()
+
+            guard process.terminationStatus == 0 else {
+                let msg = String(decoding: stderr, as: UTF8.self)
+                throw ValidationError("Failed to generate graph for \(directory): \(msg)")
+            }
+
+            let any = try JSONSerialization.jsonObject(with: stdout)
+            guard let json = any as? [String: Any] else {
+                throw ValidationError("Invalid JSON graph output for \(directory)")
+            }
+            guard let nodesArr = json["nodes"] as? [[String: Any]],
+                  let edgesArr = json["edges"] as? [[String: Any]] else {
+                throw ValidationError("Invalid JSON graph shape for \(directory)")
+            }
+
+            let nodes = Set(nodesArr.compactMap { $0["id"] as? String })
+            let edges = Set(edgesArr.compactMap { e -> String? in
+                guard let s = e["source"] as? String, let t = e["target"] as? String else { return nil }
+                return "\(s)->\(t)"
+            })
+
+            return (nodes, edges)
+        }
+    }
     
     mutating func run() throws {
         let fileManager = FileManager.default
@@ -993,7 +1127,7 @@ struct DependencyGraph: ParsableCommand {
 
     func loadSwiftPMShowDependencies(packageRoot: URL) -> SwiftPMShowDependenciesNode? {
         let cacheKey = packageRoot.resolvingSymlinksInPath().standardizedFileURL.path
-        if let cached = DependencyGraph.swiftPMShowDependenciesCache[cacheKey] {
+        if let cached = GraphCommand.swiftPMShowDependenciesCache[cacheKey] {
             return cached
         }
 
@@ -1019,14 +1153,14 @@ struct DependencyGraph: ParsableCommand {
         let decoder = JSONDecoder()
         let decoded = try? decoder.decode(SwiftPMShowDependenciesNode.self, from: data)
         if let decoded {
-            DependencyGraph.swiftPMShowDependenciesCache[cacheKey] = decoded
+            GraphCommand.swiftPMShowDependenciesCache[cacheKey] = decoded
         }
         return decoded
     }
 
     func loadSwiftPMDumpPackageData(packageRoot: URL) -> Data? {
         let cacheKey = packageRoot.resolvingSymlinksInPath().standardizedFileURL.path
-        if let cached = DependencyGraph.swiftPMDumpPackageCache[cacheKey] {
+        if let cached = GraphCommand.swiftPMDumpPackageCache[cacheKey] {
             return cached
         }
 
@@ -1049,7 +1183,7 @@ struct DependencyGraph: ParsableCommand {
         guard process.terminationStatus == 0 else { return nil }
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        DependencyGraph.swiftPMDumpPackageCache[cacheKey] = data
+        GraphCommand.swiftPMDumpPackageCache[cacheKey] = data
         return data
     }
 

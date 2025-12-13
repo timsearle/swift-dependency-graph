@@ -2,7 +2,7 @@
 
 Repo (private): https://github.com/timsearle/swift-dependency-graph
 
-## Current state (2025-12-13T19:00Z)
+## Current state (2025-12-13T19:12Z)
 
 ### What’s working well now
 - Works on **root SwiftPM-only** repos (no Xcode project needed).
@@ -88,8 +88,10 @@ At the start of each slice, decide whether we should do **new features** vs **cl
   - ✅ Added `Schemas/dependency-graph.json-graph.v2.schema.json`.
   - ✅ Added contract test asserting shipped schema versions match `metadata.schemaVersion` constants.
 
-### P7.3 — Graph diff (CLI) — TODO
-- Once stable IDs are truly stable, add a minimal `diff` command for node/edge changes.
+### P7.3 — Graph diff (CLI) — DONE
+- Added `diff` subcommand: `DependencyGraph diff <from> <to> [--format json|text]`.
+- Uses node ids + edge pairs (stable ids recommended).
+- ✅ Includes integration-style test coverage.
 
 ### P9.1 — Xcode target→target correctness (remove legacy text parsing) — TODO
 - Replace remaining pbxproj string parsing for target→target deps with typed `XcodeProj` model.
