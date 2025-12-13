@@ -246,12 +246,16 @@ struct DependencyGraph: ParsableCommand {
     @Flag(name: .long, help: "Include SwiftPM package-to-package edges (swift package show-dependencies)")
     var spmEdges: Bool = false
 
-    @Flag(inversion: .prefixedNo, help: "Use SwiftPM JSON (dump-package) to resolve local package direct dependencies (disable with --no-swiftpm-json for regex fallback)")
+    @Flag(inversion: .prefixedNo, help: "Use SwiftPM JSON (dump-package) to resolve local package direct dependencies. The regex fallback (--no-swiftpm-json) is deprecated and will be removed.")
     var swiftpmJSON: Bool = true
     
     mutating func run() throws {
         let fileManager = FileManager.default
         let directoryURL = URL(fileURLWithPath: directory)
+
+        if !swiftpmJSON {
+            eprint("WARNING: --no-swiftpm-json is deprecated and will be removed; it exists only for debugging legacy regex parsing.")
+        }
         
         guard fileManager.fileExists(atPath: directory) else {
             throw ValidationError("Directory does not exist: \(directory)")

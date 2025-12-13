@@ -60,7 +60,8 @@ At the start of each slice, decide whether we should do **new features** vs **cl
   - `swift package show-dependencies --format json` for package→package edges (when `--spm-edges`)
 - Regex parsing remains available as a fallback via `--no-swiftpm-json`.
 - Remaining hardening: ✅ covered by integration tests (weird spacing, multiline/variables, conditional target deps, multiple products).
-- Next: consider deprecating/removing `--no-swiftpm-json` once we’re comfortable with real-world coverage.
+- Next: start deprecating/removing `--no-swiftpm-json` once we’re comfortable with real-world coverage.
+  - 2025-12-13: **Deprecated** (warn + docs). Remove once you’ve done a couple more real-world acceptance runs.
 
 ### P4.1 — Analysis correctness hardening
 - Add cycle handling (SCC condensation) so depth/impact metrics are well-defined.

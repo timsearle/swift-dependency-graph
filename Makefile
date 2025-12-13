@@ -25,14 +25,14 @@ help:
 	@echo "  SHOW_TARGETS=1|0       (default: 1)"
 	@echo "  HIDE_TRANSIENT=1|0     (default: 0)"
 	@echo "  SPM_EDGES=1|0          (default: 0)"
-	@echo "  SWIFTPM_JSON=1|0       (default: 1)"
+	@echo "  SWIFTPM_JSON=1|0       (default: 1; 0 is deprecated)"
 	@echo "  EXTRA_ARGS=...         (passed through to CLI)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make html-fast PROJECT=/path/to/MyApp"
 	@echo "  make html-full PROJECT=/path/to/MyApp"
 	@echo "  make html PROJECT=/path/to/MyApp SPM_EDGES=1"
-	@echo "  make html PROJECT=/path/to/MyApp SWIFTPM_JSON=0    # regex fallback (legacy)"
+	@echo "  make html PROJECT=/path/to/MyApp SWIFTPM_JSON=0    # DEPRECATED regex fallback"
 	@echo "  make json PROJECT=/path/to/MyApp HIDE_TRANSIENT=1"
 
 # Build targets

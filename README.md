@@ -33,7 +33,7 @@ make html PROJECT=/path/to/root
 | `--show-targets` | Show Xcode build targets in the graph |
 | `--internal-only` | In analyze mode, only show internal modules (not external packages) |
 | `--spm-edges` | Add SwiftPM package→package edges using `swift package show-dependencies --format json` |
-| `--swiftpm-json` / `--no-swiftpm-json` | Resolve local package direct deps via `swift package dump-package` (default on; `--no-swiftpm-json` uses regex fallback) |
+| `--swiftpm-json` / `--no-swiftpm-json` | Resolve local package direct deps via `swift package dump-package` (default on). `--no-swiftpm-json` is **deprecated** (legacy regex fallback). |
 
 ### Output Formats
 
