@@ -117,15 +117,7 @@ final class DependencyGraphTests: XCTestCase {
         try FileManager.default.createDirectory(at: depB.appendingPathComponent("Sources/DepB"), withIntermediateDirectories: true)
         try "public struct DepB {}".write(to: depB.appendingPathComponent("Sources/DepB/DepB.swift"), atomically: true, encoding: .utf8)
 
-        try """
-        // swift-tools-version: 5.9
-        import PackageDescription
-        let package = Package(
-            name: "DepB",
-            products: [.library(name: "DepB", targets: ["DepB"])],
-            targets: [.target(name: "DepB")]
-        )
-        """.write(to: depB.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+        try depBPackageSwift().write(to: depB.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
         // Use a variable for the path + spread the dependency across multiple lines.
         try """
@@ -146,6 +138,109 @@ final class DependencyGraphTests: XCTestCase {
         """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
 
         try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
+    }
+
+    func testSwiftPMJSONDumpPackageHandlesConditionalTargetDependencies() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let appPkg = tempDir.appendingPathComponent("AppPkg")
+        let depB = tempDir.appendingPathComponent("DepB")
+        try FileManager.default.createDirectory(at: appPkg, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: depB, withIntermediateDirectories: true)
+
+        try FileManager.default.createDirectory(at: appPkg.appendingPathComponent("Sources/AppPkg"), withIntermediateDirectories: true)
+        try "public struct AppPkg {}".write(to: appPkg.appendingPathComponent("Sources/AppPkg/AppPkg.swift"), atomically: true, encoding: .utf8)
+
+        try FileManager.default.createDirectory(at: depB.appendingPathComponent("Sources/DepB"), withIntermediateDirectories: true)
+        try "public struct DepB {}".write(to: depB.appendingPathComponent("Sources/DepB/DepB.swift"), atomically: true, encoding: .utf8)
+
+        try depBPackageSwift().write(to: depB.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        // Conditional dependency usage in target deps is common.
+        try """
+        // swift-tools-version: 5.9
+        import PackageDescription
+
+        let package = Package(
+            name: "AppPkg",
+            products: [.library(name: "AppPkg", targets: ["AppPkg"])],
+            dependencies: [
+                .package(path: "../DepB"),
+            ],
+            targets: [
+                .target(
+                    name: "AppPkg",
+                    dependencies: [
+                        .product(name: "DepB", package: "DepB", condition: .when(platforms: [.iOS]))
+                    ]
+                ),
+            ]
+        )
+        """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
+    }
+
+    func testSwiftPMJSONDumpPackageHandlesMultipleProducts() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let appPkg = tempDir.appendingPathComponent("AppPkg")
+        let depB = tempDir.appendingPathComponent("DepB")
+        try FileManager.default.createDirectory(at: appPkg, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: depB, withIntermediateDirectories: true)
+
+        try FileManager.default.createDirectory(at: appPkg.appendingPathComponent("Sources/AppPkg"), withIntermediateDirectories: true)
+        try "public struct AppPkg {}".write(to: appPkg.appendingPathComponent("Sources/AppPkg/AppPkg.swift"), atomically: true, encoding: .utf8)
+
+        try FileManager.default.createDirectory(at: depB.appendingPathComponent("Sources/DepB"), withIntermediateDirectories: true)
+        try "public struct DepB {}".write(to: depB.appendingPathComponent("Sources/DepB/DepB.swift"), atomically: true, encoding: .utf8)
+
+        // Multiple products in the dependency package.
+        try """
+        // swift-tools-version: 5.9
+        import PackageDescription
+        let package = Package(
+            name: "DepB",
+            products: [
+                .library(name: "DepB", targets: ["DepB"]),
+                .library(name: "DepBExtras", targets: ["DepB"]),
+            ],
+            targets: [.target(name: "DepB")]
+        )
+        """.write(to: depB.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        // Also declare multiple products in the root package.
+        try """
+        // swift-tools-version: 5.9
+        import PackageDescription
+        let package = Package(
+            name: "AppPkg",
+            products: [
+                .library(name: "AppPkg", targets: ["AppPkg"]),
+                .library(name: "AppPkgExtras", targets: ["AppPkg"]),
+            ],
+            dependencies: [
+                .package(path: "../DepB"),
+            ],
+            targets: [.target(name: "AppPkg")]
+        )
+        """.write(to: appPkg.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+
+        try assertEdgeSet(output: try runBinary(args: [tempDir.path, "--format", "json"]), contains: ["apppkg->depb"])
+    }
+
+    private func depBPackageSwift() -> String {
+        """
+        // swift-tools-version: 5.9
+        import PackageDescription
+        let package = Package(
+            name: "DepB",
+            products: [.library(name: "DepB", targets: ["DepB"])],
+            targets: [.target(name: "DepB")]
+        )
+        """
     }
 
     private func assertEdgeSet(output: String, contains: [String] = [], notContains: [String] = []) throws {
