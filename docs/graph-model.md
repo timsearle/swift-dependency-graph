@@ -22,6 +22,14 @@ Implementation notes:
 - Default: `--format json` emits `metadata.schemaVersion = 2` and follows `Schemas/dependency-graph.json-graph.v2.schema.json`.
 - Compatibility: pass `--no-stable-ids` to emit `metadata.schemaVersion = 1` and follow `Schemas/dependency-graph.json-graph.v1.schema.json`.
 
+## Stable IDs and diffing
+
+Schema v2 uses **stable, collision-free node IDs** that are:
+- Repository-relative (no absolute paths)
+- Deterministic across machines and CI environments
+
+This enables reliable **graph diffing** via the `diff` subcommand—comparing two graphs to detect added/removed nodes and edges. See [diff.md](./diff.md) for details.
+
 ## Dependency sources
 
 The tool scans for and merges dependencies from:

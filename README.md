@@ -32,7 +32,11 @@ make analyze PROJECT=/path/to/ios-project
 .build/release/DependencyGraph graph /path/to/root --format html --show-targets --spm-edges > graph.html
 
 # Diff two graphs (stable across machines)
-.build/release/DependencyGraph diff /path/to/old /path/to/new --format json --stable-ids > diff.json
+.build/release/DependencyGraph diff /path/to/old /path/to/new --format json > diff.json
+
+# Diff with text output (for quick review)
+.build/release/DependencyGraph diff /path/to/old /path/to/new --format text
+# Output: addedNodes=2 removedNodes=1 addedEdges=3 removedEdges=0
 ```
 
 ## Flags (common)

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/dependency-graph.diff.schema.json",
+  "title": "DependencyGraph Diff Output",
+  "description": "Schema for the JSON output of the `DependencyGraph diff` command",
+  "type": "object",
+  "required": ["metadata", "addedNodes", "removedNodes", "addedEdges", "removedEdges"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["format", "from", "to", "addedNodeCount", "removedNodeCount", "addedEdgeCount", "removedEdgeCount"],
+      "properties": {
+        "format": { "type": "string", "const": "diff" },
+        "from": { "type": "string", "description": "Path to the baseline directory" },
+        "to": { "type": "string", "description": "Path to the comparison directory" },
+        "addedNodeCount": { "type": "integer", "minimum": 0 },
+        "removedNodeCount": { "type": "integer", "minimum": 0 },
+        "addedEdgeCount": { "type": "integer", "minimum": 0 },
+        "removedEdgeCount": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "addedNodes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Node IDs present in 'to' but not in 'from'"
+    },
+    "removedNodes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Node IDs present in 'from' but not in 'to'"
+    },
+    "addedEdges": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Edges (as 'source->target') present in 'to' but not in 'from'"
+    },
+    "removedEdges": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Edges (as 'source->target') present in 'from' but not in 'to'"
+    }
+  },
+  "additionalProperties": true
+}

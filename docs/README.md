@@ -5,6 +5,7 @@ This repo is intentionally optimized for day-1 usability in `README.md` and keep
 ## Reference
 
 - [Graph model + JSON schema](./graph-model.md)
+- [Graph diffing](./diff.md)
 - [HTML UI guide](./html.md)
 - [Architecture](./architecture.md)
 - [Testing](./testing.md)
