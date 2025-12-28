@@ -66,7 +66,7 @@ jobs:
           fi
 
           TAP_DIR="$(mktemp -d)"
-          git clone "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/timsearle/homebrew-tap.git" "$TAP_DIR"
+          git clone "https://timsearle:${HOMEBREW_TAP_TOKEN}@github.com/timsearle/homebrew-tap.git" "$TAP_DIR"
 
           FORMULA="$TAP_DIR/Formula/swift-dependency-graph.rb"
           URL="https://github.com/timsearle/swift-dependency-graph/releases/download/${TAG}/DependencyGraph-macos-arm64.zip"
