@@ -75,6 +75,17 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 
 ## Next tickets (recommended ordering)
 
+### P10.1 — Homebrew tap + formula — WIP
+- Goal: publish `DependencyGraph` via a personal Homebrew tap so it can be installed with `brew install`.
+- Scope:
+  - Create `timsearle/homebrew-tap`
+  - Add a formula for `swift-dependency-graph` (installing the `DependencyGraph` binary)
+  - Verify install on an Apple Silicon Mac
+- Acceptance:
+  - `brew tap timsearle/tap` works
+  - `brew install swift-dependency-graph` installs successfully
+  - `DependencyGraph --help` runs
+
 ### P7.1 — True stable IDs (repo-relative) — DONE
 - Problem: `--stable-ids` used to include absolute paths for project/target nodes, so ids were not stable across checkouts/CI.
 - Fix: project ids now include scan-root-relative paths (repo-relative in practice).
