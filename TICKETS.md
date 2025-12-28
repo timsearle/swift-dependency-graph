@@ -87,10 +87,10 @@ At the start of each slice, decide whether we should do **new features** vs **cl
   - ✅ `DependencyGraph --help` runs
 
 ### P10.2 — CI release to GitHub + Homebrew tap — WIP
-- Goal: pushing a tag like `v0.2.0` should:
-  1) build a release binary
-  2) create/update a GitHub Release asset
-  3) update the Homebrew tap formula to the new version + sha256
+- Goal: pushing to `main` should auto-create a new **minor** tag (e.g. `v0.1.0` → `v0.2.0`) which then:
+  1) builds a release binary
+  2) creates/updates a GitHub Release asset
+  3) updates the Homebrew tap formula to the new version + sha256
 - Acceptance:
   - Tag push creates/updates a GitHub Release with `DependencyGraph-macos-arm64.zip`
   - Tap formula is updated on `main` in `timsearle/homebrew-tap`
