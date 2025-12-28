@@ -16,6 +16,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "6.1"
+
       - name: Build (release)
         run: swift build -c release
 
@@ -27,8 +32,10 @@ jobs:
           VERSION="${TAG#v}"
           ASSET="DependencyGraph-macos-arm64.zip"
 
+          BIN_DIR="$(swift build -c release --show-bin-path)"
+
           mkdir -p dist
-          cp .build/release/DependencyGraph dist/DependencyGraph
+          cp "${BIN_DIR}/DependencyGraph" dist/DependencyGraph
           chmod +x dist/DependencyGraph
           (cd dist && zip -qry "../${ASSET}" "DependencyGraph")
 
