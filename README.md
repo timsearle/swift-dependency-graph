@@ -10,6 +10,16 @@ swift build -c release
 
 Binary: `.build/release/DependencyGraph`
 
+## Install (Homebrew)
+
+```bash
+brew tap timsearle/tap
+brew install swift-dependency-graph
+
+# Upgrade later
+brew upgrade swift-dependency-graph
+```
+
 ## Quickstart
 
 Recommended: use the Makefile (it encodes the common workflows + flags).
