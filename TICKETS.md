@@ -75,16 +75,26 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 
 ## Next tickets (recommended ordering)
 
-### P10.1 — Homebrew tap + formula — WIP
+### P10.1 — Homebrew tap + formula — DONE
 - Goal: publish `DependencyGraph` via a personal Homebrew tap so it can be installed with `brew install`.
 - Scope:
   - Create `timsearle/homebrew-tap`
   - Add a formula for `swift-dependency-graph` (installing the `DependencyGraph` binary)
   - Verify install on an Apple Silicon Mac
 - Acceptance:
-  - `brew tap timsearle/tap` works
-  - `brew install swift-dependency-graph` installs successfully
-  - `DependencyGraph --help` runs
+  - ✅ `brew tap timsearle/tap` works
+  - ✅ `brew install swift-dependency-graph` installs successfully
+  - ✅ `DependencyGraph --help` runs
+
+### P10.2 — CI release to GitHub + Homebrew tap — WIP
+- Goal: pushing a tag like `v0.2.0` should:
+  1) build a release binary
+  2) create/update a GitHub Release asset
+  3) update the Homebrew tap formula to the new version + sha256
+- Acceptance:
+  - Tag push creates/updates a GitHub Release with `DependencyGraph-macos-arm64.zip`
+  - Tap formula is updated on `main` in `timsearle/homebrew-tap`
+  - Document required secret: `HOMEBREW_TAP_TOKEN`
 
 ### P7.1 — True stable IDs (repo-relative) — DONE
 - Problem: `--stable-ids` used to include absolute paths for project/target nodes, so ids were not stable across checkouts/CI.

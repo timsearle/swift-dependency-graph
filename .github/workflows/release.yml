@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Swift test
+        run: swift test
+
+      - name: Build release
+        run: swift build -c release
+
+      - name: Package artifact
+        id: pkg
+        run: |
+          set -euo pipefail
+          BIN=".build/release/DependencyGraph"
+          ASSET="DependencyGraph-macos-arm64.zip"
+          rm -f "$ASSET"
+          (cd "$(dirname "$BIN")" && zip -qry "$GITHUB_WORKSPACE/$ASSET" "$(basename "$BIN")")
+          SHA=$(shasum -a 256 "$ASSET" | awk '{print $1}')
+          echo "asset=$ASSET" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          ASSET="${{ steps.pkg.outputs.asset }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET" --clobber
+          else
+            gh release create "$TAG" "$ASSET" --title "$TAG" --notes "Automated release."
+          fi
+
+      - name: Update Homebrew tap formula
+        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          SHA: ${{ steps.pkg.outputs.sha }}
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          TAP_REPO="timsearle/homebrew-tap"
+
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/${TAP_REPO}.git" tap
+          cd tap
+          mkdir -p Formula
+
+          cat > Formula/swift-dependency-graph.rb <<EOF
+          class SwiftDependencyGraph < Formula
+            desc "Dependency graph generator for Xcode + SwiftPM projects"
+            homepage "https://github.com/timsearle/swift-dependency-graph"
+            url "https://github.com/timsearle/swift-dependency-graph/releases/download/${TAG}/DependencyGraph-macos-arm64.zip"
+            sha256 "${SHA}"
+            version "${VERSION}"
+            license "MIT"
+
+            depends_on arch: :arm64
+
+            def install
+              bin.install "DependencyGraph"
+            end
+
+            test do
+              system "#{bin}/DependencyGraph", "--help"
+            end
+          end
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/swift-dependency-graph.rb
+          git commit -m "swift-dependency-graph ${TAG}" || exit 0
+          git push origin HEAD:main

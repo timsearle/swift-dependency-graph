@@ -12,6 +12,6 @@ jobs:
       - name: Verify Swift toolchain
         run: |
           swift --version
-          swift --version | grep -E "Apple Swift version 6\\.1"
+          swift --version | grep -E "Apple Swift version 6\\.[12]"
       - name: Swift test
         run: swift test

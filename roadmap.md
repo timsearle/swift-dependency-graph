@@ -20,6 +20,7 @@ The graph must support:
 - Parses `.xcworkspace/contents.xcworkspacedata` to include referenced `.xcodeproj`.
 - Resolves local Swift package direct deps via SwiftPM JSON (`swift package dump-package`); regex fallback is deprecated.
 - Produces outputs: DOT, HTML, JSON, GEXF, GraphML, and Analyze.
+- Distribution: GitHub Releases + Homebrew tap (`timsearle/tap`).
 
 Key risk: large repos can make SwiftPM graph resolution (`--spm-edges`) expensive; identity correctness remains the biggest correctness trap.
 
