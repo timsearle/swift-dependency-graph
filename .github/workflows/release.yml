@@ -96,15 +96,22 @@ jobs:
         with:
           repository: timsearle/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          persist-credentials: true
           path: homebrew-tap
 
       - name: Update Homebrew tap
         env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           SHA256: ${{ steps.pkg.outputs.sha256 }}
           VERSION: ${{ steps.pkg.outputs.version }}
           TAG: ${{ steps.pkg.outputs.tag }}
         run: |
           set -euo pipefail
+
+          if [ -z "${HOMEBREW_TAP_TOKEN:-}" ]; then
+            echo "HOMEBREW_TAP_TOKEN is not set"
+            exit 1
+          fi
 
           FORMULA="homebrew-tap/Formula/swift-dependency-graph.rb"
           URL="https://github.com/timsearle/swift-dependency-graph/releases/download/${TAG}/DependencyGraph-macos-arm64.zip"
@@ -116,6 +123,8 @@ jobs:
           cd homebrew-tap
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote set-url origin "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/timsearle/homebrew-tap.git"
 
           git add Formula/swift-dependency-graph.rb
           git commit -m "swift-dependency-graph ${VERSION}" || exit 0
