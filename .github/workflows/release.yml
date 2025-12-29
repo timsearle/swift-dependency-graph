@@ -69,7 +69,14 @@ jobs:
           BIN_DIR="$(swift build -c release --show-bin-path)"
 
           mkdir -p dist
-          cp "${BIN_DIR}/DependencyGraph" dist/dependency-graph
+
+          if [ -f "${BIN_DIR}/dependency-graph" ]; then
+            SRC_BIN="${BIN_DIR}/dependency-graph"
+          else
+            SRC_BIN="${BIN_DIR}/DependencyGraph"
+          fi
+
+          cp "${SRC_BIN}" dist/dependency-graph
           chmod +x dist/dependency-graph
           (cd dist && zip -qry "../${ASSET}" "dependency-graph")
 
