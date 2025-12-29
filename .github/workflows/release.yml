@@ -45,40 +45,43 @@ jobs:
           echo "sha256=${SHA}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Create/Update GitHub Release (gh)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          ASSET: ${{ steps.pkg.outputs.asset }}
+        run: |
+          set -euo pipefail
+
+          gh release view "${TAG}" >/dev/null 2>&1 || gh release create "${TAG}" --generate-notes
+          gh release upload "${TAG}" "${ASSET}" --clobber
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v4
         with:
-          files: ${{ steps.pkg.outputs.asset }}
-          generate_release_notes: true
+          repository: timsearle/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
 
       - name: Update Homebrew tap
         env:
-          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           SHA256: ${{ steps.pkg.outputs.sha256 }}
           VERSION: ${{ steps.pkg.outputs.version }}
           TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
 
-          if [ -z "${HOMEBREW_TAP_TOKEN:-}" ]; then
-            echo "HOMEBREW_TAP_TOKEN is not set"
-            exit 1
-          fi
-
-          TAP_DIR="$(mktemp -d)"
-          git clone "https://timsearle:${HOMEBREW_TAP_TOKEN}@github.com/timsearle/homebrew-tap.git" "$TAP_DIR"
-
-          FORMULA="$TAP_DIR/Formula/swift-dependency-graph.rb"
+          FORMULA="homebrew-tap/Formula/swift-dependency-graph.rb"
           URL="https://github.com/timsearle/swift-dependency-graph/releases/download/${TAG}/DependencyGraph-macos-arm64.zip"
 
-          perl -pi -e "s|^\s*url \".*\"|  url \"${URL}\"|g" "$FORMULA"
-          perl -pi -e "s|^\s*sha256 \".*\"|  sha256 \"${SHA256}\"|g" "$FORMULA"
-          perl -pi -e "s|^\s*version \".*\"|  version \"${VERSION}\"|g" "$FORMULA"
+          sed -i '' -E "s|^\s*url \".*\"|  url \"${URL}\"|" "${FORMULA}"
+          sed -i '' -E "s|^\s*sha256 \".*\"|  sha256 \"${SHA256}\"|" "${FORMULA}"
+          sed -i '' -E "s|^\s*version \".*\"|  version \"${VERSION}\"|" "${FORMULA}"
 
-          cd "$TAP_DIR"
+          cd homebrew-tap
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add Formula/swift-dependency-graph.rb
           git commit -m "swift-dependency-graph ${VERSION}" || exit 0
-          git push origin main
+          git push origin HEAD:main
