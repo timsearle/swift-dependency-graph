@@ -27,6 +27,13 @@ jobs:
           set -euo pipefail
           git fetch --tags --force
 
+          EXISTING=$(git tag --points-at HEAD | grep '^v' | sort -Vr | head -n 1 || true)
+          if [ -n "${EXISTING}" ]; then
+            echo "tag=${EXISTING}" >> "$GITHUB_OUTPUT"
+            echo "version=${EXISTING#v}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           LATEST=$(git tag -l 'v*' --sort=-v:refname | head -n 1 || true)
           if [ -z "${LATEST}" ]; then
             LATEST="v0.0.0"
@@ -36,15 +43,8 @@ jobs:
           IFS='.' read -r MAJOR MINOR PATCH <<<"${RAW}"
           : "${MAJOR:?}" "${MINOR:?}" "${PATCH:?}"
 
-          while true; do
-            NEXT_MINOR=$((MINOR + 1))
-            NEW_TAG="v${MAJOR}.${NEXT_MINOR}.0"
-            if git rev-parse "$NEW_TAG" >/dev/null 2>&1; then
-              MINOR=$NEXT_MINOR
-              continue
-            fi
-            break
-          done
+          NEXT_MINOR=$((MINOR + 1))
+          NEW_TAG="v${MAJOR}.${NEXT_MINOR}.0"
 
           echo "tag=${NEW_TAG}" >> "$GITHUB_OUTPUT"
           echo "version=${NEW_TAG#v}" >> "$GITHUB_OUTPUT"
@@ -109,9 +109,9 @@ jobs:
           FORMULA="homebrew-tap/Formula/swift-dependency-graph.rb"
           URL="https://github.com/timsearle/swift-dependency-graph/releases/download/${TAG}/DependencyGraph-macos-arm64.zip"
 
-          sed -i '' -E "s|^\s*url \".*\"|  url \"${URL}\"|" "${FORMULA}"
-          sed -i '' -E "s|^\s*sha256 \".*\"|  sha256 \"${SHA256}\"|" "${FORMULA}"
-          sed -i '' -E "s|^\s*version \".*\"|  version \"${VERSION}\"|" "${FORMULA}"
+          sed -i '' -E "s|^[[:space:]]*url \".*\"|  url \"${URL}\"|" "${FORMULA}"
+          sed -i '' -E "s|^[[:space:]]*sha256 \".*\"|  sha256 \"${SHA256}\"|" "${FORMULA}"
+          sed -i '' -E "s|^[[:space:]]*version \".*\"|  version \"${VERSION}\"|" "${FORMULA}"
 
           cd homebrew-tap
           git config user.name "github-actions[bot]"
