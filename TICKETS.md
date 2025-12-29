@@ -96,7 +96,7 @@ At the start of each slice, decide whether we should do **new features** vs **cl
   - ✅ Tap formula is updated on `main` in `timsearle/homebrew-tap`
   - ✅ Secret `HOMEBREW_TAP_TOKEN` can trigger the tap workflow (no direct git push from this repo)
 
-### P10.3 — Release pipeline cleanup/hardening — WIP
+### P10.3 — Release pipeline cleanup/hardening — DONE
 - Goal: reduce maintenance burden and avoid accidental release mutation.
 - Scope:
   - Remove unused workflows (auto-tag)
@@ -104,9 +104,21 @@ At the start of each slice, decide whether we should do **new features** vs **cl
   - Clean up dead tags (tags without corresponding releases)
   - Document release + tap workflows in README
 - Acceptance:
-  - A rerun does not overwrite an existing release asset
-  - Only tags with releases remain
-  - README contains workflow + secret requirements
+  - ✅ A rerun does not overwrite an existing release asset
+  - ✅ Only tags with releases remain
+  - ✅ README contains workflow + secret requirements
+
+### P11.1 — README: binary-first usage (no Makefile invocation) — WIP
+- Goal: make getting started unambiguous: users either install via Homebrew or build from source, but **usage docs always show invoking the binary** with flags/subcommands.
+- Scope:
+  - README Quickstart uses `dependency-graph …` examples (not `make html-*`).
+  - Build docs mention `make release` / `swift build -c release`, and how to put the binary on PATH.
+  - Include a short “Help” section pointing to `dependency-graph --help` and `dependency-graph help graph`.
+  - Ensure any docs that mention Makefile clarify it’s optional sugar, not the canonical UX.
+- Acceptance:
+  - README does not instruct using Makefile targets to generate graphs
+  - README examples for graph/diff/analyze match CLI help output
+  - Homebrew install provides a stable command name (`dependency-graph`) and keeps `DependencyGraph` as a compatibility alias
 
 ### P7.1 — True stable IDs (repo-relative) — DONE
 - Problem: `--stable-ids` used to include absolute paths for project/target nodes, so ids were not stable across checkouts/CI.

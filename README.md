@@ -5,10 +5,20 @@ A Swift CLI tool that scans an iOS repo (Xcode projects/workspaces + SwiftPM) an
 ## Build
 
 ```bash
+# Either
+make release
+
+# Or
 swift build -c release
 ```
 
-Binary: `.build/release/DependencyGraph`
+Binary (local build): `.build/release/DependencyGraph`
+
+To make usage identical to the Homebrew install, you can put it on your PATH as `dependency-graph`, e.g.:
+
+```bash
+ln -sf "$(pwd)/.build/release/DependencyGraph" /usr/local/bin/dependency-graph
+```
 
 ## Install (Homebrew)
 
@@ -32,33 +42,31 @@ brew upgrade swift-dependency-graph
 Required secret:
 - `HOMEBREW_TAP_TOKEN`: token that can run workflows on `timsearle/homebrew-tap`.
 
-## Quickstart
+## Quickstart (CLI)
 
-Recommended: use the Makefile (it encodes the common workflows + flags).
+The canonical UX is invoking the binary directly.
 
-```bash
-# Fast HTML (targets + no transient)
-make html-fast PROJECT=/path/to/ios-project
-
-# Full HTML (targets + spm-edges)
-make html-full PROJECT=/path/to/ios-project
-
-# Analyze modular pinch points
-make analyze PROJECT=/path/to/ios-project
-```
-
-## CLI
+If installed via Homebrew, `dependency-graph` is already on your `PATH`.
+If built locally, run the built binary directly (e.g. `./.build/release/DependencyGraph …`) or copy/link it into your `PATH` as `dependency-graph`.
 
 ```bash
-# Generate a graph
-.build/release/DependencyGraph graph /path/to/root --format html --show-targets --spm-edges > graph.html
+# Help
+dependency-graph --help
+dependency-graph help graph
 
-# Diff two graphs (stable across machines)
-.build/release/DependencyGraph diff /path/to/old /path/to/new --format json > diff.json
+# Fast HTML (targets + hide transient)
+dependency-graph graph /path/to/root --format html --show-targets --hide-transient > graph.html
 
-# Diff with text output (for quick review)
-.build/release/DependencyGraph diff /path/to/old /path/to/new --format text
-# Output: addedNodes=2 removedNodes=1 addedEdges=3 removedEdges=0
+# Full HTML (targets + hide transient + SwiftPM edges)
+dependency-graph graph /path/to/root --format html --show-targets --hide-transient --spm-edges > graph.html
+
+# Pinch-point analysis (text output to stdout)
+dependency-graph graph /path/to/root --format analyze --show-targets --hide-transient
+
+# Diff two graphs
+# Tip: stable ids are on by default; you can disable with --no-stable-ids
+
+dependency-graph diff /path/to/old /path/to/new --format json > diff.json
 ```
 
 ## Flags (common)

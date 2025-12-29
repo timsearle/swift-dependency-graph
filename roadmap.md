@@ -22,6 +22,7 @@ The graph must support:
 - Produces outputs: DOT, HTML, JSON, GEXF, GraphML, and Analyze.
 - Distribution: GitHub Releases + Homebrew tap (`timsearle/tap`).
 - Release automation hardening (P10.3): keep releases effectively immutable, clean up dead tags, and document workflows.
+- Docs/CLI UX (P11.1): README becomes binary-first and matches `--help` output.
 
 Key risk: large repos can make SwiftPM graph resolution (`--spm-edges`) expensive; identity correctness remains the biggest correctness trap.
 
