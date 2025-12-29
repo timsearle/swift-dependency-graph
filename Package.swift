@@ -4,8 +4,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "DependencyGraph",
+    name: "swift-dependency-graph",
     platforms: [.macOS(.v13)],
+    products: [
+        .executable(name: "dependency-graph", targets: ["DependencyGraph"])
+    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
         .package(url: "https://github.com/tuist/XcodeProj", from: "9.0.0")

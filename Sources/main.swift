@@ -229,6 +229,7 @@ struct ASCIICanvas {
 @main
 struct DependencyGraph: ParsableCommand {
     static let configuration = CommandConfiguration(
+        commandName: "dependency-graph",
         abstract: "Builds a dependency graph for Xcode projects/workspaces and Swift packages",
         subcommands: [GraphCommand.self, GraphCommand.Diff.self],
         defaultSubcommand: GraphCommand.self

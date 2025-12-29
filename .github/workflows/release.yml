@@ -64,14 +64,14 @@ jobs:
           VERSION: ${{ steps.ver.outputs.version }}
         run: |
           set -euo pipefail
-          ASSET="DependencyGraph-macos-arm64.zip"
+          ASSET="dependency-graph-macos-arm64.zip"
 
           BIN_DIR="$(swift build -c release --show-bin-path)"
 
           mkdir -p dist
-          cp "${BIN_DIR}/DependencyGraph" dist/DependencyGraph
-          chmod +x dist/DependencyGraph
-          (cd dist && zip -qry "../${ASSET}" "DependencyGraph")
+          cp "${BIN_DIR}/DependencyGraph" dist/dependency-graph
+          chmod +x dist/dependency-graph
+          (cd dist && zip -qry "../${ASSET}" "dependency-graph")
 
           SHA=$(shasum -a 256 "${ASSET}" | awk '{print $1}')
 
@@ -119,7 +119,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          URL="https://github.com/timsearle/swift-dependency-graph/releases/download/${TAG}/DependencyGraph-macos-arm64.zip"
+          URL="https://github.com/timsearle/swift-dependency-graph/releases/download/${TAG}/dependency-graph-macos-arm64.zip"
 
           gh workflow run update-formula.yml \
             -R timsearle/homebrew-tap \

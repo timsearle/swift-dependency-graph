@@ -118,7 +118,7 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 - Acceptance:
   - README does not instruct using Makefile targets to generate graphs
   - README examples for graph/diff/analyze match CLI help output
-  - Homebrew install provides a stable command name (`dependency-graph`) and keeps `DependencyGraph` as a compatibility alias
+  - Homebrew install provides a stable command name (`dependency-graph`) (no `DependencyGraph` alias)
 
 ### P7.1 — True stable IDs (repo-relative) — DONE
 - Problem: `--stable-ids` used to include absolute paths for project/target nodes, so ids were not stable across checkouts/CI.
