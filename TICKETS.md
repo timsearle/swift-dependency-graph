@@ -87,14 +87,14 @@ At the start of each slice, decide whether we should do **new features** vs **cl
   - ✅ `DependencyGraph --help` runs
 
 ### P10.2 — CI release to GitHub + Homebrew tap — WIP
-- Goal: pushing to `main` should auto-create a new **minor** tag (e.g. `v0.1.0` → `v0.2.0`) which then:
+- Goal: pushing to `main` should run a single workflow that computes the next **minor** tag (e.g. `v0.1.0` → `v0.2.0`) and then:
   1) builds a release binary
   2) creates/updates a GitHub Release asset
   3) updates the Homebrew tap formula to the new version + sha256
 - Acceptance:
-  - Tag push creates/updates a GitHub Release with `DependencyGraph-macos-arm64.zip`
+  - A push to `main` creates/updates a GitHub Release (and tag) with `DependencyGraph-macos-arm64.zip`
   - Tap formula is updated on `main` in `timsearle/homebrew-tap`
-  - Document required secret: `HOMEBREW_TAP_TOKEN`
+  - Document required secret: `HOMEBREW_TAP_TOKEN` (must be able to push to `timsearle/homebrew-tap`)
 
 ### P7.1 — True stable IDs (repo-relative) — DONE
 - Problem: `--stable-ids` used to include absolute paths for project/target nodes, so ids were not stable across checkouts/CI.
