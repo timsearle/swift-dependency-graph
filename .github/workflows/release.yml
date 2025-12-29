@@ -91,41 +91,25 @@ jobs:
           gh release view "${TAG}" >/dev/null 2>&1 || gh release create "${TAG}" --generate-notes
           gh release upload "${TAG}" "${ASSET}" --clobber
 
-      - name: Checkout Homebrew tap
-        uses: actions/checkout@v4
-        with:
-          repository: timsearle/homebrew-tap
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          persist-credentials: true
-          path: homebrew-tap
-
-      - name: Update Homebrew tap
+      - name: Trigger Homebrew tap update
         env:
-          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           SHA256: ${{ steps.pkg.outputs.sha256 }}
           VERSION: ${{ steps.pkg.outputs.version }}
           TAG: ${{ steps.pkg.outputs.tag }}
         run: |
           set -euo pipefail
 
-          if [ -z "${HOMEBREW_TAP_TOKEN:-}" ]; then
-            echo "HOMEBREW_TAP_TOKEN is not set"
-            exit 1
-          fi
-
-          FORMULA="homebrew-tap/Formula/swift-dependency-graph.rb"
           URL="https://github.com/timsearle/swift-dependency-graph/releases/download/${TAG}/DependencyGraph-macos-arm64.zip"
 
-          sed -i '' -E "s|^[[:space:]]*url \".*\"|  url \"${URL}\"|" "${FORMULA}"
-          sed -i '' -E "s|^[[:space:]]*sha256 \".*\"|  sha256 \"${SHA256}\"|" "${FORMULA}"
-          sed -i '' -E "s|^[[:space:]]*version \".*\"|  version \"${VERSION}\"|" "${FORMULA}"
+          gh workflow run update-formula.yml \
+            -R timsearle/homebrew-tap \
+            -f formula=swift-dependency-graph \
+            -f url="${URL}" \
+            -f sha256="${SHA256}" \
+            -f version="${VERSION}" \
+            -f branch=main
 
-          cd homebrew-tap
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git remote set-url origin "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/timsearle/homebrew-tap.git"
-
-          git add Formula/swift-dependency-graph.rb
-          git commit -m "swift-dependency-graph ${VERSION}" || exit 0
-          git push origin HEAD:main
+          sleep 5
+          RUN_ID=$(gh run list -R timsearle/homebrew-tap --workflow update-formula.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+          gh run watch -R timsearle/homebrew-tap "${RUN_ID}" --exit-status
