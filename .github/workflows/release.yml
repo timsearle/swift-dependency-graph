@@ -80,7 +80,7 @@ jobs:
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
-      - name: Create/Update GitHub Release (gh)
+      - name: Create GitHub Release (immutable)
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.pkg.outputs.tag }}
@@ -88,8 +88,27 @@ jobs:
         run: |
           set -euo pipefail
 
-          gh release view "${TAG}" >/dev/null 2>&1 || gh release create "${TAG}" --generate-notes
-          gh release upload "${TAG}" "${ASSET}" --clobber
+          if ! gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release create "${TAG}" --generate-notes --target "${GITHUB_SHA}"
+          fi
+
+          if gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${ASSET}" >/dev/null; then
+            echo "Release asset already exists; verifying sha256 and refusing to overwrite."
+
+            TMP_DIR=$(mktemp -d)
+            gh release download "${TAG}" -p "${ASSET}" -D "${TMP_DIR}"
+
+            REMOTE_SHA=$(shasum -a 256 "${TMP_DIR}/${ASSET}" | awk '{print $1}')
+            LOCAL_SHA=$(shasum -a 256 "${ASSET}" | awk '{print $1}')
+
+            if [ "${REMOTE_SHA}" != "${LOCAL_SHA}" ]; then
+              echo "Existing release asset sha mismatch; refusing to overwrite."
+              echo "remote=${REMOTE_SHA} local=${LOCAL_SHA}"
+              exit 1
+            fi
+          else
+            gh release upload "${TAG}" "${ASSET}"
+          fi
 
       - name: Trigger Homebrew tap update
         env:

@@ -20,6 +20,18 @@ brew install swift-dependency-graph
 brew upgrade swift-dependency-graph
 ```
 
+## CI / Releases
+
+- CI: `.github/workflows/ci.yml` runs `swift test` on push/PR.
+- Release: `.github/workflows/release.yml` runs on push to `main` and:
+  - computes the next **minor** tag (e.g. `v0.14.0` → `v0.15.0`)
+  - builds `DependencyGraph-macos-arm64.zip` and creates a GitHub Release
+  - treats releases as **immutable** (reruns verify the existing asset but do not overwrite it)
+  - triggers `timsearle/homebrew-tap`’s `update-formula.yml` to update the Homebrew formula
+
+Required secret:
+- `HOMEBREW_TAP_TOKEN`: token that can run workflows on `timsearle/homebrew-tap`.
+
 ## Quickstart
 
 Recommended: use the Makefile (it encodes the common workflows + flags).

@@ -21,6 +21,7 @@ The graph must support:
 - Resolves local Swift package direct deps via SwiftPM JSON (`swift package dump-package`); regex fallback is deprecated.
 - Produces outputs: DOT, HTML, JSON, GEXF, GraphML, and Analyze.
 - Distribution: GitHub Releases + Homebrew tap (`timsearle/tap`).
+- Release automation hardening (P10.3): keep releases effectively immutable, clean up dead tags, and document workflows.
 
 Key risk: large repos can make SwiftPM graph resolution (`--spm-edges`) expensive; identity correctness remains the biggest correctness trap.
 

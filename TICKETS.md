@@ -86,15 +86,27 @@ At the start of each slice, decide whether we should do **new features** vs **cl
   - ✅ `brew install swift-dependency-graph` installs successfully
   - ✅ `DependencyGraph --help` runs
 
-### P10.2 — CI release to GitHub + Homebrew tap — WIP
+### P10.2 — CI release to GitHub + Homebrew tap — DONE
 - Goal: pushing to `main` should run a single workflow that computes the next **minor** tag (e.g. `v0.1.0` → `v0.2.0`) and then:
   1) builds a release binary
-  2) creates/updates a GitHub Release asset
+  2) creates a GitHub Release asset
   3) updates the Homebrew tap formula to the new version + sha256
 - Acceptance:
-  - A push to `main` creates/updates a GitHub Release (and tag) with `DependencyGraph-macos-arm64.zip`
-  - Tap formula is updated on `main` in `timsearle/homebrew-tap`
-  - Document required secret: `HOMEBREW_TAP_TOKEN` (must be able to push to `timsearle/homebrew-tap`)
+  - ✅ A push to `main` creates a GitHub Release (and tag) with `DependencyGraph-macos-arm64.zip`
+  - ✅ Tap formula is updated on `main` in `timsearle/homebrew-tap`
+  - ✅ Secret `HOMEBREW_TAP_TOKEN` can trigger the tap workflow (no direct git push from this repo)
+
+### P10.3 — Release pipeline cleanup/hardening — WIP
+- Goal: reduce maintenance burden and avoid accidental release mutation.
+- Scope:
+  - Remove unused workflows (auto-tag)
+  - Make releases effectively immutable (no asset clobber; reruns verify but don’t overwrite)
+  - Clean up dead tags (tags without corresponding releases)
+  - Document release + tap workflows in README
+- Acceptance:
+  - A rerun does not overwrite an existing release asset
+  - Only tags with releases remain
+  - README contains workflow + secret requirements
 
 ### P7.1 — True stable IDs (repo-relative) — DONE
 - Problem: `--stable-ids` used to include absolute paths for project/target nodes, so ids were not stable across checkouts/CI.
