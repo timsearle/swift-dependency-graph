@@ -20,6 +20,7 @@ DependencyGraph diff <from> <to> [options]
 | `--format <format>` | Output format: `json` (default) or `text` |
 | `--hide-transient` | Exclude transient dependencies from both graphs |
 | `--show-targets` | Include Xcode build targets in both graphs |
+| `--show-package-targets` | Expand local SwiftPM targets/products in both graphs (requires stable IDs) |
 | `--spm-edges` | Include SwiftPM package→package edges |
 | `--stable-ids` / `--no-stable-ids` | Use stable node IDs (default: on) |
 

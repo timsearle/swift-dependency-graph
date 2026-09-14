@@ -17,7 +17,7 @@ final class DependencyGraphTests: XCTestCase {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-        binaryURL = packageRoot.appendingPathComponent(".build/debug/DependencyGraph")
+        binaryURL = packageRoot.appendingPathComponent(".build/debug/dependency-graph")
     }
     
     // MARK: - Package.resolved Parsing Tests
@@ -1376,9 +1376,9 @@ exit 1
         process.standardError = pipe
         
         try process.run()
-        process.waitUntilExit()
-        
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        XCTAssertEqual(process.terminationStatus, 0, String(decoding: data, as: UTF8.self))
         return String(data: data, encoding: .utf8) ?? ""
     }
 }

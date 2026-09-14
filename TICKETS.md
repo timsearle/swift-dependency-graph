@@ -17,6 +17,14 @@ Repo: https://github.com/timsearle/swift-dependency-graph
   - GraphML output includes label/type metadata + contract tests.
   - `--stable-ids` avoids node id collisions (JSON schemaVersion=2 when enabled).
 
+### Latest completed work
+- **P3.2 — Local SwiftPM target/product graph — DONE (2026-09-14).** Correctness hardening for packages whose module dependencies were hidden by package-level nodes.
+  - Implemented opt-in `--show-package-targets` for graph/diff, using authoritative `dump-package` target/product data, package-scoped IDs, Xcode product links, and all existing renderers. Existing graph data is preserved without the flag; expanded JSON uses schema v3.
+  - Nine new CLI regression tests cover a multi-module package, shared core, test targets, multi-target products, aliases, cross-package references, identity collisions, conditional dependencies, HTML/JSON content, schema contract, and actionable failure paths.
+  - Verified: corrected baseline (30 tests), regression failures before implementation, final `swift test` (39 tests, zero failures), `swift build -c release`, and assertions against a local multi-module Xcode project. Release HTML data matches JSON and generated JavaScript passes syntax checking; browser rendering was not verified.
+  - Corrected tests and build-path documentation to use the current `dependency-graph` product instead of a stale `.build/debug/DependencyGraph`. Subprocess output is drained before waiting for larger manifests/graphs.
+  - Limitations: remote target expansion, build-tool plugin usages, and build-configuration filtering remain unsupported. Analysis describes declared reachability, including containment and tests; it is not a measured incremental-build prediction.
+
 ### WIP / still-risky areas
 - SwiftPM `--spm-edges` without `--hide-transient` can be expensive on large repos (it runs `swift package show-dependencies` for discovered roots).
 - Some Xcode configurations can still be ambiguous when mapping **product** → **package identity** (particularly with multiple local packages and missing `.package` refs).
@@ -31,6 +39,7 @@ At the start of each slice, decide whether we should do **new features** vs **cl
 ## Cleanup / hardening backlog (keep tight)
 - Track anything confusing/legacy here and only remove once we have tests + docs updated.
 - Current cleanup candidates:
+  - **SwiftPM build-tool plugin usages**: expansion currently rejects these explicitly. Remove this limitation once plugin consumption/dependency edges have authoritative parsing and regression coverage.
   - **True stable IDs**: make `--stable-ids` stable across machines (avoid absolute paths).
   - **Schema v2**: ship + test `Schemas/...v2...` to match `schemaVersion=2` output.
   - Decide whether to **flip `--stable-ids` on by default** (contract decision).

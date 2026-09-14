@@ -82,6 +82,8 @@ enum NodeType: String {
     case target       // Xcode build target
     case localPackage // Package.swift within the repo (internal)
     case externalPackage // Remote dependency (external)
+    case packageTarget
+    case packageProduct
 }
 
 struct GraphNode {
@@ -89,10 +91,11 @@ struct GraphNode {
     let nodeType: NodeType
     let isTransient: Bool  // True if dependency was not explicitly added
     var layer: Int = 0
+    var targetKind: String? = nil
 
     var isProject: Bool { nodeType == .project }
-    var isTarget: Bool { nodeType == .target }
-    var isInternal: Bool { nodeType == .project || nodeType == .target || nodeType == .localPackage }
+    var isTarget: Bool { nodeType == .target || nodeType == .packageTarget }
+    var isInternal: Bool { nodeType != .externalPackage }
     var isExternal: Bool { nodeType == .externalPackage }
 }
 
@@ -101,7 +104,7 @@ struct Graph {
     var nodes: [String: GraphNode] = [:]
     var edges: [(from: String, to: String)] = []
 
-    mutating func addNode(_ id: String, label: String? = nil, nodeType: NodeType, isTransient: Bool = false) {
+    mutating func addNode(_ id: String, label: String? = nil, nodeType: NodeType, isTransient: Bool = false, targetKind: String? = nil) {
         let nodeLabel = label ?? id
 
         if let existing = nodes[id] {
@@ -123,7 +126,7 @@ struct Graph {
             return
         }
 
-        nodes[id] = GraphNode(label: nodeLabel, nodeType: nodeType, isTransient: isTransient)
+        nodes[id] = GraphNode(label: nodeLabel, nodeType: nodeType, isTransient: isTransient, targetKind: targetKind)
     }
     
     mutating func addEdge(from: String, to: String) {
@@ -264,6 +267,9 @@ struct GraphCommand: ParsableCommand {
     
     @Flag(name: .long, help: "Show Xcode build targets in the graph")
     var showTargets: Bool = false
+
+    @Flag(name: .long, help: "Expand local SwiftPM targets and products (requires stable IDs; JSON schema v3)")
+    var showPackageTargets: Bool = false
     
     @Flag(name: .long, help: "In analyze mode, only show internal modules (not external packages)")
     var internalOnly: Bool = false
@@ -302,6 +308,9 @@ struct GraphCommand: ParsableCommand {
 
         @Flag(name: .long, help: "Show Xcode build targets in the graph")
         var showTargets: Bool = false
+
+        @Flag(name: .long, help: "Expand local SwiftPM targets and products in both graphs (requires stable IDs)")
+        var showPackageTargets: Bool = false
 
         @Flag(name: .long, help: "Include SwiftPM package-to-package edges (swift package show-dependencies)")
         var spmEdges: Bool = false
@@ -364,6 +373,7 @@ struct GraphCommand: ParsableCommand {
             var args: [String] = ["graph", directory, "--format", "json"]
             if hideTransient { args.append("--hide-transient") }
             if showTargets { args.append("--show-targets") }
+            if showPackageTargets { args.append("--show-package-targets") }
             if spmEdges { args.append("--spm-edges") }
             if !stableIDs { args.append("--no-stable-ids") }
 
@@ -377,10 +387,9 @@ struct GraphCommand: ParsableCommand {
             process.standardError = err
 
             try process.run()
-            process.waitUntilExit()
-
             let stdout = out.fileHandleForReading.readDataToEndOfFile()
             let stderr = err.fileHandleForReading.readDataToEndOfFile()
+            process.waitUntilExit()
 
             guard process.terminationStatus == 0 else {
                 let msg = String(decoding: stderr, as: UTF8.self)
@@ -407,6 +416,9 @@ struct GraphCommand: ParsableCommand {
     }
     
     mutating func run() throws {
+        guard !showPackageTargets || stableIDs else {
+            throw ValidationError("--show-package-targets requires --stable-ids; remove --no-stable-ids")
+        }
         let fileManager = FileManager.default
         let directoryURL = URL(fileURLWithPath: directory)
         let overallStart = Date()
@@ -503,6 +515,7 @@ struct GraphCommand: ParsableCommand {
             let pbxprojURL = xcodeprojURL.appendingPathComponent("project.pbxproj")
             if parsedPBXProjPaths.contains(pbxprojURL.path) { continue }
             guard fileManager.fileExists(atPath: pbxprojURL.path) else { continue }
+            parsedPBXProjPaths.insert(pbxprojURL.path)
             if let info = parsePBXProj(at: pbxprojURL) {
                 pbxprojInfos.append(info)
             }
@@ -544,6 +557,10 @@ struct GraphCommand: ParsableCommand {
             }
         }
         
+        if showPackageTargets {
+            try expandLocalPackageGraph(graph: &graph, localPackages: localPackages, pbxprojPaths: parsedPBXProjPaths)
+        }
+
         // Filter transient dependencies if requested
         if hideTransient {
             let filterStart = Date()
@@ -1193,7 +1210,7 @@ struct GraphCommand: ParsableCommand {
 
         let pipe = Pipe()
         process.standardOutput = pipe
-        process.standardError = Pipe()
+        process.standardError = FileHandle.nullDevice
 
         do {
             try process.run()
@@ -1201,10 +1218,9 @@ struct GraphCommand: ParsableCommand {
             return nil
         }
 
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
         guard process.terminationStatus == 0 else { return nil }
-
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
         GraphCommand.swiftPMDumpPackageCache[cacheKey] = data
         return data
     }
@@ -1452,6 +1468,8 @@ struct GraphCommand: ParsableCommand {
             return "localPackage:\(label.lowercased())"
         case .externalPackage:
             return "externalPackage:\(label.lowercased())"
+        case .packageTarget, .packageProduct:
+            return "\(nodeType.rawValue):\(containerID ?? "")#\(label)"
         }
     }
 
@@ -1547,7 +1565,7 @@ struct GraphCommand: ParsableCommand {
         // Add non-transient nodes (keep all internal, filter transient external)
         for (id, node) in graph.nodes {
             if !node.isTransient || node.isInternal {
-                filtered.addNode(id, label: node.label, nodeType: node.nodeType, isTransient: node.isTransient)
+                filtered.addNode(id, label: node.label, nodeType: node.nodeType, isTransient: node.isTransient, targetKind: node.targetKind)
             }
         }
         
@@ -1582,8 +1600,10 @@ struct GraphCommand: ParsableCommand {
             switch node.nodeType {
             case .project:
                 print("  \(escapedID) [label=\(escapedLabel), style=\"rounded,filled\", fillcolor=\"lightblue\"];")
-            case .target:
+            case .target, .packageTarget:
                 print("  \(escapedID) [label=\(escapedLabel), style=\"rounded,filled\", fillcolor=\"lightgreen\"];")
+            case .packageProduct:
+                print("  \(escapedID) [label=\(escapedLabel), style=\"rounded,filled\", fillcolor=\"plum\"];")
             case .localPackage:
                 print("  \(escapedID) [label=\(escapedLabel), style=\"rounded,filled\", fillcolor=\"lightyellow\"];")
             case .externalPackage:
@@ -1627,8 +1647,11 @@ struct GraphCommand: ParsableCommand {
             case .project:
                 color = "#4a90d9"
                 size = 20
-            case .target:
+            case .target, .packageTarget:
                 color = "#28a745"
+                size = 17
+            case .packageProduct:
+                color = "#9b59b6"
                 size = 17
             case .localPackage:
                 color = "#ffc107"  // Yellow for internal packages
@@ -1639,8 +1662,9 @@ struct GraphCommand: ParsableCommand {
             }
             let nodeType = node.nodeType.rawValue
             let isInternal = node.isInternal
+            let targetKindJSON = node.targetKind.map { ", \"targetKind\": \"\(escapeJSON($0))\"" } ?? ""
             nodesJSON.append("""
-                { "id": "\(escapeJSON(id))", "label": "\(escapeJSON(node.label))", "color": "\(color)", "size": \(size), "nodeType": "\(nodeType)", "isTransient": \(node.isTransient), "isInternal": \(isInternal) }
+                { "id": "\(escapeJSON(id))", "label": "\(escapeJSON(node.label))", "color": "\(color)", "size": \(size), "nodeType": "\(nodeType)", "isTransient": \(node.isTransient), "isInternal": \(isInternal)\(targetKindJSON) }
             """)
         }
         
@@ -1656,6 +1680,7 @@ struct GraphCommand: ParsableCommand {
         }
         
         let targetCount = graph.nodes.values.filter { $0.isTarget }.count
+        let productCount = graph.nodes.values.filter { $0.nodeType == .packageProduct }.count
         let localPackageCount = graph.nodes.values.filter { $0.nodeType == .localPackage }.count
         let externalPackageCount = graph.nodes.values.filter { $0.nodeType == .externalPackage }.count
         let transientCount = graph.nodes.values.filter { $0.isTransient }.count
@@ -1799,6 +1824,12 @@ struct GraphCommand: ParsableCommand {
                 <div class="stat-label">Targets</div>
                 <div class="stat-value" id="stat-targets">\(targetCount)</div>
             </div>
+            \(showPackageTargets ? """
+            <div class="stat">
+                <div class="stat-label">Package Products</div>
+                <div class="stat-value" id="stat-products">\(productCount)</div>
+            </div>
+            """ : "")
             <div class="stat">
                 <div class="stat-label">Internal Packages</div>
                 <div class="stat-value" id="stat-local">\(localPackageCount)</div>
@@ -1841,6 +1872,12 @@ struct GraphCommand: ParsableCommand {
                     <div class="legend-color" style="background: #28a745;"></div>
                     <div class="legend-label">Build Target</div>
                 </div>
+                \(showPackageTargets ? """
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #9b59b6;"></div>
+                    <div class="legend-label">Package Product</div>
+                </div>
+                """ : "")
                 <div class="legend-item">
                     <div class="legend-color" style="background: #ffc107;"></div>
                     <div class="legend-label">Internal Package (you control)</div>
@@ -1899,7 +1936,9 @@ struct GraphCommand: ParsableCommand {
         function typeLabelForNode(node) {
             switch (node.nodeType) {
                 case 'project': return 'Xcode Project';
-                case 'target': return 'Build Target';
+                case 'target': return 'Xcode Target';
+                case 'packageTarget': return 'Package Target (' + node.targetKind + ')';
+                case 'packageProduct': return 'Package Product';
                 case 'localPackage': return 'Internal Package';
                 case 'externalPackage': return node.isTransient ? 'Transient Package' : 'External Package';
                 default: return node.nodeType;
@@ -2241,7 +2280,9 @@ struct GraphCommand: ParsableCommand {
             const typeLabel = (() => {
                 switch (node.nodeType) {
                     case 'project': return 'Xcode Project';
-                    case 'target': return 'Build Target';
+                    case 'target': return 'Xcode Target';
+                    case 'packageTarget': return 'Package Target (' + node.targetKind + ')';
+                    case 'packageProduct': return 'Package Product';
                     case 'localPackage': return 'Internal Package';
                     case 'externalPackage': return node.isTransient ? 'Transient Package' : 'External Package';
                     default: return node.nodeType;
@@ -2396,13 +2437,15 @@ struct GraphCommand: ParsableCommand {
         function updateStats(nodeCount, edgeCount) {
             const currentNodes = nodes.get();
             const projectCount = currentNodes.filter(n => n.nodeType === 'project').length;
-            const targetCount = currentNodes.filter(n => n.nodeType === 'target').length;
+            const targetCount = currentNodes.filter(n => n.nodeType === 'target' || n.nodeType === 'packageTarget').length;
             const localCount = currentNodes.filter(n => n.nodeType === 'localPackage').length;
             const externalCount = currentNodes.filter(n => n.nodeType === 'externalPackage').length;
             const transientCount = currentNodes.filter(n => n.isTransient).length;
 
             document.getElementById('stat-projects').textContent = projectCount;
             document.getElementById('stat-targets').textContent = targetCount;
+            const productStat = document.getElementById('stat-products');
+            if (productStat) productStat.textContent = currentNodes.filter(n => n.nodeType === 'packageProduct').length;
             document.getElementById('stat-local').textContent = localCount;
             document.getElementById('stat-external').textContent = externalCount;
             document.getElementById('stat-transient').textContent = transientCount;
@@ -2495,6 +2538,7 @@ struct GraphCommand: ParsableCommand {
                 "isTransient": node.isTransient,
                 "isInternal": node.isInternal
             ]
+            if let targetKind = node.targetKind { nodeJSON["targetKind"] = targetKind }
 
             if node.nodeType == .localPackage || node.nodeType == .externalPackage {
                 let identity = node.label.lowercased()
@@ -2525,7 +2569,7 @@ struct GraphCommand: ParsableCommand {
             "nodes": nodes,
             "edges": edges,
             "metadata": [
-                "schemaVersion": stableIDs ? 2 : 1,
+                "schemaVersion": showPackageTargets ? 3 : (stableIDs ? 2 : 1),
                 "nodeCount": graph.nodes.count,
                 "edgeCount": graph.edges.count,
                 "format": "json-graph"
@@ -2660,7 +2704,8 @@ struct GraphCommand: ParsableCommand {
     static func iconForNodeType(_ nodeType: NodeType) -> String {
         switch nodeType {
         case .project: return "📦"
-        case .target: return "🎯"
+        case .target, .packageTarget: return "🎯"
+        case .packageProduct: return "🧩"
         case .localPackage: return "🏠"
         case .externalPackage: return "📚"
         }

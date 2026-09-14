@@ -2,7 +2,8 @@
 
 ## Key files
 
-- `Sources/main.swift` - primary implementation (single file)
+- `Sources/DependencyGraph.swift` - CLI entry point, package-level graph, analysis and renderers
+- `Sources/PackageGraph.swift` - opt-in local SwiftPM target/product expansion
 - `Package.swift` - Swift package manifest
 - `Tests/DependencyGraphTests/` - unit + integration tests
 

@@ -12,12 +12,12 @@ make release
 swift build -c release
 ```
 
-Binary (local build): `.build/release/DependencyGraph`
+Binary (local build): `.build/release/dependency-graph`
 
 To make usage identical to the Homebrew install, you can put it on your PATH as `dependency-graph`, e.g.:
 
 ```bash
-ln -sf "$(pwd)/.build/release/DependencyGraph" /usr/local/bin/dependency-graph
+ln -sf "$(pwd)/.build/release/dependency-graph" /usr/local/bin/dependency-graph
 ```
 
 ## Install (Homebrew)
@@ -47,7 +47,7 @@ Required secret:
 The canonical UX is invoking the binary directly.
 
 If installed via Homebrew, `dependency-graph` is already on your `PATH`.
-If built locally, run the built binary directly (e.g. `./.build/release/DependencyGraph …`) or copy/link it into your `PATH` as `dependency-graph`.
+If built locally, run the built binary directly (e.g. `./.build/release/dependency-graph …`) or copy/link it into your `PATH` as `dependency-graph`.
 
 ```bash
 # Help
@@ -59,6 +59,9 @@ dependency-graph graph /path/to/root --format html --show-targets --hide-transie
 
 # Full HTML (targets + hide transient + SwiftPM edges)
 dependency-graph graph /path/to/root --format html --show-targets --hide-transient --spm-edges > graph.html
+
+# Expand the modules and products inside local Swift packages
+dependency-graph graph /path/to/root --format html --show-targets --show-package-targets > graph.html
 
 # Pinch-point analysis (text output to stdout)
 dependency-graph graph /path/to/root --format analyze --show-targets --hide-transient
@@ -76,6 +79,7 @@ dependency-graph diff /path/to/old /path/to/new --format json > diff.json
 | `--format <format>` | `html`, `json`, `dot`, `gexf`, `graphml`, `analyze` |
 | `--hide-transient` | Hide transient (non-explicit) dependencies |
 | `--show-targets` | Include Xcode build targets |
+| `--show-package-targets` | Expand local SwiftPM targets/products and their declared dependencies (JSON schema v3; requires stable IDs) |
 | `--spm-edges` | Add SwiftPM package→package edges via `swift package show-dependencies --format json` (skipped when `--hide-transient`) |
 | `--stable-ids` | Use stable, collision-free node ids (schema v2; default on, disable with `--no-stable-ids`) |
 

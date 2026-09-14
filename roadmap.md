@@ -95,8 +95,10 @@ Tests:
 ## Phase 3 — Local packages (Package.swift) correctness
 **Objective:** stop regex parsing of `Package.swift`.
 
-Status: effectively complete.
+Status: package dependency parsing and opt-in local target/product expansion are implemented and verified (P3.2).
 - Default path uses SwiftPM JSON (`swift package dump-package`).
+- P3.2 adds `--show-package-targets`: local package target/product nodes and declared dependency edges, including Xcode target consumers. Existing package-level exports remain compatible. Expanded JSON uses schema v3; this graph describes declared relationships, not measured compiler invalidation.
+- Remote target expansion, build-tool plugin usages, and destination/configuration filtering remain future work.
 
 Tests:
 - Fixtures with multiline, conditional deps, variables, and `.package(path:)`.
