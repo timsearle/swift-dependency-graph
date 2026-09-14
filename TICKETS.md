@@ -18,6 +18,9 @@ Repo: https://github.com/timsearle/swift-dependency-graph
   - `--stable-ids` avoids node id collisions (JSON schemaVersion=2 when enabled).
 
 ### Latest completed work
+- **P10.4 — CI toolchain gate — DONE (2026-09-14).** Removed the version regex that rejected Swift 6.3.3 on `macos-latest` before tests could run (failed run 34891460400).
+  - CI still logs the selected Swift version and runs `swift test`; SwiftPM enforces the manifest's minimum tools version (6.1) without an artificial upper bound.
+  - Verified the old gate fails on Swift 6.3.3, the replacement version command succeeds, workflow YAML retains the push/PR test job, and all 39 package tests pass locally. Hosted CI results are recorded in the commit's GitHub Actions checks.
 - **P3.2 — Local SwiftPM target/product graph — DONE (2026-09-14).** Correctness hardening for packages whose module dependencies were hidden by package-level nodes.
   - Implemented opt-in `--show-package-targets` for graph/diff, using authoritative `dump-package` target/product data, package-scoped IDs, Xcode product links, and all existing renderers. Existing graph data is preserved without the flag; expanded JSON uses schema v3.
   - Nine new CLI regression tests cover a multi-module package, shared core, test targets, multi-target products, aliases, cross-package references, identity collisions, conditional dependencies, HTML/JSON content, schema contract, and actionable failure paths.

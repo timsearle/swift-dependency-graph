@@ -9,9 +9,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify Swift toolchain
-        run: |
-          swift --version
-          swift --version | grep -E "Apple Swift version 6\\.[12]"
+      # SwiftPM enforces the minimum toolchain declared in Package.swift.
+      - name: Show Swift toolchain
+        run: swift --version
       - name: Swift test
         run: swift test
